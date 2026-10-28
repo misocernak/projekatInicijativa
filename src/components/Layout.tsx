@@ -15,7 +15,7 @@ const navCls = ({ isActive }: { isActive: boolean }) =>
 function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-3" aria-label={`${BRAND.name} – početna`}>
-      <img src="/favicon.svg" alt="" className="size-9" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-9" />
       <span className={`font-display text-[24px] font-extrabold leading-none tracking-tight ${light ? 'text-sage-deep' : 'text-sage-deep'}`}>
         {BRAND.name}
       </span>

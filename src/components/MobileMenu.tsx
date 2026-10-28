@@ -115,7 +115,7 @@ export default function MobileMenu({ open, onClose }: Props) {
       >
         <div className="flex h-20 shrink-0 items-center justify-between border-b border-sand px-5">
           <Link to="/" onClick={onClose} className="flex items-center gap-3">
-            <img src="/favicon.svg" alt="" className="size-9" />
+            <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-9" />
             <span className="font-display text-[22px] font-extrabold tracking-tight text-sage-deep">
               {BRAND.name}
             </span>
