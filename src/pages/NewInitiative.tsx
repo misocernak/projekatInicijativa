@@ -5,6 +5,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEffect } from 'react'
 import { createInitiative } from '../api'
+import { PageHead } from '../components/Bits'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES, CITIES } from '../data/constants'
 import { toLocalInput } from '../lib/dates'
@@ -39,9 +40,9 @@ export default function NewInitiative() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-20 text-center">
-        <h1 className="text-3xl text-sage-deep">Prijavi se da bi pokrenuo inicijativu</h1>
-        <p className="mt-3 text-ink/75">
+      <div className="mx-auto max-w-xl px-5 py-24 text-center">
+        <h1 className="text-5xl text-sage-deep">Prijavi se da bi pokrenuo inicijativu</h1>
+        <p className="mt-4 text-ink/70">
           Nalog nam služi da organizator i volonteri znaju ko je ko, i da sprečimo zloupotrebe.
         </p>
         <Link to="/prijava" state={{ from: '/nova-inicijativa' }} className="btn-primary mt-6">
@@ -97,11 +98,18 @@ export default function NewInitiative() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-4xl text-sage-deep">Pokreni inicijativu</h1>
-      <p className="mt-2 text-ink/75">Opiši šta želiš da uradiš. Ostali iz tvog grada će moći da se prijave.</p>
+    <div className="mx-auto max-w-3xl px-5 pb-6 pt-10">
+      <PageHead
+        eyebrow="Nova inicijativa"
+        title={
+          <>
+            Pokreni nešto <em>dobro.</em>
+          </>
+        }
+        text="Opiši šta želiš da uradiš. Ostali iz tvog grada će moći da se prijave."
+      />
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-6">
+      <form onSubmit={onSubmit} className="card space-y-7 p-6 sm:p-10">
         <div>
           <label className="label" htmlFor="title">
             Naslov
@@ -168,8 +176,10 @@ export default function NewInitiative() {
             {(['timed', 'permanent'] as const).map((k) => (
               <label
                 key={k}
-                className={`flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-xl border px-3 text-sm font-bold ${
-                  kind === k ? 'border-sage-dark bg-sage/25 text-sage-deep' : 'border-sand bg-white text-ink/70'
+                className={`flex min-h-12 flex-1 cursor-pointer items-center justify-center rounded-2xl border px-3 text-center text-[13px] font-semibold transition ${
+                  kind === k
+                    ? 'border-sage-dark bg-sage/20 text-sage-deep ring-4 ring-sage/15'
+                    : 'border-sand bg-white/80 text-ink/65 hover:border-sage/60'
                 }`}
               >
                 <input type="radio" className="sr-only" checked={kind === k} onChange={() => setKind(k)} />

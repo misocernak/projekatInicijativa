@@ -1,6 +1,6 @@
 import { Link, Navigate } from 'react-router-dom'
 import { listJoined, listMine } from '../api'
-import { Empty, Spinner } from '../components/Bits'
+import { Empty, PageHead, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import { useAuth } from '../context/AuthContext'
 import { useAsync } from '../lib/useAsync'
@@ -13,13 +13,12 @@ export default function Profile() {
   if (!user) return <Navigate to="/prijava" state={{ from: '/profil' }} replace />
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl text-sage-deep">Zdravo, {user.name}</h1>
-      <p className="mt-1 text-ink/70">{user.email}</p>
+    <div className="mx-auto max-w-6xl px-5 pb-6 pt-10">
+      <PageHead eyebrow={user.email} title={<>Zdravo, <em>{user.name}</em></>} />
 
-      <section className="mt-10">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl text-sage-deep">Inicijative koje sam pokrenuo/la</h2>
+      <section>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-4xl text-sage-deep">Inicijative koje sam pokrenuo/la</h2>
           <Link to="/nova-inicijativa" className="btn-primary">
             Nova inicijativa
           </Link>
@@ -38,7 +37,7 @@ export default function Profile() {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-4 text-2xl text-sage-deep">Na koje sam se prijavio/la</h2>
+        <h2 className="mb-6 text-4xl text-sage-deep">Na koje sam se prijavio/la</h2>
         {joined.loading ? (
           <Spinner />
         ) : joined.data?.length ? (

@@ -1,20 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { BRAND } from '../data/constants'
-import { useEffect } from 'react'
 
 const navCls = ({ isActive }: { isActive: boolean }) =>
-  `rounded-full px-3.5 py-2 text-sm font-bold transition-colors ${
-    isActive ? 'bg-sand text-sage-deep' : 'text-sage-deep/80 hover:bg-sand/70'
+  `relative px-1 py-2 text-[13px] font-medium tracking-[0.04em] transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-sage-dark after:transition-transform ${
+    isActive
+      ? 'text-sage-deep after:scale-x-100'
+      : 'text-sage-deep/70 after:scale-x-0 hover:text-sage-deep hover:after:scale-x-100'
   }`
 
-function Logo() {
+const mobNavCls = ({ isActive }: { isActive: boolean }) =>
+  `rounded-2xl px-4 py-3 font-display text-2xl ${isActive ? 'bg-sand/70 text-sage-deep' : 'text-sage-deep/80'}`
+
+function Logo({ light = false }: { light?: boolean }) {
   return (
-    <Link to="/" className="flex items-center gap-2.5" aria-label={`${BRAND.name} – početna`}>
+    <Link to="/" className="flex items-center gap-3" aria-label={`${BRAND.name} – početna`}>
       <img src="/favicon.svg" alt="" className="size-9" />
-      <span className="font-display text-2xl text-sage-deep">{BRAND.name}</span>
+      <span className={`font-display text-[28px] font-medium leading-none tracking-tight ${light ? 'text-cream' : 'text-sage-deep'}`}>
+        {BRAND.name}
+      </span>
     </Link>
   )
 }
@@ -22,12 +28,20 @@ function Logo() {
 export default function Layout() {
   const { user, logout } = useAuth()
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const { pathname } = useLocation()
 
   useEffect(() => {
     setOpen(false)
     window.scrollTo(0, 0)
   }, [pathname])
+
+  useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 8)
+    on()
+    window.addEventListener('scroll', on, { passive: true })
+    return () => window.removeEventListener('scroll', on)
+  }, [])
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -37,10 +51,16 @@ export default function Layout() {
       >
         Preskoči na sadržaj
       </a>
-      <header className="sticky top-0 z-40 border-b border-sand bg-cream/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+      <header
+        className={`sticky top-0 z-40 transition-all duration-300 ${
+          scrolled || open
+            ? 'border-b border-sand/80 bg-cream/90 shadow-[0_8px_24px_-20px_rgb(47_58_34/0.5)] backdrop-blur-md'
+            : 'border-b border-transparent bg-transparent'
+        }`}
+      >
+        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5">
           <Logo />
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Glavna navigacija">
+          <nav className="hidden items-center gap-9 md:flex" aria-label="Glavna navigacija">
             <NavLink to="/inicijative" className={navCls}>
               Inicijative
             </NavLink>
@@ -53,22 +73,22 @@ export default function Layout() {
               </NavLink>
             )}
           </nav>
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-3 md:flex">
             {user ? (
-              <button onClick={logout} className="btn-secondary">
+              <button onClick={logout} className="btn-secondary min-h-11 px-5">
                 Odjava
               </button>
             ) : (
-              <Link to="/prijava" className="btn-secondary">
+              <Link to="/prijava" className="btn-secondary min-h-11 px-5">
                 Prijava
               </Link>
             )}
-            <Link to="/nova-inicijativa" className="btn-primary">
+            <Link to="/nova-inicijativa" className="btn-primary min-h-11 px-5">
               Pokreni inicijativu
             </Link>
           </div>
           <button
-            className="grid size-11 place-items-center rounded-full hover:bg-sand md:hidden"
+            className="grid size-11 place-items-center rounded-full text-sage-deep hover:bg-sand md:hidden"
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-label={open ? 'Zatvori meni' : 'Otvori meni'}
@@ -77,22 +97,19 @@ export default function Layout() {
           </button>
         </div>
         {open && (
-          <nav
-            className="flex flex-col gap-1 border-t border-sand px-4 py-3 md:hidden"
-            aria-label="Mobilna navigacija"
-          >
-            <NavLink to="/inicijative" className={navCls}>
+          <nav className="flex flex-col gap-1 px-5 pb-6 pt-2 md:hidden" aria-label="Mobilna navigacija">
+            <NavLink to="/inicijative" className={mobNavCls}>
               Inicijative
             </NavLink>
-            <NavLink to="/o-projektu" className={navCls}>
+            <NavLink to="/o-projektu" className={mobNavCls}>
               O projektu
             </NavLink>
             {user && (
-              <NavLink to="/profil" className={navCls}>
+              <NavLink to="/profil" className={mobNavCls}>
                 Moj profil
               </NavLink>
             )}
-            <Link to="/nova-inicijativa" className="btn-primary mt-2">
+            <Link to="/nova-inicijativa" className="btn-primary mt-3">
               Pokreni inicijativu
             </Link>
             {user ? (
@@ -108,27 +125,42 @@ export default function Layout() {
         )}
       </header>
 
-      <main id="sadrzaj" className="flex-1">
+      <main id="sadrzaj" className="-mt-20 flex-1 pt-20">
         <Outlet />
       </main>
 
-      <footer className="mt-16 border-t border-sand bg-sand/50">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm text-sage-deep/80 sm:flex-row sm:items-center sm:justify-between">
+      <footer className="mt-24 bg-sage-deep text-cream">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <p className="font-display text-lg text-sage-deep">{BRAND.name}</p>
-            <p>Građani uređuju svoj grad, zajedno. Bez novca, samo ljudi i volja.</p>
+            <Logo light />
+            <p className="mt-5 max-w-sm font-display text-xl leading-snug text-cream/80">
+              Građani uređuju svoj grad, zajedno. Bez novca, samo ljudi i volja.
+            </p>
           </div>
-          <nav className="flex gap-5 font-bold" aria-label="Podnožje">
-            <Link to="/inicijative" className="hover:underline">
+          <nav aria-label="Podnožje" className="flex flex-col gap-2.5 text-sm text-cream/75">
+            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage">Platforma</span>
+            <Link to="/inicijative" className="hover:text-cream">
               Inicijative
             </Link>
-            <Link to="/o-projektu" className="hover:underline">
-              O projektu
-            </Link>
-            <Link to="/nova-inicijativa" className="hover:underline">
+            <Link to="/nova-inicijativa" className="hover:text-cream">
               Pokreni inicijativu
             </Link>
+            <Link to="/o-projektu" className="hover:text-cream">
+              O projektu
+            </Link>
           </nav>
+          <div className="flex flex-col gap-2.5 text-sm text-cream/75">
+            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage">Nalog</span>
+            <Link to="/prijava" className="hover:text-cream">
+              Prijava i registracija
+            </Link>
+            <Link to="/profil" className="hover:text-cream">
+              Moj profil
+            </Link>
+          </div>
+        </div>
+        <div className="border-t border-cream/10 py-5 text-center text-xs text-cream/50">
+          © {new Date().getFullYear()} {BRAND.name}. Platforma za građanske inicijative.
         </div>
       </footer>
     </div>

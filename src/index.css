@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
 
   /* Paleta: #8B9A6E / #F7F2EB / #EAE2D6 / #EEEEEE */
   --color-sage: #8b9a6e;
@@ -13,6 +13,9 @@
   --color-mist: #eeeeee;
   --color-ink: #2a2f22;
   --color-clay: #a65b43;
+
+  --shadow-soft: 0 1px 2px rgb(47 58 34 / 0.05), 0 14px 34px -18px rgb(47 58 34 / 0.28);
+  --shadow-lift: 0 2px 4px rgb(47 58 34 / 0.06), 0 22px 44px -18px rgb(47 58 34 / 0.34);
 }
 
 @layer base {
@@ -23,39 +26,59 @@
     background: var(--color-cream);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
   }
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    line-height: 1.08;
     text-wrap: balance;
+  }
+  h1 em,
+  h2 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--color-sage-dark);
   }
   :focus-visible {
     outline: 2px solid var(--color-sage-dark);
-    outline-offset: 2px;
+    outline-offset: 3px;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 bg-sage-dark text-cream hover:bg-sage-deep;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sage-dark px-7 text-[13px] font-semibold tracking-[0.04em] text-cream shadow-[0_10px_24px_-12px_rgb(47_58_34/0.7)] transition duration-200 hover:-translate-y-0.5 hover:bg-sage-deep disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 border border-sage-dark/30 bg-transparent text-sage-deep hover:bg-sand;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sage-dark/30 bg-white/40 px-7 text-[13px] font-semibold tracking-[0.04em] text-sage-deep transition duration-200 hover:border-sage-dark/60 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50;
   }
   .field {
-    @apply min-h-11 w-full rounded-xl border border-sand bg-white px-3.5 text-base text-ink placeholder:text-ink/40 focus:border-sage-dark focus:outline-none;
+    @apply min-h-12 w-full rounded-2xl border border-sand bg-white/80 px-4 text-[15px] text-ink shadow-[inset_0_1px_2px_rgb(47_58_34/0.04)] transition placeholder:text-ink/35 hover:border-sage/60 focus:border-sage-dark focus:bg-white focus:outline-none focus:ring-4 focus:ring-sage/20;
   }
   .label {
-    @apply mb-1.5 block text-sm font-bold text-sage-deep;
+    @apply mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-dark;
+  }
+  .eyebrow {
+    @apply mb-4 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-sage-dark before:h-px before:w-8 before:bg-sage-dark/50;
+  }
+  .card {
+    @apply rounded-3xl border border-sand/70 bg-white shadow-soft;
   }
 }
 
 .leaflet-container {
   font-family: var(--font-sans);
+  border-radius: 1.5rem;
+}
+.leaflet-popup-content-wrapper {
   border-radius: 1rem;
 }
 .pin {
@@ -63,7 +86,21 @@
   border: 3px solid var(--color-cream);
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.3);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

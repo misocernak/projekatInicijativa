@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { List, Map as MapIcon } from 'lucide-react'
 import { listInitiatives } from '../api'
-import { Empty, Spinner } from '../components/Bits'
+import { Empty, PageHead, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import MapView from '../components/MapView'
 import { CATEGORIES, CITIES, STATUS_LABEL } from '../data/constants'
@@ -43,13 +43,20 @@ export default function Initiatives() {
   const items = data ?? []
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-4xl text-sage-deep">Inicijative</h1>
-      <p className="mt-2 text-ink/75">Pronađi nešto što možeš da uradiš zajedno sa komšijama.</p>
+    <div className="mx-auto max-w-6xl px-5 pb-6 pt-10">
+      <PageHead
+        eyebrow="Pretraga"
+        title={
+          <>
+            Šta možemo da uradimo <em>zajedno?</em>
+          </>
+        }
+        text="Pronađi inicijativu u svom gradu i priključi se komšijama."
+      />
 
       <form
         role="search"
-        className="mt-6 grid gap-3 rounded-2xl bg-sand/60 p-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="card grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4"
         onSubmit={(e) => e.preventDefault()}
       >
         <div className="sm:col-span-2 lg:col-span-4">
@@ -106,18 +113,18 @@ export default function Initiatives() {
         </div>
       </form>
 
-      <div className="mt-6 flex items-center justify-between">
-        <p aria-live="polite" className="text-sm text-ink/70">
+      <div className="mt-8 flex items-center justify-between">
+        <p aria-live="polite" className="text-[13px] text-ink/60">
           {loading ? 'Učitavanje…' : `Pronađeno: ${items.length}`}
         </p>
-        <div className="flex rounded-full bg-sand p-1" role="group" aria-label="Prikaz">
+        <div className="flex rounded-full bg-sand/80 p-1" role="group" aria-label="Prikaz">
           {(['lista', 'mapa'] as const).map((v) => (
             <button
               key={v}
               onClick={() => set('prikaz', v === 'lista' ? '' : v)}
               aria-pressed={view === v}
-              className={`flex min-h-9 items-center gap-1.5 rounded-full px-4 text-sm font-bold ${
-                view === v ? 'bg-sage-dark text-cream' : 'text-sage-deep'
+              className={`flex min-h-10 items-center gap-1.5 rounded-full px-5 text-[13px] font-semibold tracking-[0.04em] transition ${
+                view === v ? 'bg-sage-dark text-cream shadow-sm' : 'text-sage-deep hover:bg-white/60'
               }`}
             >
               {v === 'lista' ? <List className="size-4" aria-hidden /> : <MapIcon className="size-4" aria-hidden />}
@@ -127,7 +134,7 @@ export default function Initiatives() {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-5">
         {loading ? (
           <Spinner />
         ) : items.length === 0 ? (
@@ -135,7 +142,7 @@ export default function Initiatives() {
         ) : view === 'mapa' ? (
           <MapView items={items} height="520px" />
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((i) => (
               <InitiativeCard key={i.id} item={i} />
             ))}

@@ -1,11 +1,19 @@
 import { Link } from 'react-router-dom'
+import { PageHead } from '../components/Bits'
 import { BRAND } from '../data/constants'
 
 export default function About() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-4xl text-sage-deep">O projektu</h1>
-      <div className="mt-6 space-y-5 text-lg leading-relaxed text-ink/90">
+    <div className="mx-auto max-w-3xl px-5 pb-6 pt-10">
+      <PageHead
+        eyebrow="O projektu"
+        title={
+          <>
+            Ljudi koji menjaju svoj <em>kraj.</em>
+          </>
+        }
+      />
+      <div className="space-y-6 text-[17px] leading-[1.85] text-ink/85">
         <p>
           {BRAND.name} je platforma na kojoj građani objavljuju društveno korisne inicijative u svom gradu i
           pozivaju sugrađane da im se pridruže: uređenje parka, čišćenje obale, sadnja drveća, pomoć starijim
@@ -17,15 +25,24 @@ export default function About() {
         </p>
       </div>
 
-      <h2 className="mt-10 text-2xl text-sage-deep">Pravila ponašanja</h2>
-      <ul className="mt-3 list-disc space-y-2 pl-5 text-ink/85">
-        <li>Inicijative moraju biti u javnom interesu i bezbedne za učesnike.</li>
-        <li>Pre radova na javnom prostoru proveri da li je potrebna saglasnost nadležne službe.</li>
-        <li>Bez političke propagande, komercijalnih oglasa i govora mržnje.</li>
-        <li>Poštuj tuđu privatnost: ne objavljuj tuđe lične podatke.</li>
-      </ul>
+      <section className="card mt-12 p-8 sm:p-10">
+        <h2 className="text-4xl text-sage-deep">Pravila ponašanja</h2>
+        <ul className="mt-5 space-y-3 text-ink/80">
+          {[
+            'Inicijative moraju biti u javnom interesu i bezbedne za učesnike.',
+            'Pre radova na javnom prostoru proveri da li je potrebna saglasnost nadležne službe.',
+            'Bez političke propagande, komercijalnih oglasa i govora mržnje.',
+            'Poštuj tuđu privatnost: ne objavljuj tuđe lične podatke.',
+          ].map((r) => (
+            <li key={r} className="flex gap-3">
+              <span aria-hidden className="mt-2.5 size-1.5 shrink-0 rounded-full bg-sage" />
+              {r}
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <Link to="/nova-inicijativa" className="btn-primary mt-10">
+      <Link to="/nova-inicijativa" className="btn-primary mt-12">
         Pokreni inicijativu
       </Link>
     </div>
