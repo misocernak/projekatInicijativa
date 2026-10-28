@@ -134,7 +134,7 @@ export default function Layout() {
           <div>
             <Logo light />
             <p className="mt-5 max-w-sm font-semibold leading-snug text-sage-deep/80">
-              Građani uređuju svoj grad, zajedno. Bez novca, samo ljudi i volja.
+              Građani uređuju svoj grad, zajedno. Dovoljno je da se nađemo.
             </p>
           </div>
           <nav aria-label="Podnožje" className="flex flex-col gap-2.5 text-sm text-sage-deep/75">

@@ -40,8 +40,8 @@ export default function Home() {
               Uredimo ga <em>zajedno.</em>
             </h1>
             <p className="mt-7 max-w-md text-[17px] leading-relaxed text-ink/70">
-              Pokreni akciju u svom kraju ili se priključi komšijama. Bez novca i birokratije, samo ljudi
-              koji žele da urade nešto korisno.
+              Pokreni akciju u svom kraju ili se priključi komšijama. Okupi ljude koji žele da urade nešto
+              korisno za svoj grad.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link to="/inicijative" className="btn-primary">
