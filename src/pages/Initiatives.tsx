@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom'
 import { List, Map as MapIcon } from 'lucide-react'
 import { listInitiatives } from '../api'
-import { Empty, PageHead, Spinner } from '../components/Bits'
+import { CATEGORY_ICON, CATEGORY_STYLE, Empty, PageHead, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import MapView from '../components/MapView'
 import { CATEGORIES, CITIES, STATUS_LABEL } from '../data/constants'
@@ -56,10 +56,10 @@ export default function Initiatives() {
 
       <form
         role="search"
-        className="card grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4"
+        className="card grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr]"
         onSubmit={(e) => e.preventDefault()}
       >
-        <div className="sm:col-span-2 lg:col-span-4">
+        <div>
           <label className="label" htmlFor="f-q">
             Pretraga
           </label>
@@ -86,19 +86,6 @@ export default function Initiatives() {
           </select>
         </div>
         <div>
-          <label className="label" htmlFor="f-kat">
-            Vrsta
-          </label>
-          <select id="f-kat" className="field" value={category} onChange={(e) => set('kategorija', e.target.value)}>
-            <option value="">Sve vrste</option>
-            {CATEGORIES.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="lg:col-span-2">
           <label className="label" htmlFor="f-status">
             Status
           </label>
@@ -112,6 +99,39 @@ export default function Initiatives() {
           </select>
         </div>
       </form>
+
+      <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Vrsta inicijative">
+        <button
+          onClick={() => set('kategorija', '')}
+          aria-pressed={!category}
+          className={`min-h-10 rounded-full border-2 px-5 text-[13px] font-semibold transition ${
+            !category ? 'border-sage-deep bg-sage-deep text-white' : 'border-sand bg-white text-sage-deep hover:border-sage-deep/30'
+          }`}
+        >
+          Sve
+        </button>
+        {CATEGORIES.map((c) => {
+          const s = CATEGORY_STYLE[c.id]
+          const Icon = CATEGORY_ICON[c.id]
+          const on = category === c.id
+          return (
+            <button
+              key={c.id}
+              onClick={() => set('kategorija', on ? '' : c.id)}
+              aria-pressed={on}
+              className="inline-flex min-h-10 items-center gap-2 rounded-full border-2 px-4 text-[13px] font-semibold transition hover:-translate-y-0.5"
+              style={{
+                background: on ? s.fg : s.bg,
+                color: on ? '#fff' : s.fg,
+                borderColor: on ? s.fg : 'transparent',
+              }}
+            >
+              <Icon className="size-4" aria-hidden />
+              {c.label}
+            </button>
+          )
+        })}
+      </div>
 
       <div className="mt-8 flex items-center justify-between">
         <p aria-live="polite" className="text-[13px] text-ink/60">

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CalendarDays, Mail, MapPin, Package, Users } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Mail, MapPin, Package } from 'lucide-react'
 import { cancelInitiative, getInitiative, isJoined, participantCount, toggleJoin } from '../api'
-import { CATEGORY_ICON, Spinner, StatusBadge } from '../components/Bits'
+import { Art, AvatarStack, CATEGORY_STYLE, DateChip, Spinner, StatusBadge } from '../components/Bits'
 import MapView from '../components/MapView'
 import { useAuth } from '../context/AuthContext'
 import { categoryLabel, cityName } from '../data/constants'
@@ -30,7 +30,6 @@ export default function InitiativeDetail() {
     )
   }
 
-  const Icon = CATEGORY_ICON[item.category]
   const status = getStatus(item)
   const count = participantCount(item)
   const full = !!item.capacity && count >= item.capacity && !joined
@@ -62,22 +61,23 @@ export default function InitiativeDetail() {
 
       <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr]">
         <article className="rise">
-          <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-sage/40 via-sage/20 to-sand px-8 pb-10 pt-8 sm:px-10">
-            <Icon
-              className="pointer-events-none absolute -bottom-10 -right-6 size-56 text-sage-dark/10"
-              strokeWidth={0.8}
-              aria-hidden
-            />
-            <div className="relative">
-              <div className="mb-5 flex flex-wrap items-center gap-3">
-                <StatusBadge status={status} />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sage-deep/80">
-                  {categoryLabel(item.category)}
-                </span>
-              </div>
-              <h1 className="text-5xl leading-[1.02] text-sage-deep sm:text-6xl">{item.title}</h1>
-              <p className="mt-5 text-[13px] text-sage-deep/70">Organizator: {item.organizerName}</p>
+          <Art category={item.category} className="h-56 rounded-[2rem] sm:h-72">
+            <div className="absolute inset-x-5 top-5 flex items-start justify-between">
+              <DateChip item={item} />
+              <StatusBadge status={status} />
             </div>
+          </Art>
+          <div className="mt-8">
+            <span className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: CATEGORY_STYLE[item.category].fg }}>
+              {categoryLabel(item.category)}
+            </span>
+            <h1 className="mt-3 text-5xl leading-[1.02] sm:text-6xl">{item.title}</h1>
+            <p className="mt-5 flex items-center gap-3 text-[13px] text-ink/65">
+              <span className="grid size-9 place-items-center rounded-full bg-sage-dark text-sm font-bold text-white">
+                {item.organizerName.charAt(0)}
+              </span>
+              Organizator: <strong className="text-sage-deep">{item.organizerName}</strong>
+            </p>
           </div>
 
           <div className="mt-10 space-y-5 text-[17px] leading-[1.85] text-ink/85">
@@ -87,7 +87,7 @@ export default function InitiativeDetail() {
           </div>
 
           {item.bring && (
-            <section className="mt-10 rounded-3xl bg-sand/60 p-7">
+            <section className="mt-10 rounded-3xl bg-[#fde7a9]/70 p-7">
               <h2 className="mb-2 flex items-center gap-3 text-3xl text-sage-deep">
                 <Package className="size-6 text-sage-dark" aria-hidden /> Šta poneti
               </h2>
@@ -103,6 +103,13 @@ export default function InitiativeDetail() {
 
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="card rise p-7 [animation-delay:120ms]">
+            <div className="mb-6 flex items-center justify-between">
+              <AvatarStack count={count} size="md" />
+              <p className="text-[13px] text-ink/65">
+                <strong className="font-display text-3xl font-bold text-sage-deep">{count}</strong>
+                {item.capacity ? ` / ${item.capacity}` : ''} volontera
+              </p>
+            </div>
             <ul className="space-y-4 text-[14px] text-ink/80">
               <li className="flex gap-3.5">
                 <CalendarDays className="mt-0.5 size-5 shrink-0 text-sage-dark" aria-hidden />
@@ -111,12 +118,6 @@ export default function InitiativeDetail() {
               <li className="flex gap-3.5">
                 <MapPin className="mt-0.5 size-5 shrink-0 text-sage-dark" aria-hidden />
                 {cityName(item.cityId)}, {item.address}
-              </li>
-              <li className="flex gap-3.5">
-                <Users className="mt-0.5 size-5 shrink-0 text-sage-dark" aria-hidden />
-                <span aria-live="polite">
-                  {count} prijavljenih{item.capacity ? ` od ${item.capacity} mesta` : ''}
-                </span>
               </li>
               {item.contact && (
                 <li className="flex gap-3.5">
@@ -154,7 +155,7 @@ export default function InitiativeDetail() {
               <p className="mt-3 text-center text-xs text-ink/55">Za prijavu je potreban nalog.</p>
             )}
             {joined && (
-              <p className="mt-4 text-center font-display text-xl text-sage-dark">Prijavljen/a si. Vidimo se!</p>
+              <p className="mt-4 text-center font-display text-2xl font-bold text-sage-dark">Prijavljen/a si. Vidimo se!</p>
             )}
             {isOwner && !closed && (
               <button onClick={onCancel} className="mt-4 w-full text-[13px] font-semibold text-clay hover:underline">

@@ -4,18 +4,20 @@
   --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
 
-  /* Paleta: #8B9A6E / #F7F2EB / #EAE2D6 / #EEEEEE */
-  --color-sage: #8b9a6e;
-  --color-sage-dark: #5b6844;
-  --color-sage-deep: #2f3a22;
-  --color-cream: #f7f2eb;
-  --color-sand: #eae2d6;
-  --color-mist: #eeeeee;
-  --color-ink: #2a2f22;
-  --color-clay: #a65b43;
+  /* Tokeni (imena su ostala ista, vrednosti su nova paleta) */
+  --color-cream: #fbfaf7; /* prljavo bela pozadina */
+  --color-sand: #ebe7de; /* linije i obrubi */
+  --color-mist: #f3f0e9; /* blage površine */
+  --color-sage: #3fb67f; /* svetli akcent (trake, pinovi) */
+  --color-sage-dark: #0b7a4b; /* primarna boja */
+  --color-sage-deep: #14201a; /* naslovi i tamne površine */
+  --color-ink: #2b3630;
+  --color-clay: #d4452b;
+  --color-sun: #ffd25e;
+  --color-coral: #ff7a59;
 
-  --shadow-soft: 0 1px 2px rgb(47 58 34 / 0.05), 0 14px 34px -18px rgb(47 58 34 / 0.28);
-  --shadow-lift: 0 2px 4px rgb(47 58 34 / 0.06), 0 22px 44px -18px rgb(47 58 34 / 0.34);
+  --shadow-soft: 0 1px 2px rgb(20 32 26 / 0.05), 0 14px 34px -18px rgb(20 32 26 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(20 32 26 / 0.06), 0 26px 50px -20px rgb(20 32 26 / 0.34);
 }
 
 @layer base {
@@ -29,6 +31,7 @@
     font-weight: 400;
     line-height: 1.7;
     font-size: 15px;
+    font-style: normal;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
   }
@@ -36,16 +39,17 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.015em;
-    line-height: 1.08;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.04;
+    color: var(--color-sage-deep);
     text-wrap: balance;
   }
-  h1 em,
-  h2 em {
-    font-style: italic;
-    font-weight: 400;
-    color: var(--color-sage-dark);
+  /* Naglasak u naslovu: bez kurziva, sa žutim markerom */
+  em {
+    font-style: normal;
+    background: linear-gradient(transparent 62%, var(--color-sun) 62%, var(--color-sun) 92%, transparent 92%);
+    padding: 0 0.08em;
   }
   :focus-visible {
     outline: 2px solid var(--color-sage-dark);
@@ -55,22 +59,22 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sage-dark px-7 text-[13px] font-semibold tracking-[0.04em] text-cream shadow-[0_10px_24px_-12px_rgb(47_58_34/0.7)] transition duration-200 hover:-translate-y-0.5 hover:bg-sage-deep disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sage-dark px-7 text-[14px] font-semibold text-white shadow-[0_12px_26px_-12px_rgb(11_122_75/0.85)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#095f3a] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-secondary {
-    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-sage-dark/30 bg-white/40 px-7 text-[13px] font-semibold tracking-[0.04em] text-sage-deep transition duration-200 hover:border-sage-dark/60 hover:bg-white disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-sage-deep/15 bg-white px-7 text-[14px] font-semibold text-sage-deep transition duration-200 hover:border-sage-deep/40 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .field {
-    @apply min-h-12 w-full rounded-2xl border border-sand bg-white/80 px-4 text-[15px] text-ink shadow-[inset_0_1px_2px_rgb(47_58_34/0.04)] transition placeholder:text-ink/35 hover:border-sage/60 focus:border-sage-dark focus:bg-white focus:outline-none focus:ring-4 focus:ring-sage/20;
+    @apply min-h-12 w-full rounded-2xl border border-sand bg-white px-4 text-[15px] text-ink transition placeholder:text-ink/35 hover:border-sage-deep/30 focus:border-sage-dark focus:outline-none focus:ring-4 focus:ring-sage-dark/10;
   }
   .label {
-    @apply mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-dark;
+    @apply mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-sage-deep/70;
   }
   .eyebrow {
-    @apply mb-4 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-sage-dark before:h-px before:w-8 before:bg-sage-dark/50;
+    @apply mb-4 inline-flex items-center gap-2 rounded-full bg-sun/60 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-sage-deep;
   }
   .card {
-    @apply rounded-3xl border border-sand/70 bg-white shadow-soft;
+    @apply rounded-3xl border border-sand bg-white shadow-soft;
   }
 }
 
@@ -83,7 +87,7 @@
 }
 .pin {
   background: var(--color-sage-dark);
-  border: 3px solid var(--color-cream);
+  border: 3px solid #fff;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   box-shadow: 0 3px 8px rgb(0 0 0 / 0.3);

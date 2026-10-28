@@ -1,57 +1,49 @@
 import { Link } from 'react-router-dom'
-import { CalendarDays, MapPin, Users } from 'lucide-react'
+import { ArrowUpRight, MapPin } from 'lucide-react'
 import { participantCount } from '../api'
 import { categoryLabel, cityName } from '../data/constants'
-import { formatWhen, getStatus } from '../lib/dates'
+import { getStatus } from '../lib/dates'
 import type { Initiative } from '../types'
-import { CATEGORY_ICON, StatusBadge } from './Bits'
+import { Art, AvatarStack, CATEGORY_STYLE, DateChip, StatusBadge } from './Bits'
 
 export default function InitiativeCard({ item }: { item: Initiative }) {
-  const Icon = CATEGORY_ICON[item.category]
   const status = getStatus(item)
   const count = participantCount(item)
-  const pct = item.capacity ? Math.min(100, (count / item.capacity) * 100) : 0
+  const fg = CATEGORY_STYLE[item.category].fg
 
   return (
     <Link
       to={`/inicijative/${item.id}`}
-      className="card group flex h-full flex-col overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lift"
+      className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-sand bg-white shadow-soft transition duration-300 hover:-translate-y-1.5 hover:shadow-lift"
     >
-      <div className="relative overflow-hidden bg-gradient-to-br from-sage/35 via-sage/20 to-sand px-6 pb-7 pt-5">
-        <Icon
-          className="pointer-events-none absolute -bottom-6 -right-4 size-32 text-sage-dark/10 transition duration-500 group-hover:scale-110 group-hover:-rotate-6"
-          strokeWidth={1}
-          aria-hidden
-        />
-        <div className="relative flex items-center justify-between gap-3">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-deep/80">
-            {categoryLabel(item.category)}
-          </span>
+      <Art category={item.category} className="aspect-[16/10] shrink-0">
+        <div className="absolute inset-x-4 top-4 flex items-start justify-between">
+          <DateChip item={item} />
           <StatusBadge status={status} />
         </div>
-      </div>
-      <div className="flex flex-1 flex-col gap-4 p-6">
-        <h3 className="text-[27px] leading-[1.1] text-sage-deep">{item.title}</h3>
-        <ul className="mt-auto space-y-2 text-[13px] text-ink/70">
-          <li className="flex items-start gap-2.5">
-            <MapPin className="mt-0.5 size-4 shrink-0 text-sage-dark" aria-hidden />
-            {cityName(item.cityId)}, {item.address}
-          </li>
-          <li className="flex items-start gap-2.5">
-            <CalendarDays className="mt-0.5 size-4 shrink-0 text-sage-dark" aria-hidden />
-            {formatWhen(item)}
-          </li>
-          <li className="flex items-start gap-2.5">
-            <Users className="mt-0.5 size-4 shrink-0 text-sage-dark" aria-hidden />
-            {count} {count === 1 ? 'prijavljen' : 'prijavljenih'}
-            {item.capacity ? ` od ${item.capacity}` : ''}
-          </li>
-        </ul>
-        {item.capacity ? (
-          <div className="h-1 overflow-hidden rounded-full bg-mist" aria-hidden>
-            <div className="h-full rounded-full bg-sage" style={{ width: `${pct}%` }} />
+      </Art>
+      <div className="flex flex-1 flex-col p-6">
+        <span className="text-[11px] font-bold uppercase tracking-[0.14em]" style={{ color: fg }}>
+          {categoryLabel(item.category)}
+        </span>
+        <h3 className="mt-2 text-[28px] leading-[1.06]">{item.title}</h3>
+        <p className="mt-3 flex items-start gap-1.5 text-[13px] text-ink/65">
+          <MapPin className="mt-0.5 size-4 shrink-0" style={{ color: fg }} aria-hidden />
+          {cityName(item.cityId)}, {item.address}
+        </p>
+        <div className="mt-auto flex items-center justify-between pt-6">
+          <div className="flex items-center gap-3">
+            <AvatarStack count={count} />
+            <span className="text-[12px] font-semibold text-sage-deep">
+              {count}
+              {item.capacity ? `/${item.capacity}` : ''}
+              <span className="font-medium text-ink/55"> volontera</span>
+            </span>
           </div>
-        ) : null}
+          <span className="grid size-10 place-items-center rounded-full bg-sage-deep text-white transition group-hover:bg-sage-dark">
+            <ArrowUpRight className="size-5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden />
+          </span>
+        </div>
       </div>
     </Link>
   )

@@ -16,6 +16,7 @@ const pinIcon = L.divIcon({
 function Fit({ items }: { items: Initiative[] }) {
   const map = useMap()
   useEffect(() => {
+    map.invalidateSize()
     if (items.length === 0) return
     if (items.length === 1) {
       map.setView([items[0].lat, items[0].lng], 15)
