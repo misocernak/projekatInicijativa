@@ -129,7 +129,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="mt-24 bg-sun text-sage-deep">
+      <footer className="mt-24 border-t border-sand bg-mist text-sage-deep">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <Logo light />
@@ -138,7 +138,7 @@ export default function Layout() {
             </p>
           </div>
           <nav aria-label="Podnožje" className="flex flex-col gap-2.5 text-sm text-sage-deep/75">
-            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-deep">Platforma</span>
+            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-dark">Platforma</span>
             <Link to="/inicijative" className="hover:text-sage-deep hover:underline">
               Inicijative
             </Link>
@@ -150,7 +150,7 @@ export default function Layout() {
             </Link>
           </nav>
           <div className="flex flex-col gap-2.5 text-sm text-sage-deep/75">
-            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-deep">Nalog</span>
+            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-dark">Nalog</span>
             <Link to="/prijava" className="hover:text-sage-deep hover:underline">
               Prijava i registracija
             </Link>
@@ -159,7 +159,7 @@ export default function Layout() {
             </Link>
           </div>
         </div>
-        <div className="border-t border-sage-deep/10 py-5 text-center text-xs text-sage-deep/60">
+        <div className="border-t border-sand py-5 text-center text-xs text-sage-deep/60">
           © {new Date().getFullYear()} {BRAND.name}. Platforma za građanske inicijative.
         </div>
       </footer>
