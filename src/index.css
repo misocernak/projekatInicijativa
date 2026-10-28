@@ -1,0 +1,77 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+  /* Paleta: #8B9A6E / #F7F2EB / #EAE2D6 / #EEEEEE */
+  --color-sage: #8b9a6e;
+  --color-sage-dark: #5b6844;
+  --color-sage-deep: #2f3a22;
+  --color-cream: #f7f2eb;
+  --color-sand: #eae2d6;
+  --color-mist: #eeeeee;
+  --color-ink: #2a2f22;
+  --color-clay: #a65b43;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-sage-dark);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 bg-sage-dark text-cream hover:bg-sage-deep;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 border border-sage-dark/30 bg-transparent text-sage-deep hover:bg-sand;
+  }
+  .field {
+    @apply min-h-11 w-full rounded-xl border border-sand bg-white px-3.5 text-base text-ink placeholder:text-ink/40 focus:border-sage-dark focus:outline-none;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-bold text-sage-deep;
+  }
+}
+
+.leaflet-container {
+  font-family: var(--font-sans);
+  border-radius: 1rem;
+}
+.pin {
+  background: var(--color-sage-dark);
+  border: 3px solid var(--color-cream);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
