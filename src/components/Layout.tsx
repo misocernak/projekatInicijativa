@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { Menu, X } from 'lucide-react'
+import { Menu } from 'lucide-react'
+import MobileMenu from './MobileMenu'
 import { useAuth } from '../context/AuthContext'
 import { BRAND } from '../data/constants'
 
@@ -10,9 +11,6 @@ const navCls = ({ isActive }: { isActive: boolean }) =>
       ? 'text-sage-deep after:scale-x-100'
       : 'text-sage-deep/70 after:scale-x-0 hover:text-sage-deep hover:after:scale-x-100'
   }`
-
-const mobNavCls = ({ isActive }: { isActive: boolean }) =>
-  `rounded-2xl px-4 py-3 font-display text-2xl ${isActive ? 'bg-sand/70 text-sage-deep' : 'text-sage-deep/80'}`
 
 function Logo({ light = false }: { light?: boolean }) {
   return (
@@ -30,6 +28,7 @@ export default function Layout() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { pathname } = useLocation()
+  const closeMenu = useCallback(() => setOpen(false), [])
 
   useEffect(() => {
     setOpen(false)
@@ -53,7 +52,7 @@ export default function Layout() {
       </a>
       <header
         className={`sticky top-0 z-[1100] transition-all duration-300 ${
-          scrolled || open
+          scrolled
             ? 'border-b border-sand/80 bg-cream/90 shadow-[0_8px_24px_-20px_rgb(47_58_34/0.5)] backdrop-blur-md'
             : 'border-b border-transparent bg-transparent'
         }`}
@@ -89,41 +88,17 @@ export default function Layout() {
           </div>
           <button
             className="grid size-11 place-items-center rounded-full text-sage-deep hover:bg-sand md:hidden"
-            onClick={() => setOpen((o) => !o)}
+            onClick={() => setOpen(true)}
             aria-expanded={open}
-            aria-label={open ? 'Zatvori meni' : 'Otvori meni'}
+            aria-controls="mobilni-meni"
+            aria-label="Otvori meni"
           >
-            {open ? <X /> : <Menu />}
+            <Menu />
           </button>
         </div>
-        {open && (
-          <nav className="flex flex-col gap-1 px-5 pb-6 pt-2 md:hidden" aria-label="Mobilna navigacija">
-            <NavLink to="/inicijative" className={mobNavCls}>
-              Inicijative
-            </NavLink>
-            <NavLink to="/o-projektu" className={mobNavCls}>
-              O projektu
-            </NavLink>
-            {user && (
-              <NavLink to="/profil" className={mobNavCls}>
-                Moj profil
-              </NavLink>
-            )}
-            <Link to="/nova-inicijativa" className="btn-primary mt-3">
-              Pokreni inicijativu
-            </Link>
-            {user ? (
-              <button onClick={logout} className="btn-secondary">
-                Odjava
-              </button>
-            ) : (
-              <Link to="/prijava" className="btn-secondary">
-                Prijava
-              </Link>
-            )}
-          </nav>
-        )}
       </header>
+
+      <MobileMenu open={open} onClose={closeMenu} />
 
       <main id="sadrzaj" className="-mt-20 flex-1 pt-20">
         <Outlet />
