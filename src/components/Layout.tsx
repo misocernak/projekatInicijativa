@@ -18,7 +18,7 @@ function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-3" aria-label={`${BRAND.name} – početna`}>
       <img src="/favicon.svg" alt="" className="size-9" />
-      <span className={`font-display text-[28px] font-medium leading-none tracking-tight ${light ? 'text-cream' : 'text-sage-deep'}`}>
+      <span className={`font-display text-[24px] font-extrabold leading-none tracking-tight ${light ? 'text-sage-deep' : 'text-sage-deep'}`}>
         {BRAND.name}
       </span>
     </Link>
@@ -52,7 +52,7 @@ export default function Layout() {
         Preskoči na sadržaj
       </a>
       <header
-        className={`sticky top-0 z-40 transition-all duration-300 ${
+        className={`sticky top-0 z-[1100] transition-all duration-300 ${
           scrolled || open
             ? 'border-b border-sand/80 bg-cream/90 shadow-[0_8px_24px_-20px_rgb(47_58_34/0.5)] backdrop-blur-md'
             : 'border-b border-transparent bg-transparent'
@@ -129,37 +129,37 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="mt-24 bg-sage-deep text-cream">
+      <footer className="mt-24 bg-sun text-sage-deep">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <Logo light />
-            <p className="mt-5 max-w-sm font-display text-xl leading-snug text-cream/80">
+            <p className="mt-5 max-w-sm font-semibold leading-snug text-sage-deep/80">
               Građani uređuju svoj grad, zajedno. Bez novca, samo ljudi i volja.
             </p>
           </div>
-          <nav aria-label="Podnožje" className="flex flex-col gap-2.5 text-sm text-cream/75">
-            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage">Platforma</span>
-            <Link to="/inicijative" className="hover:text-cream">
+          <nav aria-label="Podnožje" className="flex flex-col gap-2.5 text-sm text-sage-deep/75">
+            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-deep">Platforma</span>
+            <Link to="/inicijative" className="hover:text-sage-deep hover:underline">
               Inicijative
             </Link>
-            <Link to="/nova-inicijativa" className="hover:text-cream">
+            <Link to="/nova-inicijativa" className="hover:text-sage-deep hover:underline">
               Pokreni inicijativu
             </Link>
-            <Link to="/o-projektu" className="hover:text-cream">
+            <Link to="/o-projektu" className="hover:text-sage-deep hover:underline">
               O projektu
             </Link>
           </nav>
-          <div className="flex flex-col gap-2.5 text-sm text-cream/75">
-            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage">Nalog</span>
-            <Link to="/prijava" className="hover:text-cream">
+          <div className="flex flex-col gap-2.5 text-sm text-sage-deep/75">
+            <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-deep">Nalog</span>
+            <Link to="/prijava" className="hover:text-sage-deep hover:underline">
               Prijava i registracija
             </Link>
-            <Link to="/profil" className="hover:text-cream">
+            <Link to="/profil" className="hover:text-sage-deep hover:underline">
               Moj profil
             </Link>
           </div>
         </div>
-        <div className="border-t border-cream/10 py-5 text-center text-xs text-cream/50">
+        <div className="border-t border-sage-deep/10 py-5 text-center text-xs text-sage-deep/60">
           © {new Date().getFullYear()} {BRAND.name}. Platforma za građanske inicijative.
         </div>
       </footer>

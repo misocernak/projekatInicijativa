@@ -26,7 +26,7 @@ export default function About() {
       </div>
 
       <section className="card mt-12 p-8 sm:p-10">
-        <h2 className="text-4xl text-sage-deep">Pravila ponašanja</h2>
+        <h2 className="text-3xl text-sage-deep">Pravila ponašanja</h2>
         <ul className="mt-5 space-y-3 text-ink/80">
           {[
             'Inicijative moraju biti u javnom interesu i bezbedne za učesnike.',

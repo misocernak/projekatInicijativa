@@ -61,7 +61,7 @@ export default function InitiativeDetail() {
 
       <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr]">
         <article className="rise">
-          <Art category={item.category} className="h-56 rounded-[2rem] sm:h-72">
+          <Art category={item.category} image={item.image} className="h-56 rounded-[2rem] sm:h-80">
             <div className="absolute inset-x-5 top-5 flex items-start justify-between">
               <DateChip item={item} />
               <StatusBadge status={status} />
@@ -71,7 +71,7 @@ export default function InitiativeDetail() {
             <span className="text-[11px] font-bold uppercase tracking-[0.16em]" style={{ color: CATEGORY_STYLE[item.category].fg }}>
               {categoryLabel(item.category)}
             </span>
-            <h1 className="mt-3 text-5xl leading-[1.02] sm:text-6xl">{item.title}</h1>
+            <h1 className="mt-3 text-4xl leading-[1.08] sm:text-5xl">{item.title}</h1>
             <p className="mt-5 flex items-center gap-3 text-[13px] text-ink/65">
               <span className="grid size-9 place-items-center rounded-full bg-sage-dark text-sm font-bold text-white">
                 {item.organizerName.charAt(0)}
@@ -88,7 +88,7 @@ export default function InitiativeDetail() {
 
           {item.bring && (
             <section className="mt-10 rounded-3xl bg-[#fde7a9]/70 p-7">
-              <h2 className="mb-2 flex items-center gap-3 text-3xl text-sage-deep">
+              <h2 className="mb-2 flex items-center gap-3 text-2xl text-sage-deep">
                 <Package className="size-6 text-sage-dark" aria-hidden /> Šta poneti
               </h2>
               <p className="text-ink/80">{item.bring}</p>
@@ -96,7 +96,7 @@ export default function InitiativeDetail() {
           )}
 
           <section className="mt-10">
-            <h2 className="mb-4 text-3xl text-sage-deep">Lokacija</h2>
+            <h2 className="mb-4 text-2xl text-sage-deep">Lokacija</h2>
             <MapView items={[item]} height="320px" link={false} />
           </section>
         </article>
@@ -106,7 +106,7 @@ export default function InitiativeDetail() {
             <div className="mb-6 flex items-center justify-between">
               <AvatarStack count={count} size="md" />
               <p className="text-[13px] text-ink/65">
-                <strong className="font-display text-3xl font-bold text-sage-deep">{count}</strong>
+                <strong className="font-display text-3xl font-extrabold text-sage-deep">{count}</strong>
                 {item.capacity ? ` / ${item.capacity}` : ''} volontera
               </p>
             </div>
@@ -155,7 +155,7 @@ export default function InitiativeDetail() {
               <p className="mt-3 text-center text-xs text-ink/55">Za prijavu je potreban nalog.</p>
             )}
             {joined && (
-              <p className="mt-4 text-center font-display text-2xl font-bold text-sage-dark">Prijavljen/a si. Vidimo se!</p>
+              <p className="mt-4 text-center font-display text-xl font-extrabold text-sage-dark">Prijavljen/a si. Vidimo se!</p>
             )}
             {isOwner && !closed && (
               <button onClick={onCancel} className="mt-4 w-full text-[13px] font-semibold text-clay hover:underline">

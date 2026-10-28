@@ -25,7 +25,7 @@ export default function Auth() {
   return (
     <div className="mx-auto max-w-md px-5 py-14">
       <span className="eyebrow">Nalog</span>
-      <h1 className="text-5xl text-sage-deep">{mode === 'login' ? 'Dobro došao/la nazad' : 'Pridruži se'}</h1>
+      <h1 className="text-4xl text-sage-deep">{mode === 'login' ? 'Dobro došao/la nazad' : 'Pridruži se'}</h1>
       <p className="mt-5 rounded-2xl bg-sand/70 px-4 py-3 text-[13px] text-ink/75">
         Ovo je demo verzija: nalozi i prijave se čuvaju samo u tvom pretraživaču, dok ne povežemo server.
       </p>

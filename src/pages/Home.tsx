@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, MapPin, Search } from 'lucide-react'
+import { ArrowRight, CalendarPlus, HandHeart, MapPin, Search } from 'lucide-react'
 import { listInitiatives, participantCount } from '../api'
 import { Art, AvatarStack, CATEGORY_ICON, CATEGORY_STYLE, DateChip, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
@@ -10,9 +10,9 @@ import { useAsync } from '../lib/useAsync'
 import type { Initiative } from '../types'
 
 const STEPS = [
-  { title: 'Pronađi', text: 'Pregledaj inicijative u svom gradu: čišćenje, sadnja, uređenje, pomoć komšijama.', bg: '#cfe8f7' },
-  { title: 'Priključi se', text: 'Jednim klikom se prijavi. Organizator zna koliko ljudi dolazi i kada.', bg: '#fde7a9' },
-  { title: 'Pokreni svoju', text: 'Imaš ideju? Odredi mesto i datum ili je postavi kao trajnu, pa pozovi komšije.', bg: '#fbd3da' },
+  { icon: Search, title: 'Pronađi', text: 'Pregledaj inicijative u svom gradu: čišćenje, sadnja, uređenje, pomoć komšijama.' },
+  { icon: HandHeart, title: 'Priključi se', text: 'Jednim klikom se prijavi. Organizator zna koliko ljudi dolazi i kada.' },
+  { icon: CalendarPlus, title: 'Pokreni svoju', text: 'Imaš ideju? Odredi mesto i datum ili je postavi kao trajnu, pa pozovi komšije.' },
 ]
 
 export default function Home() {
@@ -34,8 +34,8 @@ export default function Home() {
 
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-10 pt-10 md:grid-cols-[1.1fr_1fr] md:pt-16">
           <div className="rise">
-            <span className="eyebrow">Građanske inicijative</span>
-            <h1 className="text-[3.5rem] leading-[0.95] sm:text-7xl lg:text-[5.8rem]">
+            <span className="eyebrow">Uključi se u svom kraju</span>
+            <h1 className="text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-[4.6rem]">
               Tvoj grad. <br className="hidden sm:block" />
               Uredimo ga <em>zajedno.</em>
             </h1>
@@ -116,7 +116,7 @@ export default function Home() {
 
       {/* KATEGORIJE */}
       <section className="mx-auto mt-32 max-w-6xl px-5">
-        <h2 className="mb-8 text-4xl sm:text-5xl">Šta želiš da radiš?</h2>
+        <h2 className="mb-8 text-3xl sm:text-4xl">Šta želiš da radiš?</h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {CATEGORIES.map((c) => {
             const s = CATEGORY_STYLE[c.id]
@@ -136,7 +136,7 @@ export default function Home() {
                 />
                 <Icon className="relative size-7" strokeWidth={1.8} aria-hidden />
                 <div className="relative">
-                  <p className="font-display text-2xl font-bold leading-none text-sage-deep">{c.label}</p>
+                  <p className="font-display text-lg font-extrabold leading-tight text-sage-deep">{c.label}</p>
                   <p className="mt-1 text-xs font-semibold">{n} inicijativa</p>
                 </div>
               </Link>
@@ -147,7 +147,7 @@ export default function Home() {
             className="flex min-h-36 flex-col justify-between rounded-3xl bg-sage-deep p-5 text-white transition duration-300 hover:-translate-y-1 hover:shadow-lift"
           >
             <ArrowRight className="size-7 -rotate-45" aria-hidden />
-            <p className="font-display text-2xl font-bold leading-none">Pokreni svoju</p>
+            <p className="font-display text-lg font-extrabold leading-tight">Pokreni svoju</p>
           </Link>
         </div>
       </section>
@@ -155,7 +155,7 @@ export default function Home() {
       {/* USKORO */}
       <section className="mx-auto mt-28 max-w-6xl px-5">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-4xl sm:text-5xl">Uskoro u tvom gradu</h2>
+          <h2 className="text-3xl sm:text-4xl">Uskoro u tvom gradu</h2>
           <Link to="/inicijative" className="text-[14px] font-semibold text-sage-dark hover:underline">
             Sve inicijative →
           </Link>
@@ -176,7 +176,7 @@ export default function Home() {
         <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.5fr]">
           <div>
             <span className="eyebrow">Mapa</span>
-            <h2 className="text-4xl sm:text-5xl">Pogledaj šta se dešava oko tebe</h2>
+            <h2 className="text-3xl sm:text-4xl">Pogledaj šta se dešava oko tebe</h2>
             <p className="mt-4 max-w-md text-ink/70">
               Svaka tačka je jedna akcija. Klikni na nju da vidiš detalje i prijaviš se.
             </p>
@@ -192,15 +192,18 @@ export default function Home() {
 
       {/* KAKO */}
       <section className="mx-auto mt-28 max-w-6xl px-5">
-        <h2 className="mb-10 max-w-xl text-4xl sm:text-5xl">Tri koraka do boljeg komšiluka</h2>
-        <ol className="grid gap-5 md:grid-cols-3">
-          {STEPS.map(({ title, text, bg }, idx) => (
-            <li key={title} className="rounded-[2rem] p-8" style={{ background: bg }}>
-              <span className="grid size-12 place-items-center rounded-full bg-white font-display text-2xl font-bold text-sage-deep">
-                {idx + 1}
+        <h2 className="mb-10 max-w-xl text-3xl sm:text-4xl">Tri koraka do boljeg komšiluka</h2>
+        <ol className="relative grid gap-10 md:grid-cols-3 md:gap-8">
+          <span aria-hidden className="absolute left-6 top-6 hidden h-0 w-[calc(100%-3rem)] border-t-2 border-dashed border-sage-dark/30 md:block" />
+          <span aria-hidden className="absolute bottom-6 left-6 top-6 w-0 border-l-2 border-dashed border-sage-dark/30 md:hidden" />
+          {STEPS.map(({ icon: Icon, title, text }, idx) => (
+            <li key={title} className="relative pl-20 md:pl-0 md:pt-20">
+              <span className="absolute left-0 top-0 grid size-12 place-items-center rounded-full bg-sage-dark text-white shadow-[0_0_0_6px_var(--color-cream)]">
+                <Icon className="size-5" aria-hidden />
               </span>
-              <h3 className="mt-6 text-3xl">{title}</h3>
-              <p className="mt-3 text-[14px] text-ink/75">{text}</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-sage-dark">Korak {idx + 1}</p>
+              <h3 className="mt-1 text-2xl">{title}</h3>
+              <p className="mt-2 max-w-xs text-[14px] text-ink/70">{text}</p>
             </li>
           ))}
         </ol>
@@ -213,7 +216,7 @@ export default function Home() {
           <div aria-hidden className="absolute -bottom-20 -right-12 size-72 rounded-full bg-coral" />
           <div aria-hidden className="absolute bottom-10 left-[18%] size-6 rounded-full bg-white/60" />
           <div className="relative">
-            <h2 className="mx-auto max-w-2xl text-5xl text-white sm:text-6xl">Imaš ideju za svoj kraj?</h2>
+            <h2 className="mx-auto max-w-2xl text-4xl text-white sm:text-5xl">Imaš ideju za svoj kraj?</h2>
             <p className="mx-auto mt-5 max-w-lg text-white/85">
               Opiši inicijativu, odredi mesto i vreme, a mi ćemo se pobrinuti da je vide ljudi iz tvog grada.
             </p>
@@ -244,13 +247,13 @@ function Poster({
       className={`rise absolute overflow-hidden rounded-[1.75rem] border border-sand bg-white shadow-lift ${className}`}
       style={delay ? { animationDelay: '150ms' } : undefined}
     >
-      <Art category={item.category} className="aspect-[4/3]">
+      <Art category={item.category} image={item.image} className="aspect-[4/3]">
         <div className="absolute left-3 top-3">
           <DateChip item={item} />
         </div>
       </Art>
       <div className="p-4">
-        <p className="font-display text-xl font-bold leading-[1.05] text-sage-deep">{item.title}</p>
+        <p className="font-display text-base font-extrabold leading-tight text-sage-deep">{item.title}</p>
         <p className="mt-2 flex items-center gap-1 text-[11px] text-ink/60">
           <MapPin className="size-3.5" aria-hidden /> {cityName(item.cityId)}
         </p>

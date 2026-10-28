@@ -34,6 +34,8 @@ export interface Initiative {
   organizerId: string
   organizerName: string
   contact?: string
+  /** slika inicijative (data URL ili URL sa servera); bez nje se prikazuje ilustracija kategorije */
+  image?: string
   cancelled?: boolean
 }
 

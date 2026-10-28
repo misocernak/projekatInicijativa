@@ -5,7 +5,9 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEffect } from 'react'
 import { createInitiative } from '../api'
+import { ImagePlus, X } from 'lucide-react'
 import { PageHead } from '../components/Bits'
+import { resizeImage } from '../lib/image'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES, CITIES } from '../data/constants'
 import { toLocalInput } from '../lib/dates'
@@ -37,11 +39,24 @@ export default function NewInitiative() {
   const [kind, setKind] = useState<'timed' | 'permanent'>('timed')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [image, setImage] = useState<string>()
+
+  async function onFile(file?: File) {
+    if (!file) return
+    if (!file.type.startsWith('image/')) return setError('Izaberi sliku (JPG, PNG ili WebP).')
+    if (file.size > 15 * 1024 * 1024) return setError('Slika je prevelika (najviše 15 MB).')
+    setError('')
+    try {
+      setImage(await resizeImage(file))
+    } catch {
+      setError('Slika se ne može učitati. Probaj drugu.')
+    }
+  }
 
   if (!user) {
     return (
       <div className="mx-auto max-w-xl px-5 py-24 text-center">
-        <h1 className="text-5xl text-sage-deep">Prijavi se da bi pokrenuo inicijativu</h1>
+        <h1 className="text-4xl text-sage-deep">Prijavi se da bi pokrenuo inicijativu</h1>
         <p className="mt-4 text-ink/70">
           Nalog nam služi da organizator i volonteri znaju ko je ko, i da sprečimo zloupotrebe.
         </p>
@@ -90,6 +105,7 @@ export default function NewInitiative() {
         endDate,
         capacity: cap > 0 ? cap : undefined,
         bring: s('bring') || undefined,
+        image,
         contact: s('contact') || undefined,
       },
       user!,
@@ -154,6 +170,31 @@ export default function NewInitiative() {
               ))}
             </select>
           </div>
+        </div>
+
+        <div>
+          <span className="label">
+            Slika <span className="font-normal normal-case tracking-normal text-ink/60">(opciono, ljudi će lakše shvatiti šta rešavate)</span>
+          </span>
+          {image ? (
+            <div className="relative overflow-hidden rounded-3xl">
+              <img src={image} alt="Pregled izabrane slike" className="h-56 w-full object-cover" />
+              <button
+                type="button"
+                onClick={() => setImage(undefined)}
+                className="absolute right-3 top-3 inline-flex min-h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-sage-deep shadow-md"
+              >
+                <X className="size-4" aria-hidden /> Ukloni
+              </button>
+            </div>
+          ) : (
+            <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-sand bg-mist/60 px-6 py-10 text-center transition hover:border-sage-dark/50 hover:bg-white">
+              <ImagePlus className="size-8 text-sage-dark" aria-hidden />
+              <span className="text-[14px] font-semibold text-sage-deep">Dodaj sliku</span>
+              <span className="text-xs text-ink/55">JPG, PNG ili WebP. Bez slike prikazuje se ilustracija vrste inicijative.</span>
+              <input type="file" accept="image/*" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
+            </label>
+          )}
         </div>
 
         <div>

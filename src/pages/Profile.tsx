@@ -18,7 +18,7 @@ export default function Profile() {
 
       <section>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-4xl text-sage-deep">Inicijative koje sam pokrenuo/la</h2>
+          <h2 className="text-3xl text-sage-deep">Inicijative koje sam pokrenuo/la</h2>
           <Link to="/nova-inicijativa" className="btn-primary">
             Nova inicijativa
           </Link>
@@ -37,7 +37,7 @@ export default function Profile() {
       </section>
 
       <section className="mt-12">
-        <h2 className="mb-6 text-4xl text-sage-deep">Na koje sam se prijavio/la</h2>
+        <h2 className="mb-6 text-3xl text-sage-deep">Na koje sam se prijavio/la</h2>
         {joined.loading ? (
           <Spinner />
         ) : joined.data?.length ? (
