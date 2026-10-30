@@ -282,6 +282,11 @@ export function adminHideInitiative(id: string): Promise<unknown> {
   return request('POST', `/admin/initiatives/${id}/hide`)
 }
 
+/** Admin: trajno briše inicijativu (sa prijavama volontera). */
+export function adminDeleteInitiative(id: string): Promise<unknown> {
+  return request('DELETE', `/admin/initiatives/${id}`)
+}
+
 export function adminUnhideInitiative(id: string): Promise<unknown> {
   return request('POST', `/admin/initiatives/${id}/unhide`)
 }

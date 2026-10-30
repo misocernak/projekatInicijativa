@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, CalendarDays, CheckCircle2, Eye, EyeOff, Flag, Info, Mail, MapPin, Package, Pencil, Users } from 'lucide-react'
+import { ArrowLeft, CalendarDays, CheckCircle2, Eye, EyeOff, Flag, Trash2, Info, Mail, MapPin, Package, Pencil, Users } from 'lucide-react'
 import {
+  adminDeleteInitiative,
   adminHideInitiative,
   adminUnhideInitiative,
   cancelInitiative,
@@ -423,6 +424,23 @@ export default function InitiativeDetail() {
                   >
                     {item.hidden ? <Eye className="size-4" aria-hidden /> : <EyeOff className="size-4" aria-hidden />}
                     {item.hidden ? 'Vrati na javnu listu (admin)' : 'Sakrij sa liste (admin)'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm('Trajno obrisati ovu inicijativu zajedno sa svim prijavama? Ovo se ne može vratiti.')) return
+                      setBusy(true)
+                      try {
+                        await adminDeleteInitiative(id)
+                        navigate('/inicijative')
+                      } catch (err) {
+                        setActionError(errorText(err))
+                        setBusy(false)
+                      }
+                    }}
+                    disabled={busy}
+                    className="mt-3 inline-flex w-full items-center justify-center gap-2 text-[13px] font-semibold text-clay hover:underline"
+                  >
+                    <Trash2 className="size-4" aria-hidden /> Obriši trajno (admin)
                   </button>
                 </div>
               )}

@@ -144,7 +144,25 @@ export default function Layout() {
           </div>
         </div>
         <div className="border-t border-sand py-5 text-center text-xs text-sage-deep/60">
-          © {new Date().getFullYear()} {BRAND.name}. Platforma za građanske inicijative.
+          <p>
+            © {new Date().getFullYear()} {BRAND.name}. Platforma za građanske inicijative.
+          </p>
+          <p className="mt-1.5">
+            Developed by{' '}
+            <a href="https://cernak.rs" target="_blank" rel="noopener" className="font-semibold text-sage-deep hover:underline">
+              černak.rs
+            </a>{' '}
+            ·{' '}
+            <a
+              href="https://www.instagram.com/dva____debila/"
+              target="_blank"
+              rel="noopener"
+              className="font-semibold text-sage-deep hover:underline"
+            >
+              dva debila
+            </a>{' '}
+            with love ♥
+          </p>
         </div>
       </footer>
     </div>

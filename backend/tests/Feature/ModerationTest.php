@@ -45,6 +45,18 @@ class ModerationTest extends TestCase
         Notification::assertNotSentTo($regular, ReportReceived::class);
     }
 
+    public function test_admin_can_delete_an_initiative_but_regular_users_cannot(): void
+    {
+        $initiative = $this->makeInitiative();
+        $regular = User::factory()->create();
+
+        $this->actingAs($regular)->spa()->deleteJson("/admin/initiatives/{$initiative->id}")->assertForbidden();
+        $this->assertDatabaseHas('initiatives', ['id' => $initiative->id]);
+
+        $this->actingAs($this->admin())->spa()->deleteJson("/admin/initiatives/{$initiative->id}")->assertOk();
+        $this->assertDatabaseMissing('initiatives', ['id' => $initiative->id]);
+    }
+
     public function test_report_validates_reason(): void
     {
         $initiative = $this->makeInitiative();

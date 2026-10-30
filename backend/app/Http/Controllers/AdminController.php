@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Initiative;
 use App\Models\Report;
 use App\Notifications\InitiativeHidden;
+use App\Support\ImageStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -57,6 +58,15 @@ class AdminController extends Controller
     }
 
     /** Sakriva inicijativu sa javne liste, zatvara njene otvorene prijave i obaveštava organizatora. */
+    /** Trajno brisanje (npr. test inicijative): sa slikom, prijavama i prijavljenim volonterima. Ne može da se vrati. */
+    public function destroy(Initiative $initiative): JsonResponse
+    {
+        ImageStore::delete($initiative->image_path);
+        $initiative->delete();
+
+        return response()->json(['status' => 'deleted']);
+    }
+
     public function hide(Request $request, Initiative $initiative): JsonResponse
     {
         if (! $initiative->isHidden()) {

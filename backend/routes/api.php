@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users/{user}/password-link', [AdminUserController::class, 'sendPasswordLink'])->middleware('throttle:20,1');
         Route::get('/reports', [AdminController::class, 'reports']);
         Route::post('/reports/{report}/resolve', [AdminController::class, 'resolve']);
+        Route::delete('/initiatives/{initiative}', [AdminController::class, 'destroy']);
         Route::post('/initiatives/{initiative}/hide', [AdminController::class, 'hide']);
         Route::post('/initiatives/{initiative}/unhide', [AdminController::class, 'unhide']);
     });
