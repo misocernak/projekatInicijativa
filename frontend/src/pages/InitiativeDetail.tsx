@@ -1,7 +1,19 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, CalendarDays, CheckCircle2, Info, Mail, MapPin, Package } from 'lucide-react'
-import { cancelInitiative, errorText, getInitiative, join, leave } from '../api'
+import { ArrowLeft, CalendarDays, CheckCircle2, Eye, EyeOff, Flag, Info, Mail, MapPin, Package, Pencil, Users } from 'lucide-react'
+import {
+  adminHideInitiative,
+  adminUnhideInitiative,
+  cancelInitiative,
+  errorText,
+  getInitiative,
+  join,
+  leave,
+  listParticipants,
+  reportInitiative,
+  type ParticipantRow,
+  type ReportReason,
+} from '../api'
 import { Art, AvatarStack, CATEGORY_STYLE, DateChip, Empty, Spinner, StatusBadge } from '../components/Bits'
 import MapView from '../components/MapView'
 import { useAuth } from '../context/AuthContext'
@@ -27,6 +39,26 @@ export default function InitiativeDetail() {
   const [actionError, setActionError] = useState('')
   const [sentTo, setSentTo] = useState<{ email: string; mailSent: boolean } | null>(null)
   const [guest, setGuest] = useState({ name: '', email: '', consent: false })
+  const [participants, setParticipants] = useState<ParticipantRow[]>([])
+  const [reportOpen, setReportOpen] = useState(false)
+  const [report, setReport] = useState<{ reason: ReportReason; message: string; email: string }>({
+    reason: 'spam',
+    message: '',
+    email: '',
+  })
+  const [reportState, setReportState] = useState<'idle' | 'busy' | 'done'>('idle')
+  const [reportError, setReportError] = useState('')
+
+  const canManage = !!item && (!!item.viewer?.isOrganizer || user?.role === 'admin')
+  const isAdmin = user?.role === 'admin'
+
+  // organizator i admin vide ko je sve prijavljen (samo imena)
+  useEffect(() => {
+    if (!canManage) return
+    listParticipants(id)
+      .then(setParticipants)
+      .catch(() => setParticipants([]))
+  }, [id, canManage, item?.participants])
 
   const banner = BANNERS[params.get('prijava') ?? '']
 
@@ -129,6 +161,13 @@ export default function InitiativeDetail() {
         <ArrowLeft className="size-4" aria-hidden /> Sve inicijative
       </Link>
 
+      {item.hidden && (
+        <p role="status" className="mb-8 flex items-start gap-3 rounded-2xl bg-clay/10 px-5 py-4 text-[14px] font-semibold text-clay">
+          <EyeOff className="mt-0.5 size-5 shrink-0" aria-hidden />
+          Ova inicijativa je sakrivena sa javne liste. Vidite je samo vi i admini.
+        </p>
+      )}
+
       {banner && (
         <p
           role="status"
@@ -174,6 +213,29 @@ export default function InitiativeDetail() {
                 <Package className="size-6 text-sage-dark" aria-hidden /> Šta poneti
               </h2>
               <p className="text-ink/80">{item.bring}</p>
+            </section>
+          )}
+
+          {canManage && (
+            <section className="mt-10 rounded-3xl border border-sand bg-white p-7">
+              <h2 className="mb-4 flex items-center gap-3 text-2xl text-sage-deep">
+                <Users className="size-6 text-sage-dark" aria-hidden /> Prijavljeni ({participants.length})
+              </h2>
+              {participants.length === 0 ? (
+                <p className="text-[14px] text-ink/60">Još niko nije prijavljen.</p>
+              ) : (
+                <ul className="divide-y divide-sand text-[14px]">
+                  {participants.map((p, idx) => (
+                    <li key={idx} className="flex items-center justify-between py-2.5">
+                      <span className="font-semibold text-sage-deep">{p.name}</span>
+                      <span className={p.status === 'confirmed' ? 'text-sage-dark' : 'text-ink/50'}>
+                        {p.status === 'confirmed' ? 'potvrđen/a' : 'čeka potvrdu mejla'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="mt-4 text-xs text-ink/50">Mejl adrese se ne prikazuju. Volonteri dobijaju sva obaveštenja od nas.</p>
             </section>
           )}
 
@@ -294,7 +356,13 @@ export default function InitiativeDetail() {
                       checked={guest.consent}
                       onChange={(e) => setGuest({ ...guest, consent: e.target.checked })}
                     />
-                    <span>Saglasan/na sam da se moje ime i mejl koriste za ovu prijavu i obaveštenja o inicijativi.</span>
+                    <span>
+                      Saglasan/na sam da se moje ime i mejl koriste za ovu prijavu i obaveštenja o inicijativi (
+                      <Link to="/privatnost" className="font-semibold text-sage-dark underline">
+                        politika privatnosti
+                      </Link>
+                      ).
+                    </span>
                   </label>
                   <button disabled={busy} className="btn-primary w-full">
                     {busy ? 'Sačekaj…' : 'Priključi se'}
@@ -314,12 +382,127 @@ export default function InitiativeDetail() {
                 </p>
               )}
 
-              {isOwner && !closed && (
-                <button onClick={onCancel} disabled={busy} className="mt-5 w-full text-[13px] font-semibold text-clay hover:underline">
-                  Otkaži inicijativu
-                </button>
+              {canManage && !item.cancelled && (
+                <div className="mt-6 space-y-3 border-t border-sand pt-5">
+                  <Link to={`/inicijative/${id}/izmena`} className="btn-secondary w-full">
+                    <Pencil className="size-4" aria-hidden /> Izmeni inicijativu
+                  </Link>
+                  {isOwner && !closed && (
+                    <button onClick={onCancel} disabled={busy} className="w-full text-[13px] font-semibold text-clay hover:underline">
+                      Otkaži inicijativu
+                    </button>
+                  )}
+                </div>
+              )}
+              {isAdmin && (
+                <div className="mt-4 border-t border-sand pt-4">
+                  <button
+                    onClick={async () => {
+                      setBusy(true)
+                      try {
+                        if (item.hidden) await adminUnhideInitiative(id)
+                        else if (confirm('Sakriti ovu inicijativu sa javne liste? Organizator dobija obaveštenje.')) await adminHideInitiative(id)
+                        await refresh()
+                      } catch (err) {
+                        setActionError(errorText(err))
+                      }
+                      setBusy(false)
+                    }}
+                    disabled={busy}
+                    className="inline-flex w-full items-center justify-center gap-2 text-[13px] font-semibold text-sage-deep hover:underline"
+                  >
+                    {item.hidden ? <Eye className="size-4" aria-hidden /> : <EyeOff className="size-4" aria-hidden />}
+                    {item.hidden ? 'Vrati na javnu listu (admin)' : 'Sakrij sa liste (admin)'}
+                  </button>
+                </div>
               )}
             </div>
+          </div>
+          <div className="mt-4 text-center">
+            {reportState === 'done' ? (
+              <p className="text-[13px] font-semibold text-sage-dark">Hvala, prijava je primljena. Pregledaćemo je.</p>
+            ) : reportOpen ? (
+              <form
+                className="card space-y-3 p-5 text-left"
+                onSubmit={async (e) => {
+                  e.preventDefault()
+                  setReportState('busy')
+                  setReportError('')
+                  try {
+                    await reportInitiative(id, {
+                      reason: report.reason,
+                      message: report.message.trim() || undefined,
+                      email: !user && report.email.trim() ? report.email.trim() : undefined,
+                    })
+                    setReportState('done')
+                  } catch (err) {
+                    setReportError(errorText(err))
+                    setReportState('idle')
+                  }
+                }}
+              >
+                <div>
+                  <label className="label" htmlFor="r-reason">
+                    Razlog
+                  </label>
+                  <select
+                    id="r-reason"
+                    className="field"
+                    value={report.reason}
+                    onChange={(e) => setReport({ ...report, reason: e.target.value as ReportReason })}
+                  >
+                    <option value="spam">Spam ili reklama</option>
+                    <option value="neprikladno">Neprikladan sadržaj</option>
+                    <option value="lazno">Lažna ili obmanjujuća inicijativa</option>
+                    <option value="bezbednost">Nebezbedno ili opasno</option>
+                    <option value="drugo">Drugo</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label" htmlFor="r-msg">
+                    Poruka <span className="font-normal normal-case tracking-normal text-ink/50">(opciono)</span>
+                  </label>
+                  <textarea
+                    id="r-msg"
+                    rows={3}
+                    maxLength={1000}
+                    className="field py-3"
+                    value={report.message}
+                    onChange={(e) => setReport({ ...report, message: e.target.value })}
+                  />
+                </div>
+                {!user && (
+                  <div>
+                    <label className="label" htmlFor="r-mail">
+                      Tvoj mejl <span className="font-normal normal-case tracking-normal text-ink/50">(opciono)</span>
+                    </label>
+                    <input
+                      id="r-mail"
+                      type="email"
+                      className="field"
+                      value={report.email}
+                      onChange={(e) => setReport({ ...report, email: e.target.value })}
+                    />
+                  </div>
+                )}
+                {reportError && <p className="text-[13px] font-semibold text-clay">{reportError}</p>}
+                <div className="flex gap-3">
+                  <button disabled={reportState === 'busy'} className="btn-primary flex-1">
+                    {reportState === 'busy' ? 'Šaljem…' : 'Pošalji prijavu'}
+                  </button>
+                  <button type="button" onClick={() => setReportOpen(false)} className="btn-secondary">
+                    Odustani
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                onClick={() => setReportOpen(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink/55 hover:text-sage-deep hover:underline"
+              >
+                <Flag className="size-3.5" aria-hidden /> Prijavi sadržaj
+              </button>
+            )}
           </div>
         </aside>
       </div>

@@ -113,7 +113,16 @@ export default function Auth() {
             <label className="flex items-start gap-3 text-[13px] leading-snug text-ink/75">
               <input type="checkbox" name="consent" required className="mt-0.5 size-5 shrink-0 accent-[#0b7a4b]" />
               <span>
-                Saglasan/na sam da platforma čuva moje podatke (ime i mejl) radi organizovanja inicijativa i slanja obaveštenja.
+                Saglasan/na sam da platforma čuva moje podatke (ime i mejl) radi organizovanja inicijativa i slanja obaveštenja, i
+                prihvatam{' '}
+                <Link to="/uslovi" className="font-semibold text-sage-dark underline">
+                  uslove korišćenja
+                </Link>{' '}
+                i{' '}
+                <Link to="/privatnost" className="font-semibold text-sage-dark underline">
+                  politiku privatnosti
+                </Link>
+                .
               </span>
             </label>
           </>

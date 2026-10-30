@@ -4,6 +4,7 @@ import {
   ArrowRight,
   ChevronRight,
   CircleUserRound,
+  FileText,
   Home,
   Info,
   LogIn,
@@ -11,6 +12,7 @@ import {
   Map as MapIcon,
   PlusCircle,
   Search,
+  ShieldCheck,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -161,6 +163,9 @@ export default function MobileMenu({ open, onClose }: Props) {
             {user ? (
               <>
                 <Item to="/profil" icon={CircleUserRound} label="Moj profil" active={pathname === '/profil'} onClick={onClose} />
+                {user.role === 'admin' && (
+                  <Item to="/admin" icon={ShieldCheck} label="Admin" active={pathname === '/admin'} onClick={onClose} />
+                )}
                 <Item
                   icon={LogOut}
                   label="Odjava"
@@ -177,6 +182,8 @@ export default function MobileMenu({ open, onClose }: Props) {
 
           <Section title="Informacije">
             <Item to="/o-projektu" icon={Info} label="O projektu" active={pathname === '/o-projektu'} onClick={onClose} />
+            <Item to="/privatnost" icon={ShieldCheck} label="Politika privatnosti" active={pathname === '/privatnost'} onClick={onClose} />
+            <Item to="/uslovi" icon={FileText} label="Uslovi korišćenja" active={pathname === '/uslovi'} onClick={onClose} />
           </Section>
         </nav>
 

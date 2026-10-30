@@ -45,6 +45,8 @@ export interface Initiative {
   /** pun URL slike; bez nje se prikazuje ilustracija kategorije */
   image?: string
   cancelled?: boolean
+  /** sakrivena sa javne liste (vide je samo organizator i admin) */
+  hidden?: boolean
   viewer?: Viewer
 }
 
@@ -69,5 +71,5 @@ export interface InitiativeFilters {
 /** Podaci iz forme za novu inicijativu (slika se šalje posebno, kao fajl). */
 export type NewInitiative = Omit<
   Initiative,
-  'id' | 'participants' | 'organizerId' | 'organizerName' | 'cancelled' | 'viewer' | 'image'
+  'id' | 'participants' | 'organizerId' | 'organizerName' | 'cancelled' | 'hidden' | 'viewer' | 'image'
 >

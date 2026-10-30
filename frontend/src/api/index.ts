@@ -217,3 +217,62 @@ export function resetPassword(data: {
 }): Promise<unknown> {
   return request('POST', '/reset-password', data)
 }
+
+/* ---------------- Izmena inicijative, prijavljeni, moderacija ---------------- */
+
+export async function updateInitiative(id: string, data: NewInitiative): Promise<Initiative> {
+  return (await request<Wrapped<Initiative>>('PUT', `/initiatives/${id}`, data)).data
+}
+
+export async function uploadInitiativeImage(id: string, image: Blob): Promise<Initiative> {
+  const form = new FormData()
+  form.append('image', image, 'slika.jpg')
+  return (await request<Wrapped<Initiative>>('POST', `/initiatives/${id}/image`, form)).data
+}
+
+export async function deleteInitiativeImage(id: string): Promise<Initiative> {
+  return (await request<Wrapped<Initiative>>('DELETE', `/initiatives/${id}/image`)).data
+}
+
+export interface ParticipantRow {
+  name: string
+  status: ParticipationStatus
+  joinedAt: string
+}
+
+/** Spisak prijavljenih (samo organizator): imena, bez mejl adresa. */
+export async function listParticipants(id: string): Promise<ParticipantRow[]> {
+  return (await request<Wrapped<ParticipantRow[]>>('GET', `/initiatives/${id}/participants`)).data
+}
+
+export type ReportReason = 'spam' | 'neprikladno' | 'lazno' | 'bezbednost' | 'drugo'
+
+export function reportInitiative(id: string, data: { reason: ReportReason; message?: string; email?: string }): Promise<unknown> {
+  return request('POST', `/initiatives/${id}/report`, data)
+}
+
+export interface AdminReport {
+  id: number
+  reason: ReportReason
+  message: string | null
+  status: 'open' | 'resolved'
+  createdAt: string
+  reporter: { name: string | null; email: string } | null
+  initiative: { id: string; title: string; hidden: boolean; organizerName: string }
+}
+
+export async function adminReports(status: 'open' | 'resolved' | 'all' = 'open'): Promise<AdminReport[]> {
+  return (await request<Wrapped<AdminReport[]>>('GET', `/admin/reports?status=${status}`)).data
+}
+
+export function adminResolveReport(id: number): Promise<unknown> {
+  return request('POST', `/admin/reports/${id}/resolve`)
+}
+
+export function adminHideInitiative(id: string): Promise<unknown> {
+  return request('POST', `/admin/initiatives/${id}/hide`)
+}
+
+export function adminUnhideInitiative(id: string): Promise<unknown> {
+  return request('POST', `/admin/initiatives/${id}/unhide`)
+}

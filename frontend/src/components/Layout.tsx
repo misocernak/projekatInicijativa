@@ -71,6 +71,11 @@ export default function Layout() {
                 Moj profil
               </NavLink>
             )}
+            {user?.role === 'admin' && (
+              <NavLink to="/admin" className={navCls}>
+                Admin
+              </NavLink>
+            )}
           </nav>
           <div className="hidden items-center gap-3 md:flex">
             {user ? (
@@ -122,6 +127,12 @@ export default function Layout() {
             </Link>
             <Link to="/o-projektu" className="hover:text-sage-deep hover:underline">
               O projektu
+            </Link>
+            <Link to="/privatnost" className="hover:text-sage-deep hover:underline">
+              Politika privatnosti
+            </Link>
+            <Link to="/uslovi" className="hover:text-sage-deep hover:underline">
+              Uslovi korišćenja
             </Link>
           </nav>
           <div className="flex flex-col gap-2.5 text-sm text-sage-deep/75">
