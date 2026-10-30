@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\InitiativeController;
+use App\Http\Controllers\ReferenceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -25,3 +27,9 @@ Route::get('/health', function () {
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+// Javno čitanje
+Route::get('/cities', [ReferenceController::class, 'cities']);
+Route::get('/categories', [ReferenceController::class, 'categories']);
+Route::get('/initiatives', [InitiativeController::class, 'index']);
+Route::get('/initiatives/{initiative}', [InitiativeController::class, 'show']);

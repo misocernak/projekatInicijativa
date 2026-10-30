@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            // password je prazan za "brze" naloge (volonteri koji se prijavljuju samo mejlom)
+            $table->string('password')->nullable();
+            $table->string('role', 20)->default('user');
             $table->rememberToken();
             $table->timestamps();
         });

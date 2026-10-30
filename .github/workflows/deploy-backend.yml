@@ -33,10 +33,20 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, intl, pdo_mysql, xml, curl, zip, fileinfo, openssl
+          extensions: mbstring, intl, pdo_mysql, pdo_sqlite, sqlite3, xml, curl, zip, fileinfo, openssl
           tools: composer:v2
 
-      - name: Composer install (bez dev paketa)
+      - name: Composer install (sa dev paketima, za testove)
+        working-directory: backend
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Testovi (SQLite u memoriji; deploy staje ako padnu)
+        working-directory: backend
+        run: |
+          export APP_KEY="$(php artisan key:generate --show)"
+          php artisan test --compact
+
+      - name: Composer install (bez dev paketa, za produkciju)
         working-directory: backend
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
 
@@ -109,6 +119,7 @@ jobs:
           chmod -R u+rwX storage bootstrap/cache
           grep -q '^APP_KEY=base64:' .env || php artisan key:generate --force
           php artisan migrate --force
+          php artisan db:seed --class=ReferenceDataSeeder --force
           php artisan config:cache
           php artisan event:cache
           php artisan view:cache
