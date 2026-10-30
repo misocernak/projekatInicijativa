@@ -82,6 +82,14 @@ export function Privacy() {
           <li>
             Hosting i slanje mejlova obavljaju provajderi koji podatke obrađuju po našem nalogu i samo za potrebe rada platforme.
           </li>
+          <li>
+            <strong>Mapa i pretraga adrese:</strong> mapa i pretraga adrese koriste OpenStreetMap (OpenStreetMap Foundation). Kada pri
+            pokretanju inicijative upišeš adresu da bi se pin postavio na mapu, ta adresa (zajedno sa tvojom IP adresom) šalje se njihovoj
+            usluzi pretrage; prikaz mape takođe učitava pločice sa njihovih servera.
+          </li>
+          <li>
+            <strong>Prijava preko Google naloga:</strong> ako izabereš tu prijavu, od Google-a dobijamo samo ime i potvrđenu mejl adresu.
+          </li>
         </ul>
       </section>
 

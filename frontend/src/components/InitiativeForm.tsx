@@ -1,9 +1,9 @@
 import CitySelect from './CitySelect'
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { ImagePlus, X } from 'lucide-react'
+import { ImagePlus, Search, X } from 'lucide-react'
 import { errorText } from '../api'
 import { CATEGORIES, CITIES } from '../data/constants'
 import { resizeImage } from '../lib/image'
@@ -25,6 +25,22 @@ function Picker({ pos, onPick }: { pos: [number, number] | null; onPick: (p: [nu
   }, [pos?.[0], pos?.[1]])
   useMapEvents({ click: (e) => onPick([e.latlng.lat, e.latlng.lng]) })
   return pos ? <Marker position={pos} icon={pin} /> : null
+}
+
+/** Traži adresu u OpenStreetMap-u (Nominatim), u Srbiji, uz prednost za izabrani grad. */
+async function geocode(address: string, city?: { name: string; lat: number; lng: number }): Promise<[number, number] | null> {
+  const p = new URLSearchParams({
+    format: 'jsonv2',
+    limit: '1',
+    countrycodes: 'rs',
+    'accept-language': 'sr-Latn',
+    q: city ? `${address}, ${city.name}` : address,
+  })
+  if (city) p.set('viewbox', `${city.lng - 0.25},${city.lat + 0.2},${city.lng + 0.25},${city.lat - 0.2}`)
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${p}`)
+  if (!res.ok) throw new Error('geocode')
+  const rows = (await res.json()) as { lat: string; lon: string }[]
+  return rows[0] ? [parseFloat(rows[0].lat), parseFloat(rows[0].lon)] : null
 }
 
 /**
@@ -53,6 +69,24 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
   const [image, setImage] = useState<Blob>()
   const [preview, setPreview] = useState<string>()
   const [removeExisting, setRemoveExisting] = useState(false)
+  const [geo, setGeo] = useState<'idle' | 'busy' | 'found' | 'none' | 'error'>('idle')
+  const lastLookup = useRef('')
+
+  async function locate(address: string, force = false) {
+    const text = address.trim()
+    if (text.length < 3) return
+    const key = `${cityId}|${text}`
+    if (!force && key === lastLookup.current) return
+    lastLookup.current = key
+    setGeo('busy')
+    try {
+      const found = await geocode(text, city)
+      if (found) setPos(found)
+      setGeo(found ? 'found' : 'none')
+    } catch {
+      setGeo('error')
+    }
+  }
 
   function setPicture(blob?: Blob) {
     if (preview) URL.revokeObjectURL(preview)
@@ -279,16 +313,39 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
         <label className="label" htmlFor="address">
           Adresa / opis mesta
         </label>
-        <input
-          id="address"
-          name="address"
-          required
-          maxLength={255}
-          defaultValue={initial?.address}
-          className="field"
-          placeholder="Ulica i broj ili poznata lokacija"
-        />
-        <p className="mb-2 mt-4 text-sm text-ink/70">Klikni na mapu da označiš tačnu lokaciju.</p>
+        <div className="flex gap-2">
+          <input
+            id="address"
+            name="address"
+            required
+            maxLength={255}
+            defaultValue={initial?.address}
+            className="field"
+            placeholder="Ulica i broj ili poznata lokacija"
+            onBlur={(e) => !editing && locate(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                locate(e.currentTarget.value, true)
+              }
+            }}
+          />
+          <button
+            type="button"
+            className="btn-secondary shrink-0 gap-2"
+            disabled={geo === 'busy'}
+            onClick={() => locate((document.getElementById('address') as HTMLInputElement).value, true)}
+          >
+            <Search className="size-4" aria-hidden /> <span className="hidden sm:inline">Nađi na mapi</span>
+          </button>
+        </div>
+        <p className="mb-2 mt-3 text-sm text-ink/70" role="status">
+          {geo === 'busy' && 'Tražim adresu na mapi…'}
+          {geo === 'found' && 'Pin je postavljen prema adresi. Ako nije tačno, klikni na mapu da ga pomeriš.'}
+          {geo === 'none' && 'Adresu nisam našao. Probaj drugačije ili klikni na mapu da označiš mesto.'}
+          {geo === 'error' && 'Pretraga adrese trenutno ne radi. Klikni na mapu da označiš mesto.'}
+          {geo === 'idle' && 'Upiši adresu i pin se postavlja sam, ili klikni na mapu da označiš tačnu lokaciju.'}
+        </p>
         <MapContainer center={pos ?? [44.2, 20.8]} zoom={pos ? 13 : 7} style={{ height: 280 }} className="w-full border border-sand">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

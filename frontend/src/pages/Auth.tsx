@@ -123,7 +123,20 @@ export default function Auth() {
    */
   return (
     <div className="mx-auto max-w-5xl px-5 py-10 lg:py-14">
-      <div className="grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:grid-rows-[auto_auto_1fr] lg:items-start">
+      <div className="relative grid gap-x-16 gap-y-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:grid-rows-[auto_auto_1fr] lg:items-start">
+        {showGoogle && (
+          // vertikalna linija "ili" tačno na sredini razmaka između leve i desne kolone
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-y-0 hidden -translate-x-1/2 flex-col items-center gap-3 text-sm font-bold uppercase tracking-[0.16em] text-ink/50 lg:flex"
+            style={{ left: 'calc((100% - 4rem) / 2.15 + 2rem)' }}
+          >
+            <span className="w-px flex-1 bg-ink/15" />
+            ili
+            <span className="w-px flex-1 bg-ink/15" />
+          </div>
+        )}
+
         <header className="lg:col-start-1 lg:row-start-1">
           <span className="eyebrow">Nalog</span>
           <h1 className="text-4xl text-sage-deep lg:text-5xl">{mode === 'login' ? 'Dobro došao/la nazad' : 'Pridruži se'}</h1>
