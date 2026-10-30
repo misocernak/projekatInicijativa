@@ -263,7 +263,7 @@ class ParticipationTest extends TestCase
 
         $mail = (new ParticipationConfirmed($this->confirmedParticipation($timed, $user)->load('initiative')))->toMail($user);
         $this->assertCount(1, $mail->rawAttachments);
-        $this->assertSame('inicijativa.ics', $mail->rawAttachments[0]['name']);
+        $this->assertSame('akcija.ics', $mail->rawAttachments[0]['name']);
         $this->assertStringContainsString('BEGIN:VEVENT', $mail->rawAttachments[0]['data']);
 
         $mail = (new ParticipationConfirmed($this->confirmedParticipation($permanent, $user)->load('initiative')))->toMail($user);

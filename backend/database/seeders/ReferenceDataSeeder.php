@@ -36,7 +36,7 @@ class ReferenceDataSeeder extends Seeder
             'zelenilo' => 'Zelenilo i sadnja',
             'uredjenje' => 'Uređenje prostora',
             'igraliste' => 'Igrališta i parkovi',
-            'pomoc' => 'Pomoć sugrađanima',
+            'pomoc' => 'Pomoć komšijama',
             'zivotinje' => 'Životinje',
             'kultura' => 'Kultura i druženje',
         ];

@@ -26,9 +26,9 @@ import { useAsync } from '../lib/useAsync'
 /** Poruke posle klika na link iz mejla (?prijava=...). */
 const BANNERS: Record<string, { text: string; good: boolean }> = {
   potvrdjena: { text: 'Prijava je potvrđena. Detalje i kalendar smo ti poslali mejlom. Vidimo se!', good: true },
-  otkazana: { text: 'Odjavljen/a si sa inicijative. Hvala što si javio/la.', good: true },
+  otkazana: { text: 'Odjavljen/a si sa akcije. Hvala što si javio/la.', good: true },
   popunjeno: { text: 'Nažalost, sva mesta su u međuvremenu popunjena, pa prijava nije potvrđena.', good: false },
-  zatvorena: { text: 'Ova inicijativa je završena ili otkazana, pa se prijava ne može potvrditi.', good: false },
+  zatvorena: { text: 'Ova akcija je završena ili otkazana, pa se prijava ne može potvrditi.', good: false },
 }
 
 export default function InitiativeDetail() {
@@ -82,9 +82,9 @@ export default function InitiativeDetail() {
   if (!item) {
     return (
       <div className="mx-auto max-w-xl px-5 py-24 text-center">
-        <h1 className="text-4xl text-sage-deep">Inicijativa nije pronađena</h1>
+        <h1 className="text-4xl text-sage-deep">Akcija nije pronađena</h1>
         <Link to="/inicijative" className="btn-primary mt-8">
-          Nazad na inicijative
+          Nazad na akcije
         </Link>
       </div>
     )
@@ -143,7 +143,7 @@ export default function InitiativeDetail() {
   }
 
   async function onCancel() {
-    if (!confirm('Da li sigurno želiš da otkažeš ovu inicijativu? Svi prijavljeni dobijaju obaveštenje mejlom.')) return
+    if (!confirm('Da li sigurno želiš da otkažeš ovu akciju? Svi prijavljeni dobijaju obaveštenje mejlom.')) return
     setBusy(true)
     try {
       await cancelInitiative(id)
@@ -160,13 +160,13 @@ export default function InitiativeDetail() {
         to="/inicijative"
         className="mb-8 inline-flex items-center gap-2 text-[13px] font-semibold tracking-[0.04em] text-sage-dark hover:underline"
       >
-        <ArrowLeft className="size-4" aria-hidden /> Sve inicijative
+        <ArrowLeft className="size-4" aria-hidden /> Sve akcije
       </Link>
 
       {item.hidden && (
         <p role="status" className="mb-8 flex items-start gap-3 rounded-2xl bg-clay/10 px-5 py-4 text-[14px] font-semibold text-clay">
           <EyeOff className="mt-0.5 size-5 shrink-0" aria-hidden />
-          Ova inicijativa je sakrivena sa javne liste. Vidite je samo vi i admini.
+          Ova akcija je sakrivena sa javne liste. Vidite je samo vi i admini.
         </p>
       )}
 
@@ -285,7 +285,7 @@ export default function InitiativeDetail() {
             <div className="mt-6">
               {closed ? (
                 <button disabled className="btn-primary w-full">
-                  {status === 'cancelled' ? 'Inicijativa je otkazana' : 'Inicijativa je završena'}
+                  {status === 'cancelled' ? 'Akcija je otkazana' : 'Akcija je završena'}
                 </button>
               ) : joined ? (
                 <>
@@ -359,7 +359,7 @@ export default function InitiativeDetail() {
                       onChange={(e) => setGuest({ ...guest, consent: e.target.checked })}
                     />
                     <span>
-                      Saglasan/na sam da se moje ime i mejl koriste za ovu prijavu i obaveštenja o inicijativi (
+                      Saglasan/na sam da se moje ime i mejl koriste za ovu prijavu i obaveštenja o akciji (
                       <Link to="/privatnost" className="font-semibold text-sage-dark underline">
                         politika privatnosti
                       </Link>
@@ -396,11 +396,11 @@ export default function InitiativeDetail() {
               {canManage && !item.cancelled && (
                 <div className="mt-6 space-y-3 border-t border-sand pt-5">
                   <Link to={`/inicijative/${id}/izmena`} className="btn-secondary w-full">
-                    <Pencil className="size-4" aria-hidden /> Izmeni inicijativu
+                    <Pencil className="size-4" aria-hidden /> Izmeni akciju
                   </Link>
                   {isOwner && !closed && (
                     <button onClick={onCancel} disabled={busy} className="w-full text-[13px] font-semibold text-clay hover:underline">
-                      Otkaži inicijativu
+                      Otkaži akciju
                     </button>
                   )}
                 </div>
@@ -412,7 +412,7 @@ export default function InitiativeDetail() {
                       setBusy(true)
                       try {
                         if (item.hidden) await adminUnhideInitiative(id)
-                        else if (confirm('Sakriti ovu inicijativu sa javne liste? Organizator dobija obaveštenje.')) await adminHideInitiative(id)
+                        else if (confirm('Sakriti ovu akciju sa javne liste? Organizator dobija obaveštenje.')) await adminHideInitiative(id)
                         await refresh()
                       } catch (err) {
                         setActionError(errorText(err))
@@ -427,7 +427,7 @@ export default function InitiativeDetail() {
                   </button>
                   <button
                     onClick={async () => {
-                      if (!confirm('Trajno obrisati ovu inicijativu zajedno sa svim prijavama? Ovo se ne može vratiti.')) return
+                      if (!confirm('Trajno obrisati ovu akciju zajedno sa svim prijavama? Ovo se ne može vratiti.')) return
                       setBusy(true)
                       try {
                         await adminDeleteInitiative(id)
@@ -481,7 +481,7 @@ export default function InitiativeDetail() {
                   >
                     <option value="spam">Spam ili reklama</option>
                     <option value="neprikladno">Neprikladan sadržaj</option>
-                    <option value="lazno">Lažna ili obmanjujuća inicijativa</option>
+                    <option value="lazno">Lažna ili obmanjujuća akcija</option>
                     <option value="bezbednost">Nebezbedno ili opasno</option>
                     <option value="drugo">Drugo</option>
                   </select>

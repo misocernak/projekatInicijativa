@@ -17,7 +17,7 @@ use Illuminate\Support\Str;
 use Throwable;
 
 /**
- * Prijava volontera na inicijativu.
+ * Prijava volontera na akciju.
  *
  * - Prijavljen korisnik sa potvrđenim mejlom: prijava je odmah potvrđena.
  * - Gost (samo ime i mejl) ili nepotvrđen nalog: prijava čeka klik na link iz mejla, koji dokazuje
@@ -27,7 +27,7 @@ class ParticipationController extends Controller
 {
     public function join(Request $request, Initiative $initiative): JsonResponse
     {
-        abort_unless($initiative->isOpen(), 422, 'Prijave za ovu inicijativu više nisu moguće.');
+        abort_unless($initiative->isOpen(), 422, 'Prijave za ovu akciju više nisu moguće.');
 
         $user = $request->user();
 

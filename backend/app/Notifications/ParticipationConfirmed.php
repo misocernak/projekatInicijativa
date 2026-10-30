@@ -34,7 +34,7 @@ class ParticipationConfirmed extends Notification
         $message = (new MailMessage)
             ->subject('Prijava potvrđena: '.$initiative->title)
             ->greeting('Vidimo se, '.$notifiable->name.'!')
-            ->line('Tvoja prijava za inicijativu „'.$initiative->title.'“ je potvrđena.')
+            ->line('Tvoja prijava za akciju „'.$initiative->title.'“ je potvrđena.')
             ->line('**Kada:** '.$this->when($initiative))
             ->line('**Gde:** '.$initiative->city->name.', '.$initiative->address);
 
@@ -46,19 +46,19 @@ class ParticipationConfirmed extends Notification
             $message->line('**Kontakt organizatora:** '.$initiative->contact);
         }
 
-        $message->action('Pogledaj inicijativu', $front)
+        $message->action('Pogledaj akciju', $front)
             ->line('Ako ne možeš da dođeš, odjavi se da bi se oslobodilo mesto: '.$cancelUrl);
 
         // prijava bez naloga: objasni kako da dobije pravi nalog
         if ($notifiable->password === null) {
-            $message->line('Prijavio/la si se bez naloga. Ako želiš da pratiš svoje prijave i da pokreneš sopstvenu inicijativu, otvori '
+            $message->line('Prijavio/la si se bez naloga. Ako želiš da pratiš svoje prijave i da pokreneš sopstvenu akciju, otvori '
                 .rtrim(config('app.url'), '/').'/prijava, izaberi „Registruj se“ sa ovom mejl adresom i poslaćemo ti link da postaviš lozinku.');
         }
 
         $message->salutation('Lepša Srbija');
 
         if ($ics = Ics::forInitiative($initiative)) {
-            $message->attachData($ics, 'inicijativa.ics', ['mime' => 'text/calendar']);
+            $message->attachData($ics, 'akcija.ics', ['mime' => 'text/calendar']);
         }
 
         return $message;
@@ -67,7 +67,7 @@ class ParticipationConfirmed extends Notification
     private function when($initiative): string
     {
         if ($initiative->kind === 'permanent' || ! $initiative->starts_at) {
-            return 'trajna inicijativa, priključi se u bilo kom trenutku';
+            return 'trajna akcija, priključi se u bilo kom trenutku';
         }
 
         $tz = 'Europe/Belgrade';

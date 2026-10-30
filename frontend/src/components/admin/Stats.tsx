@@ -28,7 +28,7 @@ export default function Stats() {
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Tile label="Nalozi" value={s.users.total} note={`+${s.users.new7} u poslednjih 7 dana`} />
-        <Tile label="Inicijative" value={s.initiatives.total} note={`${active} aktivnih, +${s.initiatives.new7} u 7 dana`} />
+        <Tile label="Akcije" value={s.initiatives.total} note={`${active} aktivnih, +${s.initiatives.new7} u 7 dana`} />
         <Tile
           label="Volonteri"
           value={s.participations.volunteers}
@@ -46,13 +46,13 @@ export default function Stats() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <DailyBars title="Novi nalozi" data={s.series.users} />
-        <DailyBars title="Nove inicijative" data={s.series.initiatives} />
+        <DailyBars title="Nove akcije" data={s.series.initiatives} />
         <DailyBars title="Potvrđene prijave volontera" data={s.series.participations} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <HBars
-          title="Inicijative po statusu"
+          title="Akcije po statusu"
           rows={(['upcoming', 'ongoing', 'permanent', 'finished', 'cancelled'] as const)
             .map((k) => ({ label: STATUS_LABEL[k], value: s.initiatives.byStatus[k] }))
             .concat([{ label: 'Sakrivene (moderacija)', value: s.initiatives.byStatus.hidden }])}
@@ -67,15 +67,15 @@ export default function Stats() {
           ]}
         />
         <HBars
-          title="Inicijative po vrsti"
+          title="Akcije po vrsti"
           rows={s.initiatives.byCategory.map((c) => ({
             label: categoryLabel(c.slug as CategoryId),
             value: c.count,
             color: CATEGORY_STYLE[c.slug as CategoryId]?.fg,
           }))}
-          empty="Još nema inicijativa."
+          empty="Još nema akcija."
         />
-        <HBars title="Gradovi sa najviše inicijativa" rows={s.initiatives.byCity.map((c) => ({ label: c.name, value: c.count }))} empty="Još nema inicijativa." />
+        <HBars title="Gradovi sa najviše akcija" rows={s.initiatives.byCity.map((c) => ({ label: c.name, value: c.count }))} empty="Još nema akcija." />
       </div>
 
       <p className="text-xs text-ink/50">

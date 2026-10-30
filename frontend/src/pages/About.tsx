@@ -15,13 +15,12 @@ export default function About() {
       />
       <div className="space-y-6 text-[17px] leading-[1.85] text-ink/85">
         <p>
-          {BRAND.name} je platforma na kojoj građani objavljuju društveno korisne inicijative u svom gradu i
-          pozivaju sugrađane da im se pridruže: uređenje parka, čišćenje obale, sadnja drveća, pomoć starijim
-          komšijama.
+          {BRAND.name} okuplja ljude oko akcija u njihovom kraju: očisti se obala, zasadi park, popravi igralište,
+          odnese namirnice starijoj komšinici. Neko objavi akciju, a ostali se prijave.
         </p>
         <p>
-          Ovo nije platforma za prikupljanje sredstava. Ne primamo novac i ne posredujemo u plaćanju. Cilj je
-          samo da se ljudi nađu: da se zna šta se radi, gde, kada i koliko ljudi dolazi.
+          Ovde se ne skuplja novac i ništa se ne plaća. Sajt služi samo da se zna šta se radi, gde, kada i
+          koliko ljudi dolazi.
         </p>
       </div>
 
@@ -29,7 +28,7 @@ export default function About() {
         <h2 className="text-3xl text-sage-deep">Pravila ponašanja</h2>
         <ul className="mt-5 space-y-3 text-ink/80">
           {[
-            'Inicijative moraju biti u javnom interesu i bezbedne za učesnike.',
+            'Akcije moraju biti u javnom interesu i bezbedne za učesnike.',
             'Pre radova na javnom prostoru proveri da li je potrebna saglasnost nadležne službe.',
             'Bez političke propagande, komercijalnih oglasa i govora mržnje.',
             'Poštuj tuđu privatnost: ne objavljuj tuđe lične podatke.',
@@ -43,7 +42,7 @@ export default function About() {
       </section>
 
       <Link to="/nova-inicijativa" className="btn-primary mt-12">
-        Pokreni inicijativu
+        Pokreni akciju
       </Link>
     </div>
   )

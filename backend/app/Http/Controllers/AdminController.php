@@ -57,8 +57,8 @@ class AdminController extends Controller
         return response()->json(['status' => 'resolved']);
     }
 
-    /** Sakriva inicijativu sa javne liste, zatvara njene otvorene prijave i obaveštava organizatora. */
-    /** Trajno brisanje (npr. test inicijative): sa slikom, prijavama i prijavljenim volonterima. Ne može da se vrati. */
+    /** Sakriva akciju sa javne liste, zatvara njene otvorene prijave i obaveštava organizatora. */
+    /** Trajno brisanje (npr. test akcije): sa slikom, prijavama i prijavljenim volonterima. Ne može da se vrati. */
     public function destroy(Initiative $initiative): JsonResponse
     {
         ImageStore::delete($initiative->image_path);

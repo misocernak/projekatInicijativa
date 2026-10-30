@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
             return (new MailMessage)
                 ->subject('Potvrdi svoju mejl adresu')
                 ->greeting('Zdravo, '.$notifiable->name.'!')
-                ->line('Hvala što si se pridružio/la zajednici. Potvrdi mejl adresu da bi mogao/la da pokrećeš inicijative.')
+                ->line('Hvala što si se pridružio/la zajednici. Potvrdi mejl adresu da bi mogao/la da pokrećeš akcije.')
                 ->action('Potvrdi mejl adresu', $url)
                 ->line('Link važi 60 minuta. Ako nisi ti napravio/la nalog, slobodno ignoriši ovu poruku.')
                 ->salutation('Lepša Srbija');
@@ -64,13 +64,13 @@ class AppServiceProvider extends ServiceProvider
             $url = rtrim(config('app.url'), '/').'/nova-lozinka?token='.$token
                 .'&email='.urlencode($notifiable->getEmailForPasswordReset());
 
-            // nalog nastao brzom prijavom na inicijativu još nema lozinku: ovo je njegova aktivacija
+            // nalog nastao brzom prijavom na akciju još nema lozinku: ovo je njegova aktivacija
             if ($notifiable->password === null) {
                 return (new MailMessage)
                     ->subject('Aktiviraj svoj nalog')
                     ->greeting('Zdravo, '.$notifiable->name.'!')
-                    ->line('Ranije si se prijavio/la na inicijativu samo mejl adresom, pa nalog još nema lozinku.')
-                    ->line('Postavi lozinku da završiš registraciju. Posle toga možeš da se prijaviš, pratiš svoje prijave i pokrećeš sopstvene inicijative.')
+                    ->line('Ranije si se prijavio/la na akciju samo mejl adresom, pa nalog još nema lozinku.')
+                    ->line('Postavi lozinku da završiš registraciju. Posle toga možeš da se prijaviš, pratiš svoje prijave i pokrećeš sopstvene akcije.')
                     ->action('Postavi lozinku', $url)
                     ->line('Link važi 60 minuta. Ako nisi ti tražio/la ovo, slobodno ignoriši poruku; tvoje prijave ostaju kakve jesu.')
                     ->salutation('Lepša Srbija');

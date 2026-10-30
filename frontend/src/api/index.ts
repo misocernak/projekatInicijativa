@@ -102,7 +102,7 @@ function friendly(status: number): string {
   return 'Došlo je do greške na serveru. Pokušaj ponovo.'
 }
 
-/* ---------------- Inicijative ---------------- */
+/* ---------------- Akcije ---------------- */
 
 interface Wrapped<T> {
   data: T
@@ -147,7 +147,7 @@ export async function listJoined(): Promise<Initiative[]> {
   return (await request<Wrapped<Initiative[]>>('GET', '/me/participations')).data
 }
 
-/* ---------------- Prijava na inicijativu ---------------- */
+/* ---------------- Prijava na akciju ---------------- */
 
 export interface JoinResult {
   status: ParticipationStatus
@@ -193,7 +193,7 @@ export interface RegisterResult {
   /** postoji samo kada je nalog napravljen (i korisnik prijavljen) */
   user?: User
   verificationEmailSent?: boolean
-  /** mejl je već korišćen za brzu prijavu na inicijativu: poslat je link za postavljanje lozinke */
+  /** mejl je već korišćen za brzu prijavu na akciju: poslat je link za postavljanje lozinke */
   status?: 'activation-sent'
   mailSent?: boolean
 }
@@ -227,7 +227,7 @@ export function resetPassword(data: {
   return request('POST', '/reset-password', data)
 }
 
-/* ---------------- Izmena inicijative, prijavljeni, moderacija ---------------- */
+/* ---------------- Izmena akcije, prijavljeni, moderacija ---------------- */
 
 export async function updateInitiative(id: string, data: NewInitiative): Promise<Initiative> {
   return (await request<Wrapped<Initiative>>('PUT', `/initiatives/${id}`, data)).data
@@ -282,7 +282,7 @@ export function adminHideInitiative(id: string): Promise<unknown> {
   return request('POST', `/admin/initiatives/${id}/hide`)
 }
 
-/** Admin: trajno briše inicijativu (sa prijavama volontera). */
+/** Admin: trajno briše akciju (sa prijavama volontera). */
 export function adminDeleteInitiative(id: string): Promise<unknown> {
   return request('DELETE', `/admin/initiatives/${id}`)
 }
@@ -330,7 +330,7 @@ export interface AdminUser {
   email: string
   role: 'admin' | 'user'
   emailVerified: boolean
-  /** false za naloge nastale brzom prijavom na inicijativu */
+  /** false za naloge nastale brzom prijavom na akciju */
   hasPassword: boolean
   /** nalog je povezan sa Google prijavom */
   hasGoogle: boolean

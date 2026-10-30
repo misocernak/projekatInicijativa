@@ -31,7 +31,7 @@ class ConfirmParticipation extends Notification
         return (new MailMessage)
             ->subject('Potvrdi prijavu: '.$initiative->title)
             ->greeting('Zdravo, '.$notifiable->name.'!')
-            ->line('Primili smo tvoju prijavu za inicijativu „'.$initiative->title.'“.')
+            ->line('Primili smo tvoju prijavu za akciju „'.$initiative->title.'“.')
             ->line('Klikni na dugme da potvrdiš da dolaziš. Tek tada te računamo među prijavljene volontere.')
             ->action('Potvrdi prijavu', $url)
             ->line('Link važi 3 dana. Ako se nisi prijavio/la, slobodno ignoriši ovu poruku.')

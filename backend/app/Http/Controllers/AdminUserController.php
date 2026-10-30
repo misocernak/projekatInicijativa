@@ -51,7 +51,7 @@ class AdminUserController extends Controller
 
     /**
      * Šalje korisniku mejl sa linkom za postavljanje lozinke. Namenjeno nalozima nastalim brzom prijavom na
-     * inicijativu (bez lozinke), ali radi za svaki nalog. Link ide na mejl adresu naloga, ne vidi ga admin.
+     * akciju (bez lozinke), ali radi za svaki nalog. Link ide na mejl adresu naloga, ne vidi ga admin.
      */
     public function sendPasswordLink(Request $request, User $user): JsonResponse
     {
@@ -109,7 +109,7 @@ class AdminUserController extends Controller
             'email' => $user->email,
             'role' => $user->role ?? 'user',
             'emailVerified' => $user->hasVerifiedEmail(),
-            // false za naloge nastale brzom prijavom na inicijativu
+            // false za naloge nastale brzom prijavom na akciju
             'hasPassword' => $user->password !== null,
             'hasGoogle' => $user->google_id !== null,
             'createdAt' => $user->created_at?->toIso8601String(),

@@ -136,21 +136,21 @@ export default function MobileMenu({ open, onClose }: Props) {
             <Item
               to="/inicijative"
               icon={Search}
-              label="Sve inicijative"
+              label="Sve akcije"
               active={pathname.startsWith('/inicijative') && !isMap}
               onClick={onClose}
             />
             <Item
               to="/inicijative?prikaz=mapa"
               icon={MapIcon}
-              label="Mapa inicijativa"
+              label="Mapa akcija"
               active={pathname === '/inicijative' && isMap}
               onClick={onClose}
             />
             <Item
               to="/nova-inicijativa"
               icon={PlusCircle}
-              label="Pokreni inicijativu"
+              label="Pokreni akciju"
               badge="Novo"
               active={pathname === '/nova-inicijativa'}
               onClick={onClose}
@@ -198,7 +198,7 @@ export default function MobileMenu({ open, onClose }: Props) {
             </div>
           ) : (
             <Link to="/nova-inicijativa" onClick={onClose} className="btn-primary w-full">
-              Pokreni inicijativu
+              Pokreni akciju
             </Link>
           )}
         </div>

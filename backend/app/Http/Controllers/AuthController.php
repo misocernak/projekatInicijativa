@@ -25,7 +25,7 @@ class AuthController extends Controller
     {
         $this->requireSession($request);
 
-        // Mejl je već korišćen za brzu prijavu na inicijativu (nalog bez lozinke): umesto greške šaljemo link
+        // Mejl je već korišćen za brzu prijavu na akciju (nalog bez lozinke): umesto greške šaljemo link
         // za aktivaciju. Link stiže na tu adresu, pa samo njen vlasnik može da postavi lozinku.
         $email = Str::lower((string) $request->input('email'));
         $quick = filter_var($email, FILTER_VALIDATE_EMAIL)

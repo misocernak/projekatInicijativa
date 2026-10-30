@@ -140,7 +140,7 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
     if (kind === 'timed') {
       const start = new Date(startVal)
       const end = new Date(endVal)
-      if (isNaN(+start) || isNaN(+end)) return setError('Unesi početak i kraj inicijative.')
+      if (isNaN(+start) || isNaN(+end)) return setError('Unesi početak i kraj akcije.')
       if (end <= start) return setError('Kraj mora biti posle početka.')
       startDate = start.toISOString()
       endDate = end.toISOString()
@@ -252,7 +252,7 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-sand bg-mist/60 px-6 py-10 text-center transition hover:border-sage-dark/50 hover:bg-white">
             <ImagePlus className="size-8 text-sage-dark" aria-hidden />
             <span className="text-[14px] font-semibold text-sage-deep">Dodaj sliku</span>
-            <span className="text-xs text-ink/55">JPG, PNG ili WebP. Bez slike prikazuje se ilustracija vrste inicijative.</span>
+            <span className="text-xs text-ink/55">JPG, PNG ili WebP. Bez slike prikazuje se ilustracija vrste akcije.</span>
             <input type="file" accept="image/*" className="sr-only" onChange={(e) => onFile(e.target.files?.[0])} />
           </label>
         )}
@@ -288,7 +288,7 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
               }`}
             >
               <input type="radio" className="sr-only" checked={kind === k} onChange={() => setKind(k)} />
-              {k === 'timed' ? 'Ima datum početka i kraja' : 'Trajna inicijativa'}
+              {k === 'timed' ? 'Ima datum početka i kraja' : 'Trajna akcija'}
             </label>
           ))}
         </div>

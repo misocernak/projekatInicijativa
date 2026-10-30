@@ -28,7 +28,7 @@ class InitiativeUpdated extends Notification
         $message = (new MailMessage)
             ->subject('Izmena: '.$initiative->title)
             ->greeting('Zdravo, '.$notifiable->name.'!')
-            ->line('Organizator je promenio detalje inicijative „'.$initiative->title.'“ na koju si se prijavio/la. Novi podaci:');
+            ->line('Organizator je promenio detalje akcije „'.$initiative->title.'“ na koju si se prijavio/la. Novi podaci:');
 
         if ($initiative->starts_at) {
             $start = $initiative->starts_at->copy()->setTimezone($tz);
@@ -40,8 +40,8 @@ class InitiativeUpdated extends Notification
         }
 
         $message->line('**Gde:** '.$initiative->city->name.', '.$initiative->address)
-            ->action('Pogledaj inicijativu', rtrim(config('app.url'), '/').'/inicijative/'.$initiative->id)
-            ->line('Ako ti novi termin ne odgovara, možeš da se odjaviš na stranici inicijative.')
+            ->action('Pogledaj akciju', rtrim(config('app.url'), '/').'/inicijative/'.$initiative->id)
+            ->line('Ako ti novi termin ne odgovara, možeš da se odjaviš na stranici akcije.')
             ->salutation('Lepša Srbija');
 
         return $message;

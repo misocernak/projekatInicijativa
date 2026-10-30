@@ -6,7 +6,7 @@ use App\Models\Initiative;
 use Carbon\CarbonInterface;
 
 /**
- * Kalendar fajl (.ics) za vremenske inicijative, koji ide uz mejl o potvrđenoj prijavi.
+ * Kalendar fajl (.ics) za vremenske akcije, koji ide uz mejl o potvrđenoj prijavi.
  */
 class Ics
 {

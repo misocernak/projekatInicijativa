@@ -26,7 +26,7 @@ class MeController extends Controller
         return InitiativeResource::collection($items);
     }
 
-    /** Inicijative na koje je korisnik prijavljen (potvrđeno ili čeka potvrdu). */
+    /** Akcije na koje je korisnik prijavljen (potvrđeno ili čeka potvrdu). */
     public function participations(Request $request): AnonymousResourceCollection
     {
         $userId = $request->user()->id;

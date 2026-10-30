@@ -60,7 +60,7 @@ export default function Initiatives() {
             Šta možemo da uradimo <em>zajedno?</em>
           </>
         }
-        text="Pronađi inicijativu u svom gradu i priključi se komšijama."
+        text="Pronađi akciju u svom gradu i priključi se komšijama."
       />
 
       <form
@@ -102,7 +102,7 @@ export default function Initiatives() {
         </div>
       </form>
 
-      <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Vrsta inicijative">
+      <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Vrsta akcije">
         <button
           onClick={() => set('kategorija', '')}
           aria-pressed={!category}
@@ -162,7 +162,7 @@ export default function Initiatives() {
         ) : error ? (
           <Empty title="Učitavanje nije uspelo" text={errorText(error)} />
         ) : items.length === 0 ? (
-          <Empty title="Nema inicijativa za ove filtere" text="Probaj drugi grad ili pokreni sopstvenu inicijativu." />
+          <Empty title="Nema akcija za ove filtere" text="Probaj drugi grad ili pokreni sopstvenu akciju." />
         ) : view === 'mapa' ? (
           <MapView items={items} height="520px" />
         ) : (

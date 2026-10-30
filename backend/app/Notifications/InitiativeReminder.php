@@ -6,7 +6,7 @@ use App\Models\Participation;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-/** Podsetnik volonteru oko dan pre početka inicijative. */
+/** Podsetnik volonteru oko dan pre početka akcije. */
 class InitiativeReminder extends Notification
 {
     public function __construct(public Participation $participation) {}
@@ -28,7 +28,7 @@ class InitiativeReminder extends Notification
         $message = (new MailMessage)
             ->subject('Podsetnik: '.$initiative->title)
             ->greeting('Zdravo, '.$notifiable->name.'!')
-            ->line('Podsećamo te da se uskoro održava inicijativa na koju si prijavljen/a: „'.$initiative->title.'“.')
+            ->line('Podsećamo te da se uskoro održava akcija na koju si prijavljen/a: „'.$initiative->title.'“.')
             ->line('**Kada:** '.$when)
             ->line('**Gde:** '.$initiative->city->name.', '.$initiative->address);
 
@@ -37,8 +37,8 @@ class InitiativeReminder extends Notification
         }
 
         return $message
-            ->action('Pogledaj inicijativu', rtrim(config('app.url'), '/').'/inicijative/'.$initiative->id)
-            ->line('Ako ne možeš da dođeš, odjavi se na stranici inicijative da bi se oslobodilo mesto.')
+            ->action('Pogledaj akciju', rtrim(config('app.url'), '/').'/inicijative/'.$initiative->id)
+            ->line('Ako ne možeš da dođeš, odjavi se na stranici akcije da bi se oslobodilo mesto.')
             ->salutation('Lepša Srbija');
     }
 }

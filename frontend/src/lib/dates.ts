@@ -11,7 +11,7 @@ export const formatDate = (iso: string) => dateFmt.format(new Date(iso))
 export const formatTime = (iso: string) => timeFmt.format(new Date(iso))
 
 export function formatWhen(i: Initiative): string {
-  if (i.kind === 'permanent') return 'Trajna inicijativa'
+  if (i.kind === 'permanent') return 'Trajna akcija'
   if (!i.startDate) return ''
   const start = formatDate(i.startDate)
   const t = formatTime(i.startDate)

@@ -18,7 +18,7 @@ class ReportController extends Controller
 {
     public function store(Request $request, Initiative $initiative): JsonResponse
     {
-        // sakrivena inicijativa za javnost ne postoji
+        // sakrivena akcija za javnost ne postoji
         abort_if($initiative->isHidden(), 404);
 
         $data = $request->validate([

@@ -19,11 +19,11 @@ interface Props {
   where: string
 }
 
-/** Deljenje inicijative: poruka sa pozivom + dugmad za najčešće načine (poruke, mreže, mejl, kopiranje linka). */
+/** Deljenje akcije: poruka sa pozivom + dugmad za najčešće načine (poruke, mreže, mejl, kopiranje linka). */
 export default function ShareInitiative({ id, title, when, where }: Props) {
   const [copied, setCopied] = useState(false)
   const url = `${window.location.origin}/inicijative/${id}`
-  const text = `Pridruži se inicijativi „${title}“ (${where}${when ? `, ${when}` : ''}) na ${BRAND.name}.`
+  const text = `Pridruži se akciji „${title}“ (${where}${when ? `, ${when}` : ''}) na ${BRAND.name}.`
   const full = `${text} ${url}`
   const enc = encodeURIComponent
   const canNative = typeof navigator !== 'undefined' && typeof navigator.share === 'function'

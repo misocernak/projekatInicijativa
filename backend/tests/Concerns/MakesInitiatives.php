@@ -25,8 +25,8 @@ trait MakesInitiatives
             'user_id' => User::factory()->create()->id,
             'city_id' => $city->id,
             'category_id' => $category->id,
-            'title' => 'Test inicijativa',
-            'description' => 'Opis inicijative',
+            'title' => 'Test akcija',
+            'description' => 'Opis akcije',
             'address' => 'Ulica 1',
             'lat' => 43.32,
             'lng' => 21.89,
@@ -36,7 +36,7 @@ trait MakesInitiatives
         ], $attrs));
     }
 
-    /** Telo zahteva za kreiranje inicijative, u obliku koji šalje front. */
+    /** Telo zahteva za kreiranje akcije, u obliku koji šalje front. */
     protected function payload(array $override = []): array
     {
         return array_merge([

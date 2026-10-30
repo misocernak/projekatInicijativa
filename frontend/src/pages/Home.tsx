@@ -11,7 +11,7 @@ import { useAsync } from '../lib/useAsync'
 import type { Initiative } from '../types'
 
 const STEPS = [
-  { icon: Search, title: 'Pronađi', text: 'Pregledaj inicijative u svom gradu: čišćenje, sadnja, uređenje, pomoć komšijama.' },
+  { icon: Search, title: 'Pronađi', text: 'Pregledaj akcije u svom gradu: čišćenje, sadnja, uređenje, pomoć komšijama.' },
   { icon: HandHeart, title: 'Priključi se', text: 'Jednim klikom se prijavi. Organizator zna koliko ljudi dolazi i kada.' },
   { icon: CalendarPlus, title: 'Pokreni svoju', text: 'Imaš ideju? Odredi mesto i datum ili je postavi kao trajnu, pa pozovi komšije.' },
 ]
@@ -46,10 +46,10 @@ export default function Home() {
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link to="/inicijative" className="btn-primary">
-                Pogledaj inicijative <ArrowRight className="size-4" aria-hidden />
+                Pogledaj akcije <ArrowRight className="size-4" aria-hidden />
               </Link>
               <Link to="/nova-inicijativa" className="btn-secondary">
-                Pokreni inicijativu
+                Pokreni akciju
               </Link>
             </div>
             <div className="mt-10 flex items-center gap-4">
@@ -92,7 +92,7 @@ export default function Home() {
             </div>
             <label className="flex items-center gap-3 sm:pr-2">
               <Search className="size-5 shrink-0 text-coral" aria-hidden />
-              <span className="sr-only">Vrsta inicijative</span>
+              <span className="sr-only">Vrsta akcije</span>
               <select name="kategorija" className="min-h-12 w-full bg-transparent text-[15px] font-medium text-sage-deep outline-none">
                 <option value="">Sve vrste</option>
                 {CATEGORIES.map((c) => (
@@ -130,7 +130,7 @@ export default function Home() {
                 <Icon className="relative size-7" strokeWidth={1.8} aria-hidden />
                 <div className="relative">
                   <p className="font-display text-lg font-extrabold leading-tight text-sage-deep">{c.label}</p>
-                  <p className="mt-1 text-xs font-semibold">{n} inicijativa</p>
+                  <p className="mt-1 text-xs font-semibold">{n} akcija</p>
                 </div>
               </Link>
             )
@@ -150,17 +150,17 @@ export default function Home() {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <h2 className="text-3xl sm:text-4xl">Uskoro u tvom gradu</h2>
           <Link to="/inicijative" className="text-[14px] font-semibold text-sage-dark hover:underline">
-            Sve inicijative →
+            Sve akcije →
           </Link>
         </div>
         {loading ? (
           <Spinner />
         ) : featured.length === 0 ? (
           <div className="rounded-3xl border-2 border-dashed border-sand bg-white px-6 py-14 text-center">
-            <p className="font-display text-2xl font-extrabold text-sage-deep">Još nema predstojećih inicijativa</p>
+            <p className="font-display text-2xl font-extrabold text-sage-deep">Još nema predstojećih akcija</p>
             <p className="mx-auto mt-2 max-w-md text-ink/65">Budi prvi koji će okupiti komšije i pokrenuti nešto korisno u svom kraju.</p>
             <Link to="/nova-inicijativa" className="btn-primary mt-6">
-              Pokreni inicijativu
+              Pokreni akciju
             </Link>
           </div>
         ) : (
@@ -219,13 +219,13 @@ export default function Home() {
           <div className="relative">
             <h2 className="mx-auto max-w-2xl text-4xl text-white sm:text-5xl">Imaš ideju za svoj kraj?</h2>
             <p className="mx-auto mt-5 max-w-lg text-white/85">
-              Opiši inicijativu, odredi mesto i vreme, a mi ćemo se pobrinuti da je vide ljudi iz tvog grada.
+              Opiši akciju, odredi mesto i vreme, a mi ćemo se pobrinuti da je vide ljudi iz tvog grada.
             </p>
             <Link
               to="/nova-inicijativa"
               className="mt-9 inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-white px-9 text-[14px] font-semibold text-sage-deep transition duration-200 hover:-translate-y-0.5"
             >
-              Pokreni inicijativu <ArrowRight className="size-4" aria-hidden />
+              Pokreni akciju <ArrowRight className="size-4" aria-hidden />
             </Link>
           </div>
         </div>

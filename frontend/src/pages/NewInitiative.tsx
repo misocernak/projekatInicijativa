@@ -13,7 +13,7 @@ export default function NewInitiative() {
   if (!user) {
     return (
       <div className="mx-auto max-w-xl px-5 py-24 text-center">
-        <h1 className="text-4xl text-sage-deep">Prijavi se da bi pokrenuo inicijativu</h1>
+        <h1 className="text-4xl text-sage-deep">Prijavi se da bi pokrenuo akciju</h1>
         <p className="mt-4 text-ink/70">
           Nalog nam služi da organizator i volonteri znaju ko je ko, i da sprečimo zloupotrebe.
         </p>
@@ -42,7 +42,7 @@ export default function NewInitiative() {
   return (
     <div className="mx-auto max-w-3xl px-5 pb-6 pt-10">
       <PageHead
-        eyebrow="Nova inicijativa"
+        eyebrow="Nova akcija"
         title={
           <>
             Pokreni nešto <em>dobro.</em>
@@ -52,7 +52,7 @@ export default function NewInitiative() {
       />
       <InitiativeForm
         defaultCityId={user.cityId}
-        submitLabel="Objavi inicijativu"
+        submitLabel="Objavi akciju"
         savingLabel="Objavljivanje…"
         onSubmit={async (data, image) => {
           const item = await createInitiative(data, image instanceof Blob ? image : undefined)

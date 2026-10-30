@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * Podsetnik potvrđenim volonterima kada inicijativa počinje u narednih 24 sata.
+ * Podsetnik potvrđenim volonterima kada akcija počinje u narednih 24 sata.
  * Pokreće se po rasporedu (svaki sat), a svaki volonter dobija najviše jedan podsetnik.
  */
 class SendReminders extends Command
 {
     protected $signature = 'initiatives:send-reminders';
 
-    protected $description = 'Šalje podsetnik volonterima za inicijative koje počinju u narednih 24 sata';
+    protected $description = 'Šalje podsetnik volonterima za akcije koje počinju u narednih 24 sata';
 
     public function handle(): int
     {

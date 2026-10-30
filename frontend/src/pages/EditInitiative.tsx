@@ -25,12 +25,12 @@ export default function EditInitiative() {
   if (!item || !allowed) {
     return (
       <div className="mx-auto max-w-xl px-5 py-24 text-center">
-        <h1 className="text-4xl text-sage-deep">{item ? 'Nemaš dozvolu' : 'Inicijativa nije pronađena'}</h1>
+        <h1 className="text-4xl text-sage-deep">{item ? 'Nemaš dozvolu' : 'Akcija nije pronađena'}</h1>
         <p className="mt-4 text-ink/70">
-          {item ? 'Inicijativu može da menja samo organizator.' : 'Možda je uklonjena ili je link pogrešan.'}
+          {item ? 'Akciju može da menja samo organizator.' : 'Možda je uklonjena ili je link pogrešan.'}
         </p>
         <Link to={user ? '/inicijative' : '/prijava'} state={{ from: `/inicijative/${id}/izmena` }} className="btn-primary mt-8">
-          {user ? 'Nazad na inicijative' : 'Prijavi se'}
+          {user ? 'Nazad na akcije' : 'Prijavi se'}
         </Link>
       </div>
     )
@@ -39,8 +39,8 @@ export default function EditInitiative() {
   if (item.cancelled) {
     return (
       <div className="mx-auto max-w-xl px-5 py-24 text-center">
-        <h1 className="text-4xl text-sage-deep">Inicijativa je otkazana</h1>
-        <p className="mt-4 text-ink/70">Otkazana inicijativa se ne može menjati.</p>
+        <h1 className="text-4xl text-sage-deep">Akcija je otkazana</h1>
+        <p className="mt-4 text-ink/70">Otkazana akcija se ne može menjati.</p>
         <Link to={`/inicijative/${id}`} className="btn-primary mt-8">
           Nazad
         </Link>
@@ -50,7 +50,7 @@ export default function EditInitiative() {
 
   return (
     <div className="mx-auto max-w-3xl px-5 pb-6 pt-10">
-      <PageHead eyebrow="Izmena" title={<>Izmeni inicijativu</>} text="Promene vremena i mesta stižu svim prijavljenima mejlom." />
+      <PageHead eyebrow="Izmena" title={<>Izmeni akciju</>} text="Promene vremena i mesta stižu svim prijavljenima mejlom." />
       <InitiativeForm
         initial={item}
         submitLabel="Sačuvaj izmene"

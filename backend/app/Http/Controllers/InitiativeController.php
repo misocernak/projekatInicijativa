@@ -61,7 +61,7 @@ class InitiativeController extends Controller
 
     public function show(Request $request, Initiative $initiative): InitiativeResource
     {
-        // sakrivenu inicijativu vide samo organizator i admin; za ostale ona ne postoji
+        // sakrivenu akciju vide samo organizator i admin; za ostale ona ne postoji
         if ($initiative->isHidden()) {
             $viewer = $request->user();
             abort_unless($viewer && Gate::forUser($viewer)->allows('update', $initiative), 404);
@@ -95,11 +95,11 @@ class InitiativeController extends Controller
     public function update(Request $request, Initiative $initiative): InitiativeResource
     {
         Gate::authorize('update', $initiative);
-        abort_if($initiative->isCancelled(), 422, 'Otkazana inicijativa se ne može menjati.');
+        abort_if($initiative->isCancelled(), 422, 'Otkazana akcija se ne može menjati.');
 
         $rules = $this->rules();
 
-        // početak koji se nije menjao ne mora da bude u budućnosti (ispravka naslova inicijative koja je u toku)
+        // početak koji se nije menjao ne mora da bude u budućnosti (ispravka naslova akcije koja je u toku)
         $start = $request->input('startDate');
         if (is_string($start) && strtotime($start) !== false && $initiative->starts_at && Carbon::parse($start)->eq($initiative->starts_at)) {
             $rules['startDate'] = ['required_if:kind,timed', 'nullable', 'date'];
@@ -211,9 +211,9 @@ class InitiativeController extends Controller
             'category.exists' => 'Izabrana vrsta ne postoji.',
             'cityId.exists' => 'Izabrani grad ne postoji.',
             'address.required' => 'Unesi adresu ili opis mesta.',
-            'startDate.required_if' => 'Unesi početak inicijative.',
+            'startDate.required_if' => 'Unesi početak akcije.',
             'startDate.after' => 'Početak ne može biti u prošlosti.',
-            'endDate.required_if' => 'Unesi kraj inicijative.',
+            'endDate.required_if' => 'Unesi kraj akcije.',
             'endDate.after' => 'Kraj mora biti posle početka.',
             'image.image' => 'Fajl mora biti slika.',
             'image.mimes' => 'Dozvoljene su slike JPG, PNG i WebP.',
@@ -261,7 +261,7 @@ class InitiativeController extends Controller
         ]);
     }
 
-    /** Zapamti status prijave prijavljenog korisnika za prikaz, jednim upitom umesto po inicijativi. */
+    /** Zapamti status prijave prijavljenog korisnika za prikaz, jednim upitom umesto po akciji. */
     private function rememberViewer(Request $request, $ids): void
     {
         $user = $request->user();

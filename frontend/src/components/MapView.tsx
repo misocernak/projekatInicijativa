@@ -57,7 +57,7 @@ export default function MapView({ items, height = '420px', link = true }: Props)
             {link && (
               <>
                 <br />
-                <Link to={`/inicijative/${i.id}`}>Pogledaj inicijativu</Link>
+                <Link to={`/inicijative/${i.id}`}>Pogledaj akciju</Link>
               </>
             )}
           </Popup>

@@ -16,7 +16,7 @@ export interface City {
 
 export type ParticipationStatus = 'pending' | 'confirmed' | 'cancelled'
 
-/** Odnos prijavljenog korisnika prema inicijativi (API ga dodaje samo prijavljenima). */
+/** Odnos prijavljenog korisnika prema akciji (API ga dodaje samo prijavljenima). */
 export interface Viewer {
   isOrganizer: boolean
   participation: ParticipationStatus | null
@@ -31,7 +31,7 @@ export interface Initiative {
   address: string
   lat: number
   lng: number
-  /** 'timed' ima početak i kraj, 'permanent' je trajna inicijativa */
+  /** 'timed' ima početak i kraj, 'permanent' je trajna akcija */
   kind: 'timed' | 'permanent'
   startDate?: string
   endDate?: string
@@ -68,7 +68,7 @@ export interface InitiativeFilters {
   query?: string
 }
 
-/** Podaci iz forme za novu inicijativu (slika se šalje posebno, kao fajl). */
+/** Podaci iz forme za novu akciju (slika se šalje posebno, kao fajl). */
 export type NewInitiative = Omit<
   Initiative,
   'id' | 'participants' | 'organizerId' | 'organizerName' | 'cancelled' | 'hidden' | 'viewer' | 'image'

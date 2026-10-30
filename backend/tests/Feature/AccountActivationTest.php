@@ -13,7 +13,7 @@ use Tests\Concerns\MakesInitiatives;
 use Tests\TestCase;
 
 /**
- * Nalog nastao brzom prijavom na inicijativu (bez lozinke) mora lako da se pretvori u pravi nalog.
+ * Nalog nastao brzom prijavom na akciju (bez lozinke) mora lako da se pretvori u pravi nalog.
  */
 class AccountActivationTest extends TestCase
 {

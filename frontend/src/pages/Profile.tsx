@@ -44,7 +44,7 @@ export default function Profile() {
         <div className="mb-10 flex flex-wrap items-center gap-4 rounded-3xl bg-sun/50 p-6">
           <MailWarning className="size-8 shrink-0 text-sage-deep" aria-hidden />
           <div className="min-w-0 flex-1 text-[14px] text-sage-deep">
-            <p className="font-bold">Potvrdi mejl adresu da bi mogao/la da pokrećeš inicijative.</p>
+            <p className="font-bold">Potvrdi mejl adresu da bi mogao/la da pokrećeš akcije.</p>
             <p className="text-sage-deep/80">
               Poslali smo link na {user.email}. Proveri i spam.
               {resend === 'sent' && ' Nova poruka je poslata.'}
@@ -59,9 +59,9 @@ export default function Profile() {
 
       <section>
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-3xl text-sage-deep">Inicijative koje sam pokrenuo/la</h2>
+          <h2 className="text-3xl text-sage-deep">Akcije koje sam pokrenuo/la</h2>
           <Link to="/nova-inicijativa" className="btn-primary">
-            Nova inicijativa
+            Nova akcija
           </Link>
         </div>
         {mine.loading ? (
@@ -75,7 +75,7 @@ export default function Profile() {
             ))}
           </div>
         ) : (
-          <Empty title="Još nisi pokrenuo/la nijednu inicijativu" text="Kada pokreneš prvu, pojaviće se ovde." />
+          <Empty title="Još nisi pokrenuo/la nijednu akciju" text="Kada pokreneš prvu, pojaviće se ovde." />
         )}
       </section>
 
@@ -92,7 +92,7 @@ export default function Profile() {
             ))}
           </div>
         ) : (
-          <Empty title="Nisi prijavljen/a ni na jednu inicijativu" text="Pogledaj šta se dešava u tvom gradu." />
+          <Empty title="Nisi prijavljen/a ni na jednu akciju" text="Pogledaj šta se dešava u tvom gradu." />
         )}
       </section>
     </div>

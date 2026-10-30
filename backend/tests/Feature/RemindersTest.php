@@ -55,7 +55,7 @@ class RemindersTest extends TestCase
         $this->seasoned($this->startingIn(72));
         // već počela
         $this->seasoned($this->startingIn(-3, ['ends_at' => now()->addHour()]));
-        // otkazana i sakrivena inicijativa
+        // otkazana i sakrivena akcija
         $this->seasoned($this->startingIn(10, ['cancelled_at' => now()]));
         $this->seasoned($this->startingIn(10, ['hidden_at' => now()]));
         // trajna nema početak

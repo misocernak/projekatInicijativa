@@ -24,7 +24,7 @@ class ReportReceived extends Notification
         $message = (new MailMessage)
             ->subject('Prijava sadržaja: '.$initiative->title)
             ->greeting('Nova prijava sadržaja')
-            ->line('**Inicijativa:** '.$initiative->title)
+            ->line('**Akcija:** '.$initiative->title)
             ->line('**Razlog:** '.$this->report->reason);
 
         if ($this->report->message) {

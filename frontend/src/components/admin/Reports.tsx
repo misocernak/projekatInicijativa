@@ -103,7 +103,7 @@ export default function Reports() {
                   </button>
                 ) : (
                   <button onClick={() => act(r, 'hide')} disabled={busyId === r.id} className="btn-primary min-h-10 px-5">
-                    <EyeOff className="size-4" aria-hidden /> Sakrij inicijativu
+                    <EyeOff className="size-4" aria-hidden /> Sakrij akciju
                   </button>
                 )}
                 {r.status === 'open' && (

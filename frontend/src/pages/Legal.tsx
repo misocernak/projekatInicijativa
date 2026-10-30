@@ -27,7 +27,7 @@ export function Privacy() {
           <strong>{OPERATOR.email}</strong>.
         </p>
         <p>
-          {BRAND.name} je platforma za građanske inicijative: ljudi objavljuju inicijative u svom gradu, a drugi se prijavljuju da
+          {BRAND.name} je platforma na kojoj ljudi objavljuju akcije u svom gradu, a drugi se prijavljuju da
           učestvuju. Ne prikupljamo novac i ne obrađujemo plaćanja.
         </p>
       </section>
@@ -39,7 +39,7 @@ export function Privacy() {
             <strong>Nalog:</strong> ime, mejl adresa, grad (opciono) i lozinka, koju čuvamo samo u zaštićenom (heširanom) obliku.
           </li>
           <li>
-            <strong>Prijava na inicijativu:</strong> ime i mejl adresa, i podatak na koju si se inicijativu prijavio/la. Za prijavu
+            <strong>Prijava na akciju:</strong> ime i mejl adresa, i podatak na koju si se akciju prijavio/la. Za prijavu
             nije potreban nalog.
           </li>
           <li>
@@ -59,10 +59,10 @@ export function Privacy() {
         <h2>3. Zašto i na kom osnovu</h2>
         <ul>
           <li>
-            <strong>Vođenje naloga i prijava (izvršenje usluge):</strong> da bi mogao/la da pokrećeš inicijative i da se prijavljuješ.
+            <strong>Vođenje naloga i prijava (izvršenje usluge):</strong> da bi mogao/la da pokrećeš akcije i da se prijavljuješ.
           </li>
           <li>
-            <strong>Obaveštenja o inicijativi (saglasnost):</strong> potvrda prijave, kalendar, podsetnik i obaveštenje o izmeni ili otkazivanju.
+            <strong>Obaveštenja o akciji (saglasnost):</strong> potvrda prijave, kalendar, podsetnik i obaveštenje o izmeni ili otkazivanju.
             Saglasnost daješ pri prijavi i možeš da je povučeš odjavom ili zahtevom za brisanje.
           </li>
           <li>
@@ -75,7 +75,7 @@ export function Privacy() {
       <section>
         <h2>4. Ko vidi tvoje podatke</h2>
         <ul>
-          <li>Javno su vidljivi sadržaj inicijative i ime organizatora.</li>
+          <li>Javno su vidljivi sadržaj akcije i ime organizatora.</li>
           <li>
             Organizator vidi <strong>imena</strong> prijavljenih volontera, ali ne i njihove mejl adrese. Obaveštenja volonterima šaljemo mi.
           </li>
@@ -85,7 +85,7 @@ export function Privacy() {
           </li>
           <li>
             <strong>Mapa i pretraga adrese:</strong> mapa i pretraga adrese koriste OpenStreetMap (OpenStreetMap Foundation). Kada pri
-            pokretanju inicijative upišeš adresu da bi se pin postavio na mapu, ta adresa (zajedno sa tvojom IP adresom) šalje se njihovoj
+            pokretanju akcije upišeš adresu da bi se pin postavio na mapu, ta adresa (zajedno sa tvojom IP adresom) šalje se njihovoj
             usluzi pretrage; prikaz mape takođe učitava pločice sa njihovih servera.
           </li>
           <li>
@@ -148,15 +148,15 @@ export function Terms() {
       <section>
         <h2>1. Šta je {BRAND.name}</h2>
         <p>
-          {BRAND.name} povezuje ljude koji žele da urade nešto korisno za svoj grad. Organizatori objavljuju inicijative, a volonteri se
-          prijavljuju. Platforma ne organizuje inicijative, ne prikuplja novac i ne učestvuje u njima.
+          {BRAND.name} povezuje ljude koji žele da urade nešto korisno za svoj grad. Organizatori objavljuju akcije, a volonteri se
+          prijavljuju. Platforma ne organizuje akcije, ne prikuplja novac i ne učestvuje u njima.
         </p>
       </section>
 
       <section>
         <h2>2. Nalog</h2>
         <ul>
-          <li>Za pokretanje inicijative potreban je nalog sa potvrđenom mejl adresom. Za prijavu na inicijativu dovoljni su ime i mejl.</li>
+          <li>Za pokretanje akcije potreban je nalog sa potvrđenom mejl adresom. Za prijavu na akciju dovoljni su ime i mejl.</li>
           <li>Podaci koje uneseš moraju biti tačni. Čuvaj svoju lozinku i ne deli je.</li>
           <li>Nalog možeš da obrišeš u svakom trenutku zahtevom na {OPERATOR.email}.</li>
         </ul>
@@ -165,7 +165,7 @@ export function Terms() {
       <section>
         <h2>3. Pravila za organizatore</h2>
         <ul>
-          <li>Inicijativa mora biti u javnom interesu, zakonita i bezbedna za učesnike.</li>
+          <li>Akcija mora biti u javnom interesu, zakonita i bezbedna za učesnike.</li>
           <li>Za radove na javnom ili tuđem prostoru odgovoran/na si da obezbediš saglasnost nadležne službe ili vlasnika.</li>
           <li>Odgovoran/na si za bezbednost i organizaciju okupljanja, kao i za tačnost opisa, mesta i vremena.</li>
           <li>Objavljuj samo sadržaj i slike na koje imaš pravo i ne objavljuj tuđe lične podatke bez saglasnosti.</li>
@@ -177,7 +177,7 @@ export function Terms() {
         <ul>
           <li>političko agitovanje, komercijalno oglašavanje i prikupljanje novca ili donacija;</li>
           <li>govor mržnje, uvrede, pretnje, diskriminacija i nasilan ili nezakonit sadržaj;</li>
-          <li>lažne inicijative, obmanjivanje volontera i zloupotreba tuđih mejl adresa;</li>
+          <li>lažne akcije, obmanjivanje volontera i zloupotreba tuđih mejl adresa;</li>
           <li>automatizovano prikupljanje podataka i ometanje rada platforme.</li>
         </ul>
       </section>
@@ -185,7 +185,7 @@ export function Terms() {
       <section>
         <h2>5. Moderacija</h2>
         <p>
-          Svako može da prijavi sporan sadržaj. Zadržavamo pravo da inicijativu sakrijemo ili uklonimo i da ograničimo nalog ako se
+          Svako može da prijavi sporan sadržaj. Zadržavamo pravo da akciju sakrijemo ili uklonimo i da ograničimo nalog ako se
           krše ova pravila. Organizatora o tome obaveštavamo mejlom.
         </p>
       </section>
@@ -193,17 +193,17 @@ export function Terms() {
       <section>
         <h2>6. Učešće i odgovornost</h2>
         <p>
-          Učešće u inicijativama je dobrovoljno i na sopstvenu odgovornost. Platforma ne proverava svaku inicijativu niti garantuje njenu
-          bezbednost ili ishod. Pre dolaska proceni da li ti je inicijativa bezbedna, a decu vodi samo uz odgovornu odraslu osobu. U meri
-          koju dozvoljava zakon, ne odgovaramo za štetu nastalu u vezi sa inicijativama koje organizuju korisnici.
+          Učešće u akcijama je dobrovoljno i na sopstvenu odgovornost. Platforma ne proverava svaku akciju niti garantuje njenu
+          bezbednost ili ishod. Pre dolaska proceni da li ti je akcija bezbedna, a decu vodi samo uz odgovornu odraslu osobu. U meri
+          koju dozvoljava zakon, ne odgovaramo za štetu nastalu u vezi sa akcijama koje organizuju korisnici.
         </p>
       </section>
 
       <section>
         <h2>7. Sadržaj koji objaviš</h2>
         <p>
-          Sadržaj ostaje tvoj. Objavljivanjem nam daješ pravo da ga prikazujemo na platformi i u obaveštenjima povezanim sa tvojom inicijativom.
-          Možeš ga izmeniti ili ukloniti, a otkazivanjem inicijative obaveštavaš prijavljene.
+          Sadržaj ostaje tvoj. Objavljivanjem nam daješ pravo da ga prikazujemo na platformi i u obaveštenjima povezanim sa tvojom akcijom.
+          Možeš ga izmeniti ili ukloniti, a otkazivanjem akcije obaveštavaš prijavljene.
         </p>
       </section>
 

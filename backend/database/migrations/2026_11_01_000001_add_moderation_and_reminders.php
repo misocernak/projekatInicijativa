@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Sakrivena inicijativa nije vidljiva javnosti (vidi je samo organizator i admin)
+        // Sakrivena akcija nije vidljiva javnosti (vidi je samo organizator i admin)
         Schema::table('initiatives', function (Blueprint $table) {
             $table->timestamp('hidden_at')->nullable()->after('cancelled_at');
             $table->index('hidden_at');

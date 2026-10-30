@@ -6,7 +6,7 @@ export { CITIES }
 export const BRAND = {
   name: 'Lepša Srbija',
   domain: 'lepsasrbija.com',
-  tagline: 'Inicijative u tvom gradu',
+  tagline: 'Akcije u tvom gradu',
 }
 
 export const CATEGORIES: { id: CategoryId; label: string }[] = [
@@ -14,7 +14,7 @@ export const CATEGORIES: { id: CategoryId; label: string }[] = [
   { id: 'zelenilo', label: 'Zelenilo i sadnja' },
   { id: 'uredjenje', label: 'Uređenje prostora' },
   { id: 'igraliste', label: 'Igrališta i parkovi' },
-  { id: 'pomoc', label: 'Pomoć sugrađanima' },
+  { id: 'pomoc', label: 'Pomoć komšijama' },
   { id: 'zivotinje', label: 'Životinje' },
   { id: 'kultura', label: 'Kultura i druženje' },
 ]

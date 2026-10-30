@@ -6,7 +6,7 @@ use App\Models\Initiative;
 use App\Models\User;
 
 /**
- * Inicijativom upravlja organizator (ili admin). Ime klase prati model, pa Laravel sam pronalazi policy.
+ * Akcijom upravlja organizator (ili admin). Ime klase prati model, pa Laravel sam pronalazi policy.
  */
 class InitiativePolicy
 {

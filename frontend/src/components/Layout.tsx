@@ -59,7 +59,7 @@ export default function Layout() {
           <Logo />
           <nav className="hidden items-center gap-9 md:flex" aria-label="Glavna navigacija">
             <NavLink to="/inicijative" className={navCls}>
-              Inicijative
+              Akcije
             </NavLink>
             <NavLink to="/o-projektu" className={navCls}>
               O projektu
@@ -86,7 +86,7 @@ export default function Layout() {
               </Link>
             )}
             <Link to="/nova-inicijativa" className="btn-primary min-h-11 px-5">
-              Pokreni inicijativu
+              Pokreni akciju
             </Link>
           </div>
           <button
@@ -112,16 +112,16 @@ export default function Layout() {
           <div>
             <Logo />
             <p className="mt-5 max-w-sm font-semibold leading-snug text-sage-deep/80">
-              Građani uređuju svoj grad, zajedno. Dovoljno je da se nađemo.
+              Čistiš, sadiš, krečiš? Objavi akciju i okupi komšije.
             </p>
           </div>
           <nav aria-label="Podnožje" className="flex flex-col gap-2.5 text-sm text-sage-deep/75">
             <span className="mb-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-dark">Platforma</span>
             <Link to="/inicijative" className="hover:text-sage-deep hover:underline">
-              Inicijative
+              Akcije
             </Link>
             <Link to="/nova-inicijativa" className="hover:text-sage-deep hover:underline">
-              Pokreni inicijativu
+              Pokreni akciju
             </Link>
             <Link to="/o-projektu" className="hover:text-sage-deep hover:underline">
               O projektu
@@ -145,7 +145,7 @@ export default function Layout() {
         </div>
         <div className="border-t border-sand py-5 text-center text-xs text-sage-deep/60">
           <p>
-            © {new Date().getFullYear()} {BRAND.name}. Platforma za građanske inicijative.
+            © {new Date().getFullYear()} {BRAND.name}. Akcije u tvom kraju.
           </p>
           <p className="mt-1.5">
             Developed by{' '}

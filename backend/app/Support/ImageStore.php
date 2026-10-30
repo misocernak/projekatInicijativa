@@ -6,7 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Čuvanje slika inicijativa na disku "uploads".
+ * Čuvanje slika akcija na disku "uploads".
  *
  * Ako je dostupan GD, slika se ponovo kodira kao JPEG (max 1600 px): tako se uklanjaju EXIF podaci
  * (npr. GPS lokacija sa telefona) i sve što nije prava slika. Bez GD-a čuva se original, uz ekstenziju

@@ -30,7 +30,7 @@ class ModerationTest extends TestCase
 
         $this->postJson("/initiatives/{$initiative->id}/report", [
             'reason' => 'spam',
-            'message' => 'Reklama, nije inicijativa.',
+            'message' => 'Reklama, nije akcija.',
             'email' => 'prijavljivac@example.com',
         ])->assertCreated();
 
@@ -92,7 +92,7 @@ class ModerationTest extends TestCase
 
     public function test_only_admins_see_the_report_queue(): void
     {
-        $initiative = $this->makeInitiative(['title' => 'Sumnjiva inicijativa']);
+        $initiative = $this->makeInitiative(['title' => 'Sumnjiva akcija']);
         Report::create(['initiative_id' => $initiative->id, 'reason' => 'spam', 'message' => 'Reklama']);
 
         $this->getJson('/admin/reports')->assertUnauthorized();
@@ -102,7 +102,7 @@ class ModerationTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.reason', 'spam')
-            ->assertJsonPath('data.0.initiative.title', 'Sumnjiva inicijativa')
+            ->assertJsonPath('data.0.initiative.title', 'Sumnjiva akcija')
             ->assertJsonPath('data.0.initiative.hidden', false);
     }
 

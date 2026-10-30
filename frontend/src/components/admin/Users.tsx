@@ -146,11 +146,11 @@ export default function Users() {
                     <p className="truncate text-[13px] text-ink/65">{u.email}</p>
                     {!u.hasPassword && !u.hasGoogle && (
                       <p className="mt-1 text-xs text-ink/60">
-                        Prijavio/la se na inicijativu samo mejlom, nema lozinku i ne može da se prijavi na sajt dok je ne postavi.
+                        Prijavio/la se na akciju samo mejlom, nema lozinku i ne može da se prijavi na sajt dok je ne postavi.
                       </p>
                     )}
                     <p className="mt-1 text-xs text-ink/50">
-                      {u.initiatives} inicijativa · {u.participations} prijava
+                      {u.initiatives} akcija · {u.participations} prijava
                       {u.createdAt && ` · od ${dateFmt.format(new Date(u.createdAt))}`}
                     </p>
                   </div>

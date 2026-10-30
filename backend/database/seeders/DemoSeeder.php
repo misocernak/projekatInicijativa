@@ -10,11 +10,11 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
- * Primeri inicijativa da sajt ne bude prazan pre prvih pravih objava.
+ * Primeri akcija da sajt ne bude prazan pre prvih pravih objava.
  * NE pokreće se automatski. Na serveru:  php artisan db:seed --class=DemoSeeder --force
  *
  * Idempotentno: svaki put ponovo pravi primere sa svežim datumima. Sve pripada jednom "demo" nalogu,
- * pa se uklanja brisanjem tog naloga (inicijative se brišu kaskadno):
+ * pa se uklanja brisanjem tog naloga (akcije se brišu kaskadno):
  *   php artisan tinker --execute="App\Models\User::where('email','demo@lepsasrbija.com')->delete();"
  */
 class DemoSeeder extends Seeder

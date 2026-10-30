@@ -27,7 +27,7 @@ class RoleChanged extends Notification
 
         if ($granted) {
             $message->line($this->by->name.' ti je dodelio/la admin ulogu na sajtu Lepša Srbija.')
-                ->line('Sada možeš da vidiš statistiku, pregledaš prijave sadržaja i sakrivaš sporne inicijative.')
+                ->line('Sada možeš da vidiš statistiku, pregledaš prijave sadržaja i sakrivaš sporne akcije.')
                 ->action('Otvori admin stranicu', rtrim(config('app.url'), '/').'/admin');
         } else {
             $message->line('Admin uloga na tvom nalogu na sajtu Lepša Srbija je skinuta. Nalog i dalje radi kao i do sada.');

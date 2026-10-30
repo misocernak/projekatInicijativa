@@ -26,11 +26,11 @@ export function ConfirmEmail() {
       <h1 className="mt-6 text-4xl text-sage-deep">{ok ? 'Mejl adresa je potvrđena' : 'Link nije važeći'}</h1>
       <p className="mt-4 text-ink/70">
         {ok
-          ? 'Hvala! Sada možeš da pokrećeš inicijative.'
+          ? 'Hvala! Sada možeš da pokrećeš akcije.'
           : 'Link je istekao ili je već iskorišćen. Prijavi se pa zatraži novu poruku sa profila.'}
       </p>
       <Link to={ok && user ? '/nova-inicijativa' : '/prijava'} className="btn-primary mt-8">
-        {ok && user ? 'Pokreni inicijativu' : 'Prijavi se'}
+        {ok && user ? 'Pokreni akciju' : 'Prijavi se'}
       </Link>
     </div>
   )
@@ -72,7 +72,7 @@ export function ForgotPassword() {
       ) : (
         <form onSubmit={onSubmit} className="card mt-6 space-y-5 p-7">
           <p className="text-[14px] text-ink/70">
-            Unesi mejl adresu. Ovo važi i ako si se samo prijavio/la na inicijativu, pa želiš da napraviš lozinku.
+            Unesi mejl adresu. Ovo važi i ako si se samo prijavio/la na akciju, pa želiš da napraviš lozinku.
           </p>
           <div>
             <label className="label" htmlFor="email">

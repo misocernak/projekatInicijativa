@@ -77,7 +77,7 @@ class Initiative extends Model
         return $this->hidden_at !== null;
     }
 
-    /** Prijave su moguće samo dok inicijativa nije otkazana, završena ni sakrivena. */
+    /** Prijave su moguće samo dok akcija nije otkazana, završena ni sakrivena. */
     public function isOpen(): bool
     {
         return ! $this->isCancelled() && ! $this->isFinished() && ! $this->isHidden();

@@ -9,7 +9,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAsync } from '../lib/useAsync'
 
 type Mode = 'login' | 'register'
-/** Registracija: prvo se bira da li je korisnik nov ili se već prijavljivao na inicijative bez naloga. */
+/** Registracija: prvo se bira da li je korisnik nov ili se već prijavljivao na akcije bez naloga. */
 type Kind = 'choose' | 'new' | 'returning'
 
 /** Poruke kada se korisnik vrati sa Google-a bez uspešne prijave (?google=...). */
@@ -89,7 +89,7 @@ export default function Auth() {
         <div className="card mt-6 space-y-4 p-7">
           <MailCheck className="size-10 text-sage-dark" aria-hidden />
           <p className="text-[15px] text-ink/85">
-            Ako je adresa <strong>{linkSent.email}</strong> korišćena za prijavu na inicijativu, poslali smo joj mejl sa linkom za
+            Ako je adresa <strong>{linkSent.email}</strong> korišćena za prijavu na akciju, poslali smo joj mejl sa linkom za
             postavljanje lozinke. Klikni na link i nalog je spreman.
           </p>
           {!linkSent.mailSent && (
@@ -97,7 +97,7 @@ export default function Auth() {
               Slanje mejla nije uspelo. Pokušaj ponovo kasnije.
             </p>
           )}
-          <p className="text-[13px] text-ink/60">Proveri i spam. Tvoje prijave na inicijative ostaju sačuvane.</p>
+          <p className="text-[13px] text-ink/60">Proveri i spam. Tvoje prijave na akcije ostaju sačuvane.</p>
           <button
             className="btn-secondary w-full"
             onClick={() => {
@@ -142,8 +142,8 @@ export default function Auth() {
           <h1 className="text-4xl text-sage-deep lg:text-5xl">{mode === 'login' ? 'Dobro došao/la nazad' : 'Pridruži se'}</h1>
           <p className="mt-4 hidden max-w-sm text-[15px] text-ink/65 lg:block">
             {mode === 'login'
-              ? 'Prijavi se da pratiš svoje prijave i pokreneš inicijative u svom gradu.'
-              : 'Nalog ti treba samo da bi pokretao/la inicijative. Za prijavu na tuđu dovoljni su ime i mejl.'}
+              ? 'Prijavi se da pratiš svoje prijave i pokreneš akcije u svom gradu.'
+              : 'Nalog ti treba samo da bi pokretao/la akcije. Za prijavu na tuđu dovoljni su ime i mejl.'}
           </p>
           {googleMessage && (
             <p role="alert" className="mt-5 rounded-xl bg-clay/10 px-4 py-3 text-sm font-semibold text-clay">
@@ -189,7 +189,7 @@ export default function Auth() {
                 </span>
                 <span>
                   <span className="block font-display text-xl font-extrabold text-sage-deep">Potpuno sam nov/a</span>
-                  <span className="mt-0.5 block text-[13px] text-ink/65">Pravim nalog da bih pokretao/la inicijative.</span>
+                  <span className="mt-0.5 block text-[13px] text-ink/65">Pravim nalog da bih pokretao/la akcije.</span>
                 </span>
               </button>
               <button
@@ -200,7 +200,7 @@ export default function Auth() {
                   <UserRoundCheck className="size-5" aria-hidden />
                 </span>
                 <span>
-                  <span className="block font-display text-xl font-extrabold text-sage-deep">Već sam se prijavljivao/la na inicijative</span>
+                  <span className="block font-display text-xl font-extrabold text-sage-deep">Već sam se prijavljivao/la na akcije</span>
                   <span className="mt-0.5 block text-[13px] text-ink/65">Prijavio/la sam se samo mejlom i želim pravi nalog.</span>
                 </span>
               </button>
@@ -220,7 +220,7 @@ export default function Auth() {
                   </button>
                   {kind === 'returning' && (
                     <p className="mt-3 text-[14px] text-ink/70">
-                      Upiši mejl adresu kojom si se prijavljivao/la na inicijative. Poslaćemo ti link na koji postavljaš lozinku, i to je sve.
+                      Upiši mejl adresu kojom si se prijavljivao/la na akcije. Poslaćemo ti link na koji postavljaš lozinku, i to je sve.
                     </p>
                   )}
                 </div>
@@ -268,7 +268,7 @@ export default function Auth() {
                   <label className={`flex items-start gap-3 text-[13px] leading-snug text-ink/75 ${span}`}>
                     <input type="checkbox" name="consent" required className="mt-0.5 size-5 shrink-0 accent-[#0b7a4b]" />
                     <span>
-                      Saglasan/na sam da platforma čuva moje podatke (ime i mejl) radi organizovanja inicijativa i slanja obaveštenja, i
+                      Saglasan/na sam da platforma čuva moje podatke (ime i mejl) radi organizovanja akcija i slanja obaveštenja, i
                       prihvatam{' '}
                       <Link to="/uslovi" className="font-semibold text-sage-dark underline">
                         uslove korišćenja

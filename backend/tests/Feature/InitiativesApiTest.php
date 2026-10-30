@@ -15,7 +15,7 @@ class InitiativesApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** Pravi inicijativu sa razumnim podrazumevanim vrednostima. */
+    /** Pravi akciju sa razumnim podrazumevanim vrednostima. */
     private function makeInitiative(array $attrs = []): Initiative
     {
         $city = City::firstOrCreate(['slug' => 'nis'], ['name' => 'Niš', 'lat' => 43.32, 'lng' => 21.89]);
@@ -25,8 +25,8 @@ class InitiativesApiTest extends TestCase
             'user_id' => User::factory()->create()->id,
             'city_id' => $city->id,
             'category_id' => $category->id,
-            'title' => 'Test inicijativa',
-            'description' => 'Opis inicijative',
+            'title' => 'Test akcija',
+            'description' => 'Opis akcije',
             'address' => 'Ulica 1',
             'lat' => 43.32,
             'lng' => 21.89,
@@ -114,7 +114,7 @@ class InitiativesApiTest extends TestCase
         $this->makeInitiative(['capacity' => 10, 'bring' => 'Rukavice']);
 
         $this->getJson('/initiatives')->assertOk()
-            ->assertJsonPath('data.0.title', 'Test inicijativa')
+            ->assertJsonPath('data.0.title', 'Test akcija')
             ->assertJsonPath('data.0.cityId', 'nis')
             ->assertJsonPath('data.0.category', 'ciscenje')
             ->assertJsonPath('data.0.kind', 'timed')

@@ -19,9 +19,9 @@ class InitiativeHidden extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Inicijativa je uklonjena sa javne liste')
+            ->subject('Akcija je uklonjena sa javne liste')
             ->greeting('Zdravo, '.$notifiable->name.'!')
-            ->line('Tvoja inicijativa „'.$this->initiative->title.'“ trenutno nije vidljiva javnosti, jer je pregledom utvrđeno da možda krši pravila ponašanja.')
+            ->line('Tvoja akcija „'.$this->initiative->title.'“ trenutno nije vidljiva javnosti, jer je pregledom utvrđeno da možda krši pravila ponašanja.')
             ->line('Ako smatraš da je u pitanju greška, odgovori na ovu poruku ili nam se javi, pa ćemo je ponovo pregledati.')
             ->action('Pravila ponašanja', rtrim(config('app.url'), '/').'/o-projektu')
             ->salutation('Lepša Srbija');

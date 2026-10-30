@@ -34,7 +34,7 @@ class AdminStatsController extends Controller
                 'total' => User::count(),
                 'verified' => User::whereNotNull('email_verified_at')->count(),
                 'unverified' => User::whereNull('email_verified_at')->count(),
-                // nalozi nastali brzom prijavom na inicijativu, bez lozinke
+                // nalozi nastali brzom prijavom na akciju, bez lozinke
                 'quick' => User::whereNull('password')->count(),
                 'admins' => User::where('role', 'admin')->count(),
                 'new7' => User::where('created_at', '>=', $since7)->count(),
@@ -68,7 +68,7 @@ class AdminStatsController extends Controller
     }
 
     /**
-     * Broj inicijativa po šifarniku (kategorija, grad), od najvećeg ka manjem.
+     * Broj akcija po šifarniku (kategorija, grad), od najvećeg ka manjem.
      *
      * @return list<array{slug: string, name: string, count: int}>
      */
