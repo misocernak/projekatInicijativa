@@ -1,6 +1,15 @@
 import { useState } from 'react'
-import { Check, Link2, Mail, MessageCircle, Send, Share2 } from 'lucide-react'
+import { Check, Link2, Mail, Share2 } from 'lucide-react'
 import { BRAND } from '../data/constants'
+import { BRAND_PATHS } from '../data/brandIcons'
+
+function Brand({ name }: { name: keyof typeof BRAND_PATHS }) {
+  return (
+    <svg viewBox="0 0 24 24" className="size-[18px] shrink-0 fill-current text-sage-dark" aria-hidden>
+      <path d={BRAND_PATHS[name]} />
+    </svg>
+  )
+}
 
 interface Props {
   id: string
@@ -46,13 +55,12 @@ export default function ShareInitiative({ id, title, when, where }: Props) {
     'inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-sand bg-white px-4 text-[13px] font-semibold text-sage-deep transition hover:border-sage-dark/40 hover:bg-mist'
 
   const links = [
-    { label: 'WhatsApp', href: `https://wa.me/?text=${enc(full)}`, icon: MessageCircle },
-    { label: 'Viber', href: `viber://forward?text=${enc(full)}`, icon: MessageCircle },
-    { label: 'Messenger', href: `https://www.facebook.com/dialog/send?link=${enc(url)}&app_id=0&redirect_uri=${enc(url)}`, icon: Send, hide: true },
-    { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, icon: Share2 },
-    { label: 'X', href: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`, icon: Send },
-    { label: 'Mejl', href: `mailto:?subject=${enc(`Poziv: ${title}`)}&body=${enc(full)}`, icon: Mail },
-  ].filter((l) => !l.hide)
+    { label: 'WhatsApp', href: `https://wa.me/?text=${enc(full)}`, icon: <Brand name="whatsapp" /> },
+    { label: 'Viber', href: `viber://forward?text=${enc(full)}`, icon: <Brand name="viber" /> },
+    { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, icon: <Brand name="facebook" /> },
+    { label: 'X', href: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`, icon: <Brand name="x" /> },
+    { label: 'Mejl', href: `mailto:?subject=${enc(`Poziv: ${title}`)}&body=${enc(full)}`, icon: <Mail className="size-[18px] text-sage-dark" aria-hidden /> },
+  ]
 
   return (
     <section className="mt-6 border-t border-sand pt-5" aria-label="Pozovi druge">
@@ -68,7 +76,7 @@ export default function ShareInitiative({ id, title, when, where }: Props) {
       <div className="mt-3 grid grid-cols-2 gap-2">
         {links.map((l) => (
           <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className={chip}>
-            <l.icon className="size-4 text-sage-dark" aria-hidden /> {l.label}
+            {l.icon} {l.label}
           </a>
         ))}
         <button onClick={copy} className={chip}>
