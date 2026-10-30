@@ -44,7 +44,16 @@ jobs:
         working-directory: backend
         run: |
           export APP_KEY="$(php artisan key:generate --show)"
-          php artisan test --compact
+          set +e
+          php artisan test --compact > /tmp/test.log 2>&1
+          code=$?
+          cat /tmp/test.log
+          if [ "$code" -ne 0 ]; then
+            # izlaz testova kao vidljiva poruka (prvih ~2500 znakova bez bojenja)
+            msg=$(sed 's/\x1b\[[0-9;]*m//g' /tmp/test.log | head -c 2500 | sed ':a;N;$!ba;s/\n/%0A/g')
+            echo "::error::Testovi nisu prošli (exit $code):%0A$msg"
+            exit "$code"
+          fi
 
       - name: Composer install (bez dev paketa, za produkciju)
         working-directory: backend
