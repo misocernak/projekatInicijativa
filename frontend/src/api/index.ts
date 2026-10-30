@@ -276,3 +276,66 @@ export function adminHideInitiative(id: string): Promise<unknown> {
 export function adminUnhideInitiative(id: string): Promise<unknown> {
   return request('POST', `/admin/initiatives/${id}/unhide`)
 }
+
+/* ---------------- Admin: statistika i korisnici ---------------- */
+
+export interface DayPoint {
+  date: string
+  count: number
+}
+
+export interface BreakdownRow {
+  slug: string
+  name: string
+  count: number
+}
+
+export interface AdminStats {
+  generatedAt: string
+  users: { total: number; verified: number; unverified: number; quick: number; admins: number; new7: number; new30: number }
+  initiatives: {
+    total: number
+    new7: number
+    new30: number
+    byStatus: Record<'upcoming' | 'ongoing' | 'finished' | 'permanent' | 'cancelled' | 'hidden', number>
+    byCategory: BreakdownRow[]
+    byCity: BreakdownRow[]
+  }
+  participations: { confirmed: number; pending: number; cancelled: number; volunteers: number; new7: number }
+  reports: { open: number; resolved: number }
+  series: { users: DayPoint[]; initiatives: DayPoint[]; participations: DayPoint[] }
+}
+
+export function adminStats(): Promise<AdminStats> {
+  return request<AdminStats>('GET', '/admin/stats')
+}
+
+export interface AdminUser {
+  id: string
+  name: string
+  email: string
+  role: 'admin' | 'user'
+  emailVerified: boolean
+  /** false za naloge nastale brzom prijavom na inicijativu */
+  hasPassword: boolean
+  createdAt: string | null
+  initiatives: number
+  participations: number
+}
+
+export interface AdminUserPage {
+  data: AdminUser[]
+  meta: { page: number; lastPage: number; total: number }
+}
+
+export function adminUsers(params: { q?: string; role?: 'admin'; page?: number } = {}): Promise<AdminUserPage> {
+  const p = new URLSearchParams()
+  if (params.q?.trim()) p.set('q', params.q.trim())
+  if (params.role) p.set('role', params.role)
+  if (params.page && params.page > 1) p.set('page', String(params.page))
+  return request<AdminUserPage>('GET', `/admin/users${p.size ? `?${p}` : ''}`)
+}
+
+export async function adminSetRole(id: string, role: 'admin' | 'user'): Promise<AdminUser> {
+  return (await request<{ user: AdminUser }>('POST', `/admin/users/${id}/role`, { role })).user
+}

@@ -38,6 +38,8 @@ Inicijative (potrebna prijava i potvrđen mejl):
 - `POST /api/initiatives` (multipart, opciono `image`), `PUT /api/initiatives/{id}`, `POST /api/initiatives/{id}/cancel`
 - `POST|DELETE /api/initiatives/{id}/image` – slika (re-kodira se u JPEG max 1600 px, uklanja EXIF)
 - `GET /api/initiatives/{id}/participants` – spisak prijavljenih, samo organizator
+- `GET /api/admin/stats`, `GET /api/admin/users`, `POST /api/admin/users/{id}/role` – statistika, pregled naloga i dodela admin uloge (samo admin;
+  ne može se menjati sopstvena uloga, a admin može postati samo nalog sa potvrđenim mejlom)
 - `GET /api/me/initiatives`, `GET /api/me/participations`
 - Izmena termina/mesta i otkazivanje šalju mejl potvrđenim prijavljenima
 
