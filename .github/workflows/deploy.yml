@@ -46,12 +46,23 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
+          for v in SSH_PRIVATE_KEY SSH_HOST SSH_PORT SSH_USER; do
+            [ -n "${!v}" ] || { echo "::error::Secret $v je prazan ili ne postoji."; exit 1; }
+          done
           install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          # uklanja Windows prelome redova i razmake sa ivica, uz obavezan završni novi red
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$SSH_PORT" -t ed25519 "$SSH_HOST" > ~/.ssh/known_hosts
-          ssh-keygen -lf ~/.ssh/known_hosts | tee /dev/stderr | grep -q "$HOST_KEY_FINGERPRINT" \
-            || { echo "::error::Otisak servera se ne poklapa, prekidam."; exit 1; }
+          pub=$(ssh-keygen -y -f ~/.ssh/deploy_key 2>&1) \
+            || { echo "::error::Privatni ključ u SSH_PRIVATE_KEY nije ispravan: ${pub//$'\n'/ | }"; exit 1; }
+          echo "::notice::Ključ iz Secret-a (otisak): $(echo "$pub" | ssh-keygen -lf - | cut -d' ' -f2)"
+          ssh-keyscan -p "$SSH_PORT" -t ed25519 "$SSH_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          ssh-keygen -lf ~/.ssh/known_hosts | grep -q "$HOST_KEY_FINGERPRINT" \
+            || { echo "::error::Otisak servera se ne poklapa ili server nije dostupan, prekidam."; exit 1; }
+          out=$(ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST" 'echo ok' 2>&1) \
+            || { echo "::error::SSH prijava nije uspela: ${out//$'\n'/ | }"; exit 1; }
+          echo "::notice::SSH prijava radi."
 
       - name: Upload fronta u public_html
         env:
