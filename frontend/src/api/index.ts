@@ -1,132 +1,219 @@
 /**
- * API sloj. Trenutno radi nad mock podacima i localStorage-om.
- * Kada back (PHP) bude spreman, menja se samo implementacija ovih funkcija
- * (fetch ka /api/...), a stranice ostaju iste.
+ * Klijent za backend (Laravel API na istom domenu, /api).
+ * Prijava radi preko sesije (kolačić) uz CSRF zaštitu: pre prvog pisanja traži se XSRF kolačić,
+ * a njegova vrednost se šalje u zaglavlju X-XSRF-TOKEN.
  */
-import { MOCK_INITIATIVES } from '../data/mock'
-import { getStatus } from '../lib/dates'
-import type { Initiative, InitiativeFilters, NewInitiative, User } from '../types'
+import type {
+  Initiative,
+  InitiativeFilters,
+  NewInitiative,
+  ParticipationStatus,
+  User,
+} from '../types'
 
-const KEYS = {
-  created: 'zajedno.created',
-  joined: 'zajedno.joined',
-  user: 'zajedno.user',
-  cancelled: 'zajedno.cancelled',
-}
+const BASE = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '')
 
-const delay = <T>(v: T, ms = 150) => new Promise<T>((r) => setTimeout(() => r(v), ms))
+export class ApiError extends Error {
+  status: number
+  fieldErrors: Record<string, string[]>
 
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key)
-    return raw ? (JSON.parse(raw) as T) : fallback
-  } catch {
-    return fallback
+  constructor(status: number, message: string, fieldErrors: Record<string, string[]> = {}) {
+    super(message)
+    this.status = status
+    this.fieldErrors = fieldErrors
   }
 }
 
-function write(key: string, value: unknown) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value))
-  } catch {
-    /* privatni režim ili pun storage: demo radi i bez čuvanja */
+/** Prva poruka greške za polje, ili opšta poruka. */
+export function errorText(e: unknown, field?: string): string {
+  if (e instanceof ApiError) {
+    if (field && e.fieldErrors[field]?.[0]) return e.fieldErrors[field][0]
+    const first = Object.values(e.fieldErrors)[0]?.[0]
+    return first ?? e.message
   }
+  return 'Došlo je do greške. Proveri vezu i pokušaj ponovo.'
 }
 
-function all(): Initiative[] {
-  const cancelled = read<string[]>(KEYS.cancelled, [])
-  return [...read<Initiative[]>(KEYS.created, []), ...MOCK_INITIATIVES].map((i) => ({
-    ...i,
-    cancelled: i.cancelled || cancelled.includes(i.id),
-  }))
+function xsrfToken(): string | undefined {
+  const m = document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]+)/)
+  return m ? decodeURIComponent(m[1]) : undefined
 }
 
-const joinedIds = () => read<string[]>(KEYS.joined, [])
+async function ensureCsrf(force = false) {
+  if (!force && xsrfToken()) return
+  await fetch(`${BASE}/sanctum/csrf-cookie`, { credentials: 'include' })
+}
 
-/** Ukupan broj prijavljenih, uključujući trenutnog korisnika. */
-export function participantCount(i: Initiative) {
-  return i.participants + (joinedIds().includes(i.id) ? 1 : 0)
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
+
+async function request<T>(method: Method, path: string, body?: unknown, retry = true): Promise<T> {
+  const headers: Record<string, string> = { Accept: 'application/json' }
+  let payload: BodyInit | undefined
+
+  if (body instanceof FormData) {
+    payload = body
+  } else if (body !== undefined) {
+    headers['Content-Type'] = 'application/json'
+    payload = JSON.stringify(body)
+  }
+
+  if (method !== 'GET') {
+    await ensureCsrf()
+    const token = xsrfToken()
+    if (token) headers['X-XSRF-TOKEN'] = token
+  }
+
+  let res: Response
+  try {
+    res = await fetch(`${BASE}${path}`, { method, headers, body: payload, credentials: 'include' })
+  } catch {
+    throw new ApiError(0, 'Nema veze sa serverom. Proveri internet i pokušaj ponovo.')
+  }
+
+  // 419: istekao CSRF token ili sesija; jednom osveži kolačić i ponovi
+  if (res.status === 419 && retry) {
+    await ensureCsrf(true)
+    return request<T>(method, path, body, false)
+  }
+
+  if (res.status === 204) return undefined as T
+
+  const text = await res.text()
+  let json: unknown = undefined
+  try {
+    json = text ? JSON.parse(text) : undefined
+  } catch {
+    /* odgovor nije JSON */
+  }
+
+  if (!res.ok) {
+    const data = (json ?? {}) as { message?: string; errors?: Record<string, string[]> }
+    throw new ApiError(res.status, data.message ?? friendly(res.status), data.errors ?? {})
+  }
+
+  return json as T
+}
+
+function friendly(status: number): string {
+  if (status === 401) return 'Potrebna je prijava.'
+  if (status === 403) return 'Nemaš dozvolu za ovu radnju.'
+  if (status === 404) return 'Nije pronađeno.'
+  if (status === 429) return 'Previše pokušaja. Sačekaj malo pa pokušaj ponovo.'
+  return 'Došlo je do greške na serveru. Pokušaj ponovo.'
+}
+
+/* ---------------- Inicijative ---------------- */
+
+interface Wrapped<T> {
+  data: T
 }
 
 export async function listInitiatives(f: InitiativeFilters = {}): Promise<Initiative[]> {
-  const q = f.query?.trim().toLowerCase()
-  const result = all()
-    .filter((i) => !f.cityId || i.cityId === f.cityId)
-    .filter((i) => !f.category || i.category === f.category)
-    .filter((i) => !f.status || getStatus(i) === f.status)
-    .filter((i) => !q || `${i.title} ${i.description} ${i.address}`.toLowerCase().includes(q))
-    .sort((a, b) => {
-      // trajne na kraj, a vremenske po datumu početka
-      const da = a.startDate ? +new Date(a.startDate) : Infinity
-      const db = b.startDate ? +new Date(b.startDate) : Infinity
-      return da - db
-    })
-  return delay(result)
+  const p = new URLSearchParams({ per_page: '50' })
+  if (f.cityId) p.set('city', f.cityId)
+  if (f.category) p.set('category', f.category)
+  if (f.status) p.set('status', f.status)
+  if (f.query?.trim()) p.set('q', f.query.trim())
+  return (await request<Wrapped<Initiative[]>>('GET', `/initiatives?${p}`)).data
 }
 
 export async function getInitiative(id: string): Promise<Initiative | undefined> {
-  return delay(all().find((i) => i.id === id))
-}
-
-export async function createInitiative(data: NewInitiative, user: User): Promise<Initiative> {
-  const item: Initiative = {
-    ...data,
-    id: `c${Date.now()}`,
-    participants: 0,
-    organizerId: user.id,
-    organizerName: user.name,
+  try {
+    return (await request<Wrapped<Initiative>>('GET', `/initiatives/${encodeURIComponent(id)}`)).data
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 404) return undefined
+    throw e
   }
-  write(KEYS.created, [item, ...read<Initiative[]>(KEYS.created, [])])
-  return delay(item)
 }
 
-export async function cancelInitiative(id: string) {
-  write(KEYS.cancelled, [...read<string[]>(KEYS.cancelled, []), id])
-  return delay(true)
+export async function createInitiative(data: NewInitiative, image?: Blob): Promise<Initiative> {
+  const form = new FormData()
+  for (const [key, value] of Object.entries(data)) {
+    if (value !== undefined && value !== null && value !== '') form.append(key, String(value))
+  }
+  if (image) form.append('image', image, 'slika.jpg')
+  return (await request<Wrapped<Initiative>>('POST', '/initiatives', form)).data
 }
 
-export async function toggleJoin(id: string): Promise<boolean> {
-  const ids = joinedIds()
-  const next = ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]
-  write(KEYS.joined, next)
-  return delay(next.includes(id), 100)
+export async function cancelInitiative(id: string): Promise<Initiative> {
+  return (await request<Wrapped<Initiative>>('POST', `/initiatives/${id}/cancel`)).data
 }
 
-export const isJoined = (id: string) => joinedIds().includes(id)
+export async function listMine(): Promise<Initiative[]> {
+  return (await request<Wrapped<Initiative[]>>('GET', '/me/initiatives')).data
+}
 
 export async function listJoined(): Promise<Initiative[]> {
-  const ids = joinedIds()
-  return delay(all().filter((i) => ids.includes(i.id)))
+  return (await request<Wrapped<Initiative[]>>('GET', '/me/participations')).data
 }
 
-export async function listMine(userId: string): Promise<Initiative[]> {
-  return delay(all().filter((i) => i.organizerId === userId))
+/* ---------------- Prijava na inicijativu ---------------- */
+
+export interface JoinResult {
+  status: ParticipationStatus
+  /** false ako server nije uspeo da pošalje mejl (npr. mejl još nije podešen) */
+  mailSent?: boolean
 }
 
-/* ---- Autentikacija (mock: bilo koja prijava prolazi) ---- */
-
-export const getStoredUser = () => read<User | null>(KEYS.user, null)
-
-export async function register(name: string, email: string, cityId?: string): Promise<User> {
-  const user: User = { id: `u-${Date.now()}`, name, email, cityId }
-  write(KEYS.user, user)
-  return delay(user)
+export interface GuestJoin {
+  name: string
+  email: string
+  consent: boolean
 }
 
-export async function login(email: string): Promise<User> {
-  const user = getStoredUser() ?? {
-    id: `u-${Date.now()}`,
-    name: email.split('@')[0],
-    email,
-  }
-  write(KEYS.user, user)
-  return delay(user)
+export function join(id: string, guest?: GuestJoin): Promise<JoinResult> {
+  return request<JoinResult>('POST', `/initiatives/${id}/join`, guest ?? {})
 }
 
-export function logout() {
+export function leave(id: string): Promise<{ status: string }> {
+  return request('DELETE', `/initiatives/${id}/join`)
+}
+
+/* ---------------- Nalog ---------------- */
+
+export async function getMe(): Promise<User | null> {
   try {
-    localStorage.removeItem(KEYS.user)
-  } catch {
-    /* ignore */
+    return (await request<{ user: User }>('GET', '/me')).user
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) return null
+    throw e
   }
+}
+
+export interface RegisterData {
+  name: string
+  email: string
+  password: string
+  password_confirmation: string
+  city?: string
+  consent: boolean
+}
+
+export async function register(data: RegisterData): Promise<{ user: User; verificationEmailSent: boolean }> {
+  return request('POST', '/register', data)
+}
+
+export async function login(email: string, password: string): Promise<User> {
+  return (await request<{ user: User }>('POST', '/login', { email, password })).user
+}
+
+export function logout(): Promise<unknown> {
+  return request('POST', '/logout')
+}
+
+export function resendVerification(): Promise<{ status: 'sent' | 'failed' | 'already-verified' }> {
+  return request('POST', '/email/verification-notification')
+}
+
+export function forgotPassword(email: string): Promise<unknown> {
+  return request('POST', '/forgot-password', { email })
+}
+
+export function resetPassword(data: {
+  token: string
+  email: string
+  password: string
+  password_confirmation: string
+}): Promise<unknown> {
+  return request('POST', '/reset-password', data)
 }

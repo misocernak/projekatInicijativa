@@ -1,28 +1,54 @@
-import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, CalendarDays, Mail, MapPin, Package } from 'lucide-react'
-import { cancelInitiative, getInitiative, isJoined, participantCount, toggleJoin } from '../api'
-import { Art, AvatarStack, CATEGORY_STYLE, DateChip, Spinner, StatusBadge } from '../components/Bits'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { ArrowLeft, CalendarDays, CheckCircle2, Info, Mail, MapPin, Package } from 'lucide-react'
+import { cancelInitiative, errorText, getInitiative, join, leave } from '../api'
+import { Art, AvatarStack, CATEGORY_STYLE, DateChip, Empty, Spinner, StatusBadge } from '../components/Bits'
 import MapView from '../components/MapView'
 import { useAuth } from '../context/AuthContext'
 import { categoryLabel, cityName } from '../data/constants'
 import { formatWhen, getStatus } from '../lib/dates'
 import { useAsync } from '../lib/useAsync'
 
+/** Poruke posle klika na link iz mejla (?prijava=...). */
+const BANNERS: Record<string, { text: string; good: boolean }> = {
+  potvrdjena: { text: 'Prijava je potvrđena. Detalje i kalendar smo ti poslali mejlom. Vidimo se!', good: true },
+  otkazana: { text: 'Odjavljen/a si sa inicijative. Hvala što si javio/la.', good: true },
+  popunjeno: { text: 'Nažalost, sva mesta su u međuvremenu popunjena, pa prijava nije potvrđena.', good: false },
+  zatvorena: { text: 'Ova inicijativa je završena ili otkazana, pa se prijava ne može potvrditi.', good: false },
+}
+
 export default function InitiativeDetail() {
   const { id = '' } = useParams()
-  const { user } = useAuth()
+  const { user, ready } = useAuth()
   const navigate = useNavigate()
-  const { data: item, loading } = useAsync(() => getInitiative(id), [id])
-  const [joined, setJoined] = useState(() => isJoined(id))
+  const [params, setParams] = useSearchParams()
+  const { data: item, loading, error, setData } = useAsync(() => getInitiative(id), [id, user?.id])
   const [busy, setBusy] = useState(false)
-  const [, bump] = useState(0)
+  const [actionError, setActionError] = useState('')
+  const [sentTo, setSentTo] = useState<{ email: string; mailSent: boolean } | null>(null)
+  const [guest, setGuest] = useState({ name: '', email: '', consent: false })
 
-  if (loading) return <Spinner />
+  const banner = BANNERS[params.get('prijava') ?? '']
+
+  // poruka iz linka se prikazuje jednom, a adresa se čisti
+  useEffect(() => {
+    if (!banner) return
+    const t = setTimeout(() => setParams({}, { replace: true }), 12000)
+    return () => clearTimeout(t)
+  }, [banner, setParams])
+
+  if (loading || !ready) return <Spinner />
+  if (error) {
+    return (
+      <div className="mx-auto max-w-xl px-5 py-24">
+        <Empty title="Učitavanje nije uspelo" text={errorText(error)} />
+      </div>
+    )
+  }
   if (!item) {
     return (
       <div className="mx-auto max-w-xl px-5 py-24 text-center">
-        <h1 className="text-5xl text-sage-deep">Inicijativa nije pronađena</h1>
+        <h1 className="text-4xl text-sage-deep">Inicijativa nije pronađena</h1>
         <Link to="/inicijative" className="btn-primary mt-8">
           Nazad na inicijative
         </Link>
@@ -31,23 +57,67 @@ export default function InitiativeDetail() {
   }
 
   const status = getStatus(item)
-  const count = participantCount(item)
-  const full = !!item.capacity && count >= item.capacity && !joined
+  const mine = item.viewer?.participation ?? null
+  const joined = mine === 'confirmed'
+  const waiting = mine === 'pending'
+  const isOwner = !!item.viewer?.isOrganizer
   const closed = status === 'finished' || status === 'cancelled'
-  const isOwner = user?.id === item.organizerId
+  const full = !!item.capacity && item.participants >= item.capacity && !joined
+
+  async function refresh() {
+    const fresh = await getInitiative(id)
+    if (fresh) setData(fresh)
+  }
 
   async function onJoin() {
-    if (!user) return navigate('/prijava', { state: { from: `/inicijative/${id}` } })
     setBusy(true)
-    setJoined(await toggleJoin(id))
+    setActionError('')
+    try {
+      const res = await join(id)
+      if (res.status === 'pending') setSentTo({ email: user?.email ?? '', mailSent: res.mailSent !== false })
+      await refresh()
+    } catch (err) {
+      setActionError(errorText(err))
+    }
     setBusy(false)
-    bump((n) => n + 1)
+  }
+
+  async function onGuestJoin(e: FormEvent) {
+    e.preventDefault()
+    setBusy(true)
+    setActionError('')
+    try {
+      const res = await join(id, guest)
+      setSentTo({ email: guest.email, mailSent: res.mailSent !== false })
+    } catch (err) {
+      setActionError(errorText(err))
+    }
+    setBusy(false)
+  }
+
+  async function onLeave() {
+    setBusy(true)
+    setActionError('')
+    try {
+      await leave(id)
+      setSentTo(null)
+      await refresh()
+    } catch (err) {
+      setActionError(errorText(err))
+    }
+    setBusy(false)
   }
 
   async function onCancel() {
-    if (!confirm('Da li sigurno želiš da otkažeš ovu inicijativu?')) return
-    await cancelInitiative(id)
-    navigate('/profil')
+    if (!confirm('Da li sigurno želiš da otkažeš ovu inicijativu? Svi prijavljeni dobijaju obaveštenje mejlom.')) return
+    setBusy(true)
+    try {
+      await cancelInitiative(id)
+      navigate('/profil')
+    } catch (err) {
+      setActionError(errorText(err))
+      setBusy(false)
+    }
   }
 
   return (
@@ -58,6 +128,18 @@ export default function InitiativeDetail() {
       >
         <ArrowLeft className="size-4" aria-hidden /> Sve inicijative
       </Link>
+
+      {banner && (
+        <p
+          role="status"
+          className={`mb-8 flex items-start gap-3 rounded-2xl px-5 py-4 text-[14px] font-semibold ${
+            banner.good ? 'bg-sage/15 text-sage-deep' : 'bg-clay/10 text-clay'
+          }`}
+        >
+          {banner.good ? <CheckCircle2 className="mt-0.5 size-5 shrink-0" aria-hidden /> : <Info className="mt-0.5 size-5 shrink-0" aria-hidden />}
+          {banner.text}
+        </p>
+      )}
 
       <div className="grid gap-12 lg:grid-cols-[1.6fr_1fr]">
         <article className="rise">
@@ -81,7 +163,7 @@ export default function InitiativeDetail() {
           </div>
 
           <div className="mt-10 space-y-5 text-[17px] leading-[1.85] text-ink/85">
-            {item.description.split('\n\n').map((p, idx) => (
+            {item.description.split(/\n{2,}/).map((p, idx) => (
               <p key={idx}>{p}</p>
             ))}
           </div>
@@ -104,9 +186,9 @@ export default function InitiativeDetail() {
         <aside className="lg:sticky lg:top-28 lg:self-start">
           <div className="card rise p-7 [animation-delay:120ms]">
             <div className="mb-6 flex items-center justify-between">
-              <AvatarStack count={count} size="md" />
+              <AvatarStack count={item.participants} size="md" />
               <p className="text-[13px] text-ink/65">
-                <strong className="font-display text-3xl font-extrabold text-sage-deep">{count}</strong>
+                <strong className="font-display text-3xl font-extrabold text-sage-deep">{item.participants}</strong>
                 {item.capacity ? ` / ${item.capacity}` : ''} volontera
               </p>
             </div>
@@ -131,37 +213,113 @@ export default function InitiativeDetail() {
               <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-mist" aria-hidden>
                 <div
                   className="h-full rounded-full bg-sage"
-                  style={{ width: `${Math.min(100, (count / item.capacity) * 100)}%` }}
+                  style={{ width: `${Math.min(100, (item.participants / item.capacity) * 100)}%` }}
                 />
               </div>
             ) : null}
 
-            <button
-              onClick={onJoin}
-              disabled={busy || closed || full}
-              className={`mt-6 w-full ${joined ? 'btn-secondary' : 'btn-primary'}`}
-            >
-              {closed
-                ? status === 'cancelled'
-                  ? 'Inicijativa je otkazana'
-                  : 'Inicijativa je završena'
-                : full
-                  ? 'Nema slobodnih mesta'
-                  : joined
-                    ? 'Odjavi me'
-                    : 'Priključi se'}
-            </button>
-            {!user && !closed && (
-              <p className="mt-3 text-center text-xs text-ink/55">Za prijavu je potreban nalog.</p>
-            )}
-            {joined && (
-              <p className="mt-4 text-center font-display text-xl font-extrabold text-sage-dark">Prijavljen/a si. Vidimo se!</p>
-            )}
-            {isOwner && !closed && (
-              <button onClick={onCancel} className="mt-4 w-full text-[13px] font-semibold text-clay hover:underline">
-                Otkaži inicijativu
-              </button>
-            )}
+            <div className="mt-6">
+              {closed ? (
+                <button disabled className="btn-primary w-full">
+                  {status === 'cancelled' ? 'Inicijativa je otkazana' : 'Inicijativa je završena'}
+                </button>
+              ) : joined ? (
+                <>
+                  <p className="mb-3 text-center font-display text-xl font-extrabold text-sage-dark">Prijavljen/a si. Vidimo se!</p>
+                  <button onClick={onLeave} disabled={busy} className="btn-secondary w-full">
+                    Odjavi me
+                  </button>
+                </>
+              ) : waiting || sentTo ? (
+                <div className="space-y-3">
+                  <p className="rounded-2xl bg-sun/50 p-4 text-[14px] text-sage-deep">
+                    <strong>Još jedan korak:</strong> poslali smo mejl{sentTo?.email ? ` na ${sentTo.email}` : ''}. Klikni na link u njemu da potvrdiš
+                    prijavu. Proveri i spam.
+                    {sentTo && !sentTo.mailSent && (
+                      <span className="mt-2 block font-semibold text-clay">
+                        Slanje mejla nije uspelo. Pokušaj ponovo kasnije.
+                      </span>
+                    )}
+                  </p>
+                  {waiting && (
+                    <button onClick={onLeave} disabled={busy} className="btn-secondary w-full">
+                      Odustani od prijave
+                    </button>
+                  )}
+                </div>
+              ) : full ? (
+                <button disabled className="btn-primary w-full">
+                  Nema slobodnih mesta
+                </button>
+              ) : user ? (
+                <button onClick={onJoin} disabled={busy} className="btn-primary w-full">
+                  {busy ? 'Sačekaj…' : 'Priključi se'}
+                </button>
+              ) : (
+                <form onSubmit={onGuestJoin} className="space-y-4">
+                  <p className="text-[13px] text-ink/65">Nalog ti ne treba. Dovoljni su ime i mejl, a mi ti šaljemo detalje.</p>
+                  <div>
+                    <label className="label" htmlFor="g-name">
+                      Ime
+                    </label>
+                    <input
+                      id="g-name"
+                      required
+                      maxLength={120}
+                      autoComplete="name"
+                      className="field"
+                      value={guest.name}
+                      onChange={(e) => setGuest({ ...guest, name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="label" htmlFor="g-email">
+                      Mejl adresa
+                    </label>
+                    <input
+                      id="g-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      className="field"
+                      value={guest.email}
+                      onChange={(e) => setGuest({ ...guest, email: e.target.value })}
+                    />
+                  </div>
+                  <label className="flex items-start gap-3 text-[12px] leading-snug text-ink/70">
+                    <input
+                      type="checkbox"
+                      required
+                      className="mt-0.5 size-5 shrink-0 accent-[#0b7a4b]"
+                      checked={guest.consent}
+                      onChange={(e) => setGuest({ ...guest, consent: e.target.checked })}
+                    />
+                    <span>Saglasan/na sam da se moje ime i mejl koriste za ovu prijavu i obaveštenja o inicijativi.</span>
+                  </label>
+                  <button disabled={busy} className="btn-primary w-full">
+                    {busy ? 'Sačekaj…' : 'Priključi se'}
+                  </button>
+                  <p className="text-center text-xs text-ink/60">
+                    Imaš nalog?{' '}
+                    <Link to="/prijava" state={{ from: `/inicijative/${id}` }} className="font-bold text-sage-dark underline">
+                      Prijavi se
+                    </Link>
+                  </p>
+                </form>
+              )}
+
+              {actionError && (
+                <p role="alert" className="mt-4 rounded-xl bg-clay/10 px-4 py-3 text-[13px] font-semibold text-clay">
+                  {actionError}
+                </p>
+              )}
+
+              {isOwner && !closed && (
+                <button onClick={onCancel} disabled={busy} className="mt-5 w-full text-[13px] font-semibold text-clay hover:underline">
+                  Otkaži inicijativu
+                </button>
+              )}
+            </div>
           </div>
         </aside>
       </div>

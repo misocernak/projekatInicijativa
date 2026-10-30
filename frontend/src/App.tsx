@@ -2,6 +2,7 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import { AuthProvider } from './context/AuthContext'
 import About from './pages/About'
+import { ConfirmEmail, ForgotPassword, ResetPassword } from './pages/AccountLinks'
 import Auth from './pages/Auth'
 import Home from './pages/Home'
 import InitiativeDetail from './pages/InitiativeDetail'
@@ -33,6 +34,9 @@ export default function App() {
             <Route path="prijava" element={<Auth />} />
             <Route path="profil" element={<Profile />} />
             <Route path="o-projektu" element={<About />} />
+            <Route path="potvrda-mejla" element={<ConfirmEmail />} />
+            <Route path="zaboravljena-lozinka" element={<ForgotPassword />} />
+            <Route path="nova-lozinka" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

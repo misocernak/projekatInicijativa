@@ -1,5 +1,5 @@
-/** Smanjuje sliku na najviše maxSide px i vraća JPEG data URL (staje u localStorage). */
-export function resizeImage(file: File, maxSide = 1200, quality = 0.82): Promise<string> {
+/** Smanjuje sliku na najviše maxSide px i vraća JPEG (brži upload; server svakako ponovo kodira). */
+export function resizeImage(file: File, maxSide = 1600, quality = 0.85): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file)
     const img = new Image()
@@ -10,7 +10,11 @@ export function resizeImage(file: File, maxSide = 1200, quality = 0.82): Promise
       canvas.height = Math.round(img.height * k)
       canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
       URL.revokeObjectURL(url)
-      resolve(canvas.toDataURL('image/jpeg', quality))
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error('Slika se ne može obraditi.'))),
+        'image/jpeg',
+        quality,
+      )
     }
     img.onerror = () => {
       URL.revokeObjectURL(url)

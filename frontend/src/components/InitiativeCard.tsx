@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, MapPin } from 'lucide-react'
-import { participantCount } from '../api'
 import { categoryLabel, cityName } from '../data/constants'
 import { getStatus } from '../lib/dates'
 import type { Initiative } from '../types'
@@ -8,7 +7,7 @@ import { Art, AvatarStack, CATEGORY_STYLE, DateChip, StatusBadge } from './Bits'
 
 export default function InitiativeCard({ item }: { item: Initiative }) {
   const status = getStatus(item)
-  const count = participantCount(item)
+  const count = item.participants
   const fg = CATEGORY_STYLE[item.category].fg
 
   return (

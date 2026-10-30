@@ -14,6 +14,14 @@ export interface City {
   lng: number
 }
 
+export type ParticipationStatus = 'pending' | 'confirmed' | 'cancelled'
+
+/** Odnos prijavljenog korisnika prema inicijativi (API ga dodaje samo prijavljenima). */
+export interface Viewer {
+  isOrganizer: boolean
+  participation: ParticipationStatus | null
+}
+
 export interface Initiative {
   id: string
   title: string
@@ -28,15 +36,16 @@ export interface Initiative {
   startDate?: string
   endDate?: string
   capacity?: number
-  /** broj već prijavljenih (bez trenutnog korisnika) */
+  /** broj potvrđenih prijava */
   participants: number
   bring?: string
   organizerId: string
   organizerName: string
   contact?: string
-  /** slika inicijative (data URL ili URL sa servera); bez nje se prikazuje ilustracija kategorije */
+  /** pun URL slike; bez nje se prikazuje ilustracija kategorije */
   image?: string
   cancelled?: boolean
+  viewer?: Viewer
 }
 
 export type InitiativeStatus = 'upcoming' | 'ongoing' | 'finished' | 'permanent' | 'cancelled'
@@ -46,6 +55,8 @@ export interface User {
   name: string
   email: string
   cityId?: string
+  emailVerified: boolean
+  role: string
 }
 
 export interface InitiativeFilters {
@@ -55,7 +66,8 @@ export interface InitiativeFilters {
   query?: string
 }
 
+/** Podaci iz forme za novu inicijativu (slika se šalje posebno, kao fajl). */
 export type NewInitiative = Omit<
   Initiative,
-  'id' | 'participants' | 'organizerId' | 'organizerName' | 'cancelled'
+  'id' | 'participants' | 'organizerId' | 'organizerName' | 'cancelled' | 'viewer' | 'image'
 >

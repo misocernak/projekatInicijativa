@@ -1,30 +1,55 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import * as api from '../api'
 import type { User } from '../types'
 
 interface AuthValue {
   user: User | null
-  login: (email: string) => Promise<void>
-  register: (name: string, email: string, cityId?: string) => Promise<void>
-  logout: () => void
+  /** false dok se ne proveri da li postoji aktivna sesija (izbegava treperenje "Prijava") */
+  ready: boolean
+  login: (email: string, password: string) => Promise<void>
+  register: (data: api.RegisterData) => Promise<{ verificationEmailSent: boolean }>
+  logout: () => Promise<void>
+  refresh: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => api.getStoredUser())
+  const [user, setUser] = useState<User | null>(null)
+  const [ready, setReady] = useState(false)
+
+  const refresh = useCallback(async () => {
+    try {
+      setUser(await api.getMe())
+    } catch {
+      setUser(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    refresh().finally(() => setReady(true))
+  }, [refresh])
 
   const value = useMemo<AuthValue>(
     () => ({
       user,
-      login: async (email) => setUser(await api.login(email)),
-      register: async (name, email, cityId) => setUser(await api.register(name, email, cityId)),
-      logout: () => {
-        api.logout()
-        setUser(null)
+      ready,
+      refresh,
+      login: async (email, password) => setUser(await api.login(email, password)),
+      register: async (data) => {
+        const res = await api.register(data)
+        setUser(res.user)
+        return { verificationEmailSent: res.verificationEmailSent }
+      },
+      logout: async () => {
+        try {
+          await api.logout()
+        } finally {
+          setUser(null)
+        }
       },
     }),
-    [user],
+    [user, ready, refresh],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

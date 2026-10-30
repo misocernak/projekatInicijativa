@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { List, Map as MapIcon } from 'lucide-react'
-import { listInitiatives } from '../api'
+import { errorText, listInitiatives } from '../api'
 import { CATEGORY_ICON, CATEGORY_STYLE, Empty, PageHead, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import MapView from '../components/MapView'
@@ -18,15 +19,22 @@ export default function Initiatives() {
   const query = params.get('q') ?? ''
   const view = params.get('prikaz') === 'mapa' ? 'mapa' : 'lista'
 
-  const { data, loading } = useAsync(
+  // pretraga ide na server tek kad korisnik načas prestane da kuca
+  const [debouncedQuery, setDebouncedQuery] = useState(query)
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 300)
+    return () => clearTimeout(t)
+  }, [query])
+
+  const { data, loading, error } = useAsync(
     () =>
       listInitiatives({
         cityId: cityId || undefined,
         category: category || undefined,
         status: status || undefined,
-        query,
+        query: debouncedQuery,
       }),
-    [cityId, category, status, query],
+    [cityId, category, status, debouncedQuery],
   )
 
   const set = (key: string, value: string) =>
@@ -157,6 +165,8 @@ export default function Initiatives() {
       <div className="mt-5">
         {loading ? (
           <Spinner />
+        ) : error ? (
+          <Empty title="Učitavanje nije uspelo" text={errorText(error)} />
         ) : items.length === 0 ? (
           <Empty title="Nema inicijativa za ove filtere" text="Probaj drugi grad ili pokreni sopstvenu inicijativu." />
         ) : view === 'mapa' ? (

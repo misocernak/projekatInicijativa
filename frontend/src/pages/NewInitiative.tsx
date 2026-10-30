@@ -4,9 +4,9 @@ import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-lea
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useEffect } from 'react'
-import { createInitiative } from '../api'
+import { createInitiative, errorText } from '../api'
 import { ImagePlus, X } from 'lucide-react'
-import { PageHead } from '../components/Bits'
+import { PageHead, Spinner } from '../components/Bits'
 import { resizeImage } from '../lib/image'
 import { useAuth } from '../context/AuthContext'
 import { CATEGORIES, CITIES } from '../data/constants'
@@ -31,7 +31,7 @@ function Picker({ pos, onPick }: { pos: [number, number]; onPick: (p: [number, n
 }
 
 export default function NewInitiative() {
-  const { user } = useAuth()
+  const { user, ready } = useAuth()
   const navigate = useNavigate()
   const [cityId, setCityId] = useState(user?.cityId ?? CITIES[0].id)
   const city = CITIES.find((c) => c.id === cityId)!
@@ -39,7 +39,14 @@ export default function NewInitiative() {
   const [kind, setKind] = useState<'timed' | 'permanent'>('timed')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const [image, setImage] = useState<string>()
+  const [image, setImage] = useState<Blob>()
+  const [preview, setPreview] = useState<string>()
+
+  function setPicture(blob?: Blob) {
+    if (preview) URL.revokeObjectURL(preview)
+    setImage(blob)
+    setPreview(blob ? URL.createObjectURL(blob) : undefined)
+  }
 
   async function onFile(file?: File) {
     if (!file) return
@@ -47,11 +54,13 @@ export default function NewInitiative() {
     if (file.size > 15 * 1024 * 1024) return setError('Slika je prevelika (najviše 15 MB).')
     setError('')
     try {
-      setImage(await resizeImage(file))
+      setPicture(await resizeImage(file))
     } catch {
       setError('Slika se ne može učitati. Probaj drugu.')
     }
   }
+
+  if (!ready) return <Spinner />
 
   if (!user) {
     return (
@@ -62,6 +71,21 @@ export default function NewInitiative() {
         </p>
         <Link to="/prijava" state={{ from: '/nova-inicijativa' }} className="btn-primary mt-6">
           Prijava ili registracija
+        </Link>
+      </div>
+    )
+  }
+
+  if (!user.emailVerified) {
+    return (
+      <div className="mx-auto max-w-xl px-5 py-24 text-center">
+        <h1 className="text-4xl text-sage-deep">Prvo potvrdi mejl adresu</h1>
+        <p className="mt-4 text-ink/70">
+          Poslali smo poruku na <strong>{user.email}</strong>. Klikni na link u njoj, pa se vrati ovde. Ako je nisi dobio/la,
+          možeš da zatražiš novu na svom profilu.
+        </p>
+        <Link to="/profil" className="btn-primary mt-6">
+          Idi na profil
         </Link>
       </div>
     )
@@ -91,8 +115,9 @@ export default function NewInitiative() {
     const cap = Number(s('capacity'))
 
     setSaving(true)
-    const item = await createInitiative(
-      {
+    try {
+      const item = await createInitiative(
+        {
         title: s('title'),
         description: s('description'),
         category: s('category') as CategoryId,
@@ -105,12 +130,15 @@ export default function NewInitiative() {
         endDate,
         capacity: cap > 0 ? cap : undefined,
         bring: s('bring') || undefined,
-        image,
         contact: s('contact') || undefined,
       },
-      user!,
+      image,
     )
     navigate(`/inicijative/${item.id}`)
+    } catch (err) {
+      setError(errorText(err))
+      setSaving(false)
+    }
   }
 
   return (
@@ -176,12 +204,12 @@ export default function NewInitiative() {
           <span className="label">
             Slika <span className="font-normal normal-case tracking-normal text-ink/60">(opciono, ljudi će lakše shvatiti šta rešavate)</span>
           </span>
-          {image ? (
+          {preview ? (
             <div className="relative overflow-hidden rounded-3xl">
-              <img src={image} alt="Pregled izabrane slike" className="h-56 w-full object-cover" />
+              <img src={preview} alt="Pregled izabrane slike" className="h-56 w-full object-cover" />
               <button
                 type="button"
-                onClick={() => setImage(undefined)}
+                onClick={() => setPicture(undefined)}
                 className="absolute right-3 top-3 inline-flex min-h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-sage-deep shadow-md"
               >
                 <X className="size-4" aria-hidden /> Ukloni

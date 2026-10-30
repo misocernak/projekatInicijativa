@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, CalendarPlus, HandHeart, MapPin, Search } from 'lucide-react'
-import { listInitiatives, participantCount } from '../api'
+import { listInitiatives } from '../api'
 import { Art, AvatarStack, CATEGORY_ICON, CATEGORY_STYLE, DateChip, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import MapView from '../components/MapView'
@@ -21,7 +21,7 @@ export default function Home() {
   const all = data ?? []
   const upcoming = all.filter((i) => ['upcoming', 'ongoing'].includes(getStatus(i)))
   const featured = upcoming.slice(0, 3)
-  const volunteers = all.reduce((s, i) => s + participantCount(i), 0)
+  const volunteers = all.reduce((s, i) => s + i.participants, 0)
 
   return (
     <>
@@ -162,6 +162,14 @@ export default function Home() {
         </div>
         {loading ? (
           <Spinner />
+        ) : featured.length === 0 ? (
+          <div className="rounded-3xl border-2 border-dashed border-sand bg-white px-6 py-14 text-center">
+            <p className="font-display text-2xl font-extrabold text-sage-deep">Još nema predstojećih inicijativa</p>
+            <p className="mx-auto mt-2 max-w-md text-ink/65">Budi prvi koji će okupiti komšije i pokrenuti nešto korisno u svom kraju.</p>
+            <Link to="/nova-inicijativa" className="btn-primary mt-6">
+              Pokreni inicijativu
+            </Link>
+          </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((i) => (

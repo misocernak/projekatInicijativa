@@ -56,6 +56,20 @@ Slike idu na disk `uploads` (`public_html/uploads` na produkciji), a front ih do
 `users` (password prazan za brze naloge, `role`), `cities`, `categories`, `initiatives` (ULID id),
 `participations` (pending / confirmed / cancelled; samo confirmed se broji u `participants`).
 
+## Primeri inicijativa (opciono)
+
+`DemoSeeder` pravi 7 primera da sajt ne bude prazan; ne pokreće se automatski. Na serveru:
+
+```bash
+cd ~/lepsasrbija-api && php artisan db:seed --class=DemoSeeder --force
+```
+
+Uklanja se brisanjem demo naloga (inicijative se brišu kaskadno):
+
+```bash
+cd ~/lepsasrbija-api && php artisan tinker --execute="App\Models\User::where('email','demo@lepsasrbija.com')->delete();"
+```
+
 ## Testovi
 
 `php artisan test` (SQLite u memoriji). U Actions se pokreću pri svakom deploy-u.
