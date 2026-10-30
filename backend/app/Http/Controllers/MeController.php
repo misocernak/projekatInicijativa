@@ -32,6 +32,7 @@ class MeController extends Controller
         $userId = $request->user()->id;
 
         $items = Initiative::forListing()
+            ->whereNull('hidden_at')
             ->whereHas('participations', fn ($q) => $q
                 ->where('user_id', $userId)
                 ->whereIn('status', [Participation::PENDING, Participation::CONFIRMED]))

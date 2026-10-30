@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+/*
+ * Raspored zadataka. Na serveru ga pokreće jedan cron na svaki minut:
+ *   * * * * * cd /home/lepslnlp/lepsasrbija-api && /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1
+ */
+Schedule::command('initiatives:send-reminders')->hourly()->withoutOverlapping();
+Schedule::command('db:backup')->dailyAt('03:15')->withoutOverlapping();

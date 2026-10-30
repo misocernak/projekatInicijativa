@@ -35,6 +35,7 @@ class InitiativeController extends Controller
 
         $query = Initiative::query()
             ->forListing()
+            ->whereNull('hidden_at')
             ->when($filters['city'] ?? null, fn ($q, $slug) => $q->whereHas('city', fn ($c) => $c->where('slug', $slug)))
             ->when($filters['category'] ?? null, fn ($q, $slug) => $q->whereHas('category', fn ($c) => $c->where('slug', $slug)))
             ->when($filters['status'] ?? null, fn ($q, $status) => $q->withStatus($status))
@@ -60,6 +61,12 @@ class InitiativeController extends Controller
 
     public function show(Request $request, Initiative $initiative): InitiativeResource
     {
+        // sakrivenu inicijativu vide samo organizator i admin; za ostale ona ne postoji
+        if ($initiative->isHidden()) {
+            $viewer = $request->user();
+            abort_unless($viewer && Gate::forUser($viewer)->allows('update', $initiative), 404);
+        }
+
         $this->rememberViewer($request, collect([$initiative->id]));
 
         return new InitiativeResource($this->loaded($initiative));

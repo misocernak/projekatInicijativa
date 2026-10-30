@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Models\User;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -33,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
             URL::forceRootUrl(rtrim(config('app.url'), '/').'/api');
         }
+
+        // Moderacija: samo admin
+        Gate::define('admin', fn (User $user) => $user->isAdmin());
 
         $this->configureMails();
     }

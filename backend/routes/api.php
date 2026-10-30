@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InitiativeController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\ParticipationController;
 use App\Http\Controllers\ReferenceController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +33,9 @@ Route::get('/cities', [ReferenceController::class, 'cities']);
 Route::get('/categories', [ReferenceController::class, 'categories']);
 Route::get('/initiatives', [InitiativeController::class, 'index']);
 Route::get('/initiatives/{initiative}', [InitiativeController::class, 'show']);
+
+// Prijava neprikladnog sadržaja (i bez naloga)
+Route::post('/initiatives/{initiative}/report', [ReportController::class, 'store'])->middleware('throttle:5,60');
 
 // Prijava na inicijativu: gost (ime + mejl) ili prijavljen korisnik
 Route::post('/initiatives/{initiative}/join', [ParticipationController::class, 'join'])->middleware('throttle:20,1');
@@ -63,6 +68,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::delete('/initiatives/{initiative}/join', [ParticipationController::class, 'leave']);
     Route::get('/initiatives/{initiative}/participants', [InitiativeController::class, 'participants']);
+
+    // Moderacija
+    Route::middleware('can:admin')->prefix('admin')->group(function () {
+        Route::get('/reports', [AdminController::class, 'reports']);
+        Route::post('/reports/{report}/resolve', [AdminController::class, 'resolve']);
+        Route::post('/initiatives/{initiative}/hide', [AdminController::class, 'hide']);
+        Route::post('/initiatives/{initiative}/unhide', [AdminController::class, 'unhide']);
+    });
 
     // Upravljanje inicijativama traži potvrđenu mejl adresu
     Route::middleware('verified')->group(function () {

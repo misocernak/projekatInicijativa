@@ -38,6 +38,7 @@ class InitiativeResource extends JsonResource
             'contact' => $this->contact,
             'image' => $this->image_path ? rtrim(config('app.url'), '/').'/uploads/'.$this->image_path : null,
             'cancelled' => $this->cancelled_at !== null,
+            'hidden' => $this->hidden_at ? true : null,
         ];
 
         // Prazna opciona polja se izostavljaju, kao undefined na frontu.

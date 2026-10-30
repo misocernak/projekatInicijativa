@@ -25,7 +25,13 @@ class Initiative extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'cancelled_at' => 'datetime',
+            'hidden_at' => 'datetime',
         ];
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
     }
 
     public function organizer(): BelongsTo
@@ -66,10 +72,15 @@ class Initiative extends Model
         return $this->kind === 'timed' && $this->ends_at !== null && $this->ends_at->isPast();
     }
 
-    /** Prijave su moguće samo dok inicijativa nije otkazana ni završena. */
+    public function isHidden(): bool
+    {
+        return $this->hidden_at !== null;
+    }
+
+    /** Prijave su moguće samo dok inicijativa nije otkazana, završena ni sakrivena. */
     public function isOpen(): bool
     {
-        return ! $this->isCancelled() && ! $this->isFinished();
+        return ! $this->isCancelled() && ! $this->isFinished() && ! $this->isHidden();
     }
 
     public function confirmedCount(): int
