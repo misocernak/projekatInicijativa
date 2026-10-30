@@ -24,6 +24,6 @@ class InitiativeHidden extends Notification
             ->line('Tvoja inicijativa „'.$this->initiative->title.'“ trenutno nije vidljiva javnosti, jer je pregledom utvrđeno da možda krši pravila ponašanja.')
             ->line('Ako smatraš da je u pitanju greška, odgovori na ovu poruku ili nam se javi, pa ćemo je ponovo pregledati.')
             ->action('Pravila ponašanja', rtrim(config('app.url'), '/').'/o-projektu')
-            ->salutation('Zajedno');
+            ->salutation('Lepša Srbija');
     }
 }

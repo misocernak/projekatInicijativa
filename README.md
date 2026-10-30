@@ -1,8 +1,8 @@
-# Zajedno – inicijative u tvom gradu
+# lepšaSrbija.com – inicijative u tvom gradu
 
 Platforma na kojoj građani objavljuju društveno korisne inicijative (uređenje, čišćenje, sadnja, pomoć komšijama) i pozivaju sugrađane da im se priključe. Bez prikupljanja sredstava.
 
-Radni naziv „Zajedno“ menja se na jednom mestu: `frontend/src/data/constants.ts` (`BRAND`).
+Naziv sajta („Lepša Srbija“) menja se na jednom mestu: `frontend/src/data/constants.ts` (`BRAND`); logo je tekst u `frontend/src/components/Wordmark.tsx`.
 
 ## Struktura
 

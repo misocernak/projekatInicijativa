@@ -1,8 +1,8 @@
+import CityOptions from '../components/CityOptions'
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { errorText } from '../api'
 import { useAuth } from '../context/AuthContext'
-import { CITIES } from '../data/constants'
 
 export default function Auth() {
   const { user, ready, login, register } = useAuth()
@@ -65,11 +65,7 @@ export default function Auth() {
               </label>
               <select id="city" name="city" className="field" defaultValue="">
                 <option value="">Izaberi grad</option>
-                {CITIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
+                <CityOptions />
               </select>
             </div>
           </>

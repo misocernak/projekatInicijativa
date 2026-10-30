@@ -25,7 +25,7 @@ class DemoSeeder extends Seeder
 
         $organizer = User::firstOrCreate(
             ['email' => 'demo@lepsasrbija.com'],
-            ['name' => 'Zajedno tim', 'password' => Str::random(40)],
+            ['name' => 'Lepša Srbija tim', 'password' => Str::random(40)],
         );
         $organizer->forceFill(['email_verified_at' => now()])->save();
         $organizer->initiatives()->delete();

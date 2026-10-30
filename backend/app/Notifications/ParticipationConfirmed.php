@@ -48,7 +48,7 @@ class ParticipationConfirmed extends Notification
 
         $message->action('Pogledaj inicijativu', $front)
             ->line('Ako ne možeš da dođeš, odjavi se da bi se oslobodilo mesto: '.$cancelUrl)
-            ->salutation('Zajedno');
+            ->salutation('Lepša Srbija');
 
         if ($ics = Ics::forInitiative($initiative)) {
             $message->attachData($ics, 'inicijativa.ics', ['mime' => 'text/calendar']);

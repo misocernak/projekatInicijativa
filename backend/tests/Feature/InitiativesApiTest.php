@@ -46,8 +46,9 @@ class InitiativesApiTest extends TestCase
         $this->seed(ReferenceDataSeeder::class);
 
         $this->getJson('/cities')->assertOk()
-            ->assertJsonCount(10)
-            ->assertJsonFragment(['id' => 'beograd', 'name' => 'Beograd']);
+            ->assertJsonCount($this->citiesInFile())
+            ->assertJsonFragment(['id' => 'beograd', 'name' => 'Beograd', 'group' => 'Beograd — gradske opštine'])
+            ->assertJsonFragment(['id' => 'cacak', 'name' => 'Čačak', 'group' => 'Ostali gradovi i opštine']);
 
         $this->getJson('/categories')->assertOk()
             ->assertJsonCount(7)
@@ -59,8 +60,53 @@ class InitiativesApiTest extends TestCase
         $this->seed(ReferenceDataSeeder::class);
         $this->seed(ReferenceDataSeeder::class);
 
-        $this->assertSame(10, City::count());
+        $this->assertSame($this->citiesInFile(), City::count());
         $this->assertSame(7, Category::count());
+    }
+
+    private function citiesInFile(): int
+    {
+        return count(json_decode((string) file_get_contents(database_path('data/cities.json')), true));
+    }
+
+    /** Front ima svoju kopiju liste (frontend/src/data/cities.ts); ne sme da se razilazi sa bazom. */
+    public function test_frontend_city_list_matches_the_backend_list(): void
+    {
+        $json = json_decode((string) file_get_contents(database_path('data/cities.json')), true);
+        $ts = (string) file_get_contents(base_path('../frontend/src/data/cities.ts'));
+
+        preg_match_all('/\{ id: "([^"]+)", name: "([^"]+)", group: "([^"]+)", lat: ([0-9.]+), lng: ([0-9.]+) \}/u', $ts, $m, PREG_SET_ORDER);
+
+        $this->assertCount(count($json), $m, 'Front i backend nemaju isti broj gradova.');
+
+        foreach ($json as $i => $city) {
+            $this->assertSame($city['id'], $m[$i][1]);
+            $this->assertSame($city['name'], $m[$i][2]);
+            $this->assertSame($city['group'], $m[$i][3]);
+            $this->assertEqualsWithDelta($city['lat'], (float) $m[$i][4], 0.00001);
+            $this->assertEqualsWithDelta($city['lng'], (float) $m[$i][5], 0.00001);
+        }
+    }
+
+    public function test_city_list_is_unique_and_sorted_into_the_two_groups(): void
+    {
+        $json = json_decode((string) file_get_contents(database_path('data/cities.json')), true);
+
+        $slugs = array_column($json, 'id');
+        $this->assertSame($slugs, array_values(array_unique($slugs)));
+
+        $groups = array_values(array_unique(array_column($json, 'group')));
+        $this->assertSame(['Beograd — gradske opštine', 'Ostali gradovi i opštine'], $groups);
+
+        // gradovi koji već postoje u produkciji moraju zadržati iste slug-ove
+        foreach (['beograd', 'novi-sad', 'nis', 'kragujevac', 'subotica', 'cacak', 'kraljevo', 'pancevo', 'zrenjanin', 'uzice'] as $old) {
+            $this->assertContains($old, $slugs);
+        }
+
+        foreach ($json as $city) {
+            $this->assertEqualsWithDelta(44.0, $city['lat'], 2.5, $city['name']);
+            $this->assertEqualsWithDelta(20.8, $city['lng'], 2.5, $city['name']);
+        }
     }
 
     public function test_list_returns_frontend_shaped_initiatives(): void

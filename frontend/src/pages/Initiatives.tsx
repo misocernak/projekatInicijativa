@@ -1,3 +1,4 @@
+import CityOptions from '../components/CityOptions'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { List, Map as MapIcon } from 'lucide-react'
@@ -5,7 +6,7 @@ import { errorText, listInitiatives } from '../api'
 import { CATEGORY_ICON, CATEGORY_STYLE, Empty, PageHead, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import MapView from '../components/MapView'
-import { CATEGORIES, CITIES, STATUS_LABEL } from '../data/constants'
+import { CATEGORIES, STATUS_LABEL } from '../data/constants'
 import { useAsync } from '../lib/useAsync'
 import type { CategoryId, InitiativeStatus } from '../types'
 
@@ -86,11 +87,7 @@ export default function Initiatives() {
           </label>
           <select id="f-grad" className="field" value={cityId} onChange={(e) => set('grad', e.target.value)}>
             <option value="">Svi gradovi</option>
-            {CITIES.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
+            <CityOptions />
           </select>
         </div>
         <div>

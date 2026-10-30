@@ -1,3 +1,4 @@
+import CityOptions from './CityOptions'
 import { useEffect, useState, type FormEvent } from 'react'
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
@@ -16,14 +17,14 @@ const pin = L.divIcon({
   iconAnchor: [13, 26],
 })
 
-function Picker({ pos, onPick }: { pos: [number, number]; onPick: (p: [number, number]) => void }) {
+function Picker({ pos, onPick }: { pos: [number, number] | null; onPick: (p: [number, number]) => void }) {
   const map = useMap()
   useEffect(() => {
-    map.setView(pos, Math.max(map.getZoom(), 13))
+    if (pos) map.setView(pos, Math.max(map.getZoom(), 13))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pos[0], pos[1]])
+  }, [pos?.[0], pos?.[1]])
   useMapEvents({ click: (e) => onPick([e.latlng.lat, e.latlng.lng]) })
-  return <Marker position={pos} icon={pin} />
+  return pos ? <Marker position={pos} icon={pin} /> : null
 }
 
 /**
@@ -41,9 +42,11 @@ interface Props {
 
 export default function InitiativeForm({ initial, defaultCityId, submitLabel, savingLabel, onSubmit }: Props) {
   const editing = !!initial
-  const [cityId, setCityId] = useState(initial?.cityId ?? defaultCityId ?? CITIES[0].id)
-  const city = CITIES.find((c) => c.id === cityId)!
-  const [pos, setPos] = useState<[number, number]>(initial ? [initial.lat, initial.lng] : [city.lat, city.lng])
+  const [cityId, setCityId] = useState(initial?.cityId ?? defaultCityId ?? '')
+  const city = CITIES.find((c) => c.id === cityId)
+  const [pos, setPos] = useState<[number, number] | null>(
+    initial ? [initial.lat, initial.lng] : city ? [city.lat, city.lng] : null,
+  )
   const [kind, setKind] = useState<'timed' | 'permanent'>(initial?.kind ?? 'timed')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -97,6 +100,8 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
       endDate = end.toISOString()
     }
     const cap = Number(s('capacity'))
+    if (!cityId) return setError('Izaberi grad iz liste.')
+    if (!pos) return setError('Označi mesto na mapi.')
 
     setSaving(true)
     try {
@@ -159,23 +164,23 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
         </div>
         <div>
           <label className="label" htmlFor="city">
-            Grad
+            Grad ili opština
           </label>
           <select
             id="city"
             className="field"
             value={cityId}
+            required
             onChange={(e) => {
               setCityId(e.target.value)
-              const c = CITIES.find((x) => x.id === e.target.value)!
-              setPos([c.lat, c.lng])
+              const c = CITIES.find((x) => x.id === e.target.value)
+              setPos(c ? [c.lat, c.lng] : null)
             }}
           >
-            {CITIES.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
+            <option value="" disabled>
+              — izaberi grad —
+            </option>
+            <CityOptions />
           </select>
         </div>
       </div>
@@ -291,7 +296,7 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
           placeholder="Ulica i broj ili poznata lokacija"
         />
         <p className="mb-2 mt-4 text-sm text-ink/70">Klikni na mapu da označiš tačnu lokaciju.</p>
-        <MapContainer center={pos} zoom={13} style={{ height: 280 }} className="w-full border border-sand">
+        <MapContainer center={pos ?? [44.2, 20.8]} zoom={pos ? 13 : 7} style={{ height: 280 }} className="w-full border border-sand">
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

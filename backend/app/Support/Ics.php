@@ -21,7 +21,7 @@ class Ics
         $lines = [
             'BEGIN:VCALENDAR',
             'VERSION:2.0',
-            'PRODID:-//Zajedno//lepsasrbija.com//SR',
+            'PRODID:-//Lepsa Srbija//lepsasrbija.com//SR',
             'CALSCALE:GREGORIAN',
             'METHOD:PUBLISH',
             'BEGIN:VEVENT',

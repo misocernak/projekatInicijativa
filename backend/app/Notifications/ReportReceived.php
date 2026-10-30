@@ -33,6 +33,6 @@ class ReportReceived extends Notification
 
         return $message
             ->action('Otvori admin stranicu', rtrim(config('app.url'), '/').'/admin')
-            ->salutation('Zajedno');
+            ->salutation('Lepša Srbija');
     }
 }

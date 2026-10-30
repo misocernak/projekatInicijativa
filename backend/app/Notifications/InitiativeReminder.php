@@ -39,6 +39,6 @@ class InitiativeReminder extends Notification
         return $message
             ->action('Pogledaj inicijativu', rtrim(config('app.url'), '/').'/inicijative/'.$initiative->id)
             ->line('Ako ne možeš da dođeš, odjavi se na stranici inicijative da bi se oslobodilo mesto.')
-            ->salutation('Zajedno');
+            ->salutation('Lepša Srbija');
     }
 }

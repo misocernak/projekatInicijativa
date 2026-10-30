@@ -24,6 +24,6 @@ class InitiativeCancelled extends Notification
             ->line('Nažalost, organizator je otkazao inicijativu „'.$this->initiative->title.'“ na koju si se prijavio/la.')
             ->line('Hvala ti na volji da pomogneš. Pogledaj druge inicijative u svom gradu, možda te neka zanima.')
             ->action('Pogledaj inicijative', rtrim(config('app.url'), '/').'/inicijative')
-            ->salutation('Zajedno');
+            ->salutation('Lepša Srbija');
     }
 }

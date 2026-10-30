@@ -14,6 +14,7 @@ class ReferenceController extends Controller
             City::orderBy('name')->get()->map(fn (City $c) => [
                 'id' => $c->slug,
                 'name' => $c->name,
+                'group' => $c->region,
                 'lat' => $c->lat,
                 'lng' => $c->lng,
             ])->values()

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import MobileMenu from './MobileMenu'
+import Wordmark from './Wordmark'
 import { useAuth } from '../context/AuthContext'
 import { BRAND } from '../data/constants'
 
@@ -12,13 +13,10 @@ const navCls = ({ isActive }: { isActive: boolean }) =>
       : 'text-sage-deep/70 after:scale-x-0 hover:text-sage-deep hover:after:scale-x-100'
   }`
 
-function Logo({ light = false }: { light?: boolean }) {
+function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-3" aria-label={`${BRAND.name} – početna`}>
-      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-9" />
-      <span className={`font-display text-[24px] font-extrabold leading-none tracking-tight ${light ? 'text-sage-deep' : 'text-sage-deep'}`}>
-        {BRAND.name}
-      </span>
+    <Link to="/" className="flex items-center" aria-label={`${BRAND.name} – početna`}>
+      <Wordmark />
     </Link>
   )
 }
@@ -112,7 +110,7 @@ export default function Layout() {
       <footer className="mt-24 border-t border-sand bg-mist text-sage-deep">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <Logo light />
+            <Logo />
             <p className="mt-5 max-w-sm font-semibold leading-snug text-sage-deep/80">
               Građani uređuju svoj grad, zajedno. Dovoljno je da se nađemo.
             </p>

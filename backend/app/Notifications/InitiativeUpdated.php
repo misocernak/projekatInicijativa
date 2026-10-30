@@ -42,7 +42,7 @@ class InitiativeUpdated extends Notification
         $message->line('**Gde:** '.$initiative->city->name.', '.$initiative->address)
             ->action('Pogledaj inicijativu', rtrim(config('app.url'), '/').'/inicijative/'.$initiative->id)
             ->line('Ako ti novi termin ne odgovara, možeš da se odjaviš na stranici inicijative.')
-            ->salutation('Zajedno');
+            ->salutation('Lepša Srbija');
 
         return $message;
     }

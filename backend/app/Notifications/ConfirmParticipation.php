@@ -35,6 +35,6 @@ class ConfirmParticipation extends Notification
             ->line('Klikni na dugme da potvrdiš da dolaziš. Tek tada te računamo među prijavljene volontere.')
             ->action('Potvrdi prijavu', $url)
             ->line('Link važi 3 dana. Ako se nisi prijavio/la, slobodno ignoriši ovu poruku.')
-            ->salutation('Zajedno');
+            ->salutation('Lepša Srbija');
     }
 }

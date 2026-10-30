@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
                 ->line('Hvala što si se pridružio/la zajednici. Potvrdi mejl adresu da bi mogao/la da pokrećeš inicijative.')
                 ->action('Potvrdi mejl adresu', $url)
                 ->line('Link važi 60 minuta. Ako nisi ti napravio/la nalog, slobodno ignoriši ovu poruku.')
-                ->salutation('Zajedno');
+                ->salutation('Lepša Srbija');
         });
 
         ResetPassword::createUrlUsing(function (object $notifiable, string $token) {
@@ -70,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
                 ->line('Dobili smo zahtev da postaviš novu lozinku za svoj nalog.')
                 ->action('Postavi novu lozinku', $url)
                 ->line('Link važi 60 minuta. Ako nisi ti tražio/la promenu, ne moraš ništa da radiš.')
-                ->salutation('Zajedno');
+                ->salutation('Lepša Srbija');
         });
     }
 }

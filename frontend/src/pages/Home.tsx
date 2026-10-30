@@ -1,10 +1,11 @@
+import CityOptions from '../components/CityOptions'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, CalendarPlus, HandHeart, MapPin, Search } from 'lucide-react'
 import { listInitiatives } from '../api'
 import { Art, AvatarStack, CATEGORY_ICON, CATEGORY_STYLE, DateChip, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import MapView from '../components/MapView'
-import { CATEGORIES, CITIES, cityName } from '../data/constants'
+import { CATEGORIES, cityName } from '../data/constants'
 import { getStatus } from '../lib/dates'
 import { useAsync } from '../lib/useAsync'
 import type { Initiative } from '../types'
@@ -90,11 +91,7 @@ export default function Home() {
               <span className="sr-only">Grad</span>
               <select name="grad" className="min-h-12 w-full bg-transparent text-[15px] font-medium text-sage-deep outline-none">
                 <option value="">Svi gradovi</option>
-                {CITIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
+                <CityOptions />
               </select>
             </label>
             <label className="flex items-center gap-3 sm:pr-2">

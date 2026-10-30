@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { BRAND } from '../data/constants'
+import Wordmark from './Wordmark'
 
 interface Props {
   open: boolean
@@ -111,16 +112,13 @@ export default function MobileMenu({ open, onClose }: Props) {
         id="mobilni-meni"
         aria-label="Glavni meni"
         inert={!open}
-        className={`absolute inset-y-0 left-0 flex w-[86%] max-w-sm flex-col bg-white shadow-[20px_0_60px_-20px_rgb(20_32_26/0.5)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          open ? 'translate-x-0' : '-translate-x-full'
+        className={`absolute inset-y-0 left-0 flex w-[86%] max-w-sm flex-col bg-white transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          open ? 'translate-x-0 shadow-[20px_0_60px_-20px_rgb(20_32_26/0.5)]' : '-translate-x-full'
         }`}
       >
         <div className="flex h-20 shrink-0 items-center justify-between border-b border-sand px-5">
-          <Link to="/" onClick={onClose} className="flex items-center gap-3">
-            <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-9" />
-            <span className="font-display text-[22px] font-extrabold tracking-tight text-sage-deep">
-              {BRAND.name}
-            </span>
+          <Link to="/" onClick={onClose} aria-label={`${BRAND.name} – početna`}>
+            <Wordmark />
           </Link>
           <button
             ref={closeRef}
