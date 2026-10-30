@@ -33,6 +33,24 @@ Nalog (sesija preko kolačića, isti domen; front prvo poziva `GET /api/sanctum/
 
 Oblik inicijative u odgovoru je isti kao tip `Initiative` na frontu (`frontend/src/types.ts`).
 
+Inicijative (potrebna prijava i potvrđen mejl):
+
+- `POST /api/initiatives` (multipart, opciono `image`), `PUT /api/initiatives/{id}`, `POST /api/initiatives/{id}/cancel`
+- `POST|DELETE /api/initiatives/{id}/image` – slika (re-kodira se u JPEG max 1600 px, uklanja EXIF)
+- `GET /api/initiatives/{id}/participants` – spisak prijavljenih, samo organizator
+- `GET /api/me/initiatives`, `GET /api/me/participations`
+- Izmena termina/mesta i otkazivanje šalju mejl potvrđenim prijavljenima
+
+Prijava volontera:
+
+- `POST /api/initiatives/{id}/join` – prijavljen i potvrđen korisnik: odmah potvrđeno. Gost (`name`, `email`, `consent`) ili
+  nepotvrđen nalog: čeka klik na link iz mejla (`GET /api/participations/{id}/confirm`, potpisan, važi 3 dana).
+  Posle potvrde stiže mejl sa detaljima, kalendarom (.ics) i linkom za odjavu (`.../cancel`).
+- `DELETE /api/initiatives/{id}/join` – odjava (prijavljen korisnik)
+- Zaštite: najviše 3 pokušaja na sat po mejl adresi, postojeći nalog se nikad ne menja preko obrasca za goste
+
+Slike idu na disk `uploads` (`public_html/uploads` na produkciji), a front ih dobija kao pun URL u polju `image`.
+
 ## Šema baze
 
 `users` (password prazan za brze naloge, `role`), `cities`, `categories`, `initiatives` (ULID id),

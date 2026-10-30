@@ -48,6 +48,40 @@ class Initiative extends Model
         return $this->hasMany(Participation::class);
     }
 
+    /** Učitava ono što je potrebno za prikaz u listi: grad, kategoriju, organizatora i broj prijavljenih. */
+    public function scopeForListing(Builder $query): Builder
+    {
+        return $query
+            ->with(['city:id,slug', 'category:id,slug', 'organizer:id,name'])
+            ->withConfirmedCount();
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->cancelled_at !== null;
+    }
+
+    public function isFinished(): bool
+    {
+        return $this->kind === 'timed' && $this->ends_at !== null && $this->ends_at->isPast();
+    }
+
+    /** Prijave su moguće samo dok inicijativa nije otkazana ni završena. */
+    public function isOpen(): bool
+    {
+        return ! $this->isCancelled() && ! $this->isFinished();
+    }
+
+    public function confirmedCount(): int
+    {
+        return $this->participations()->where('status', Participation::CONFIRMED)->count();
+    }
+
+    public function isFull(): bool
+    {
+        return $this->capacity !== null && $this->confirmedCount() >= $this->capacity;
+    }
+
     /** Dodaje confirmed_count: broj potvrđenih prijava. */
     public function scopeWithConfirmedCount(Builder $query): Builder
     {

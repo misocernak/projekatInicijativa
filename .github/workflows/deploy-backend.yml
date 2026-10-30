@@ -33,7 +33,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, intl, pdo_mysql, pdo_sqlite, sqlite3, xml, curl, zip, fileinfo, openssl
+          extensions: mbstring, intl, pdo_mysql, pdo_sqlite, sqlite3, xml, curl, zip, fileinfo, openssl, gd
           tools: composer:v2
 
       - name: Composer install (sa dev paketima, za testove)
@@ -114,6 +114,9 @@ jobs:
           rsync -az --delete \
             -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
             backend/deploy/public_html_api/ "$SSH_USER@$SSH_HOST:public_html/api/"
+          # folder za slike: pravi se jednom, .htaccess se ne prepisuje, a same slike deploy nikad ne dira
+          ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes             "$SSH_USER@$SSH_HOST" 'mkdir -p public_html/uploads/initiatives'
+          rsync -a --ignore-existing             -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"             backend/deploy/uploads/ "$SSH_USER@$SSH_HOST:public_html/uploads/"
 
       - name: Migracije i keš na serveru
         env:

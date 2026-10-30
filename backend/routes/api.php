@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InitiativeController;
+use App\Http\Controllers\MeController;
+use App\Http\Controllers\ParticipationController;
 use App\Http\Controllers\ReferenceController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +32,17 @@ Route::get('/categories', [ReferenceController::class, 'categories']);
 Route::get('/initiatives', [InitiativeController::class, 'index']);
 Route::get('/initiatives/{initiative}', [InitiativeController::class, 'show']);
 
+// Prijava na inicijativu: gost (ime + mejl) ili prijavljen korisnik
+Route::post('/initiatives/{initiative}/join', [ParticipationController::class, 'join'])->middleware('throttle:20,1');
+
+// Linkovi iz mejlova (potpisani)
+Route::get('/participations/{participation}/confirm', [ParticipationController::class, 'confirm'])
+    ->middleware(['signed', 'throttle:30,1'])
+    ->name('participation.confirm');
+Route::get('/participations/{participation}/cancel', [ParticipationController::class, 'cancelByLink'])
+    ->middleware(['signed', 'throttle:30,1'])
+    ->name('participation.cancel');
+
 // Nalog
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
@@ -44,4 +57,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/email/verification-notification', [AuthController::class, 'resendVerification'])
         ->middleware('throttle:3,1');
+
+    Route::get('/me/initiatives', [MeController::class, 'initiatives']);
+    Route::get('/me/participations', [MeController::class, 'participations']);
+
+    Route::delete('/initiatives/{initiative}/join', [ParticipationController::class, 'leave']);
+    Route::get('/initiatives/{initiative}/participants', [InitiativeController::class, 'participants']);
+
+    // Upravljanje inicijativama traži potvrđenu mejl adresu
+    Route::middleware('verified')->group(function () {
+        Route::post('/initiatives', [InitiativeController::class, 'store'])->middleware('throttle:20,60');
+        Route::put('/initiatives/{initiative}', [InitiativeController::class, 'update']);
+        Route::post('/initiatives/{initiative}/cancel', [InitiativeController::class, 'cancel']);
+        Route::post('/initiatives/{initiative}/image', [InitiativeController::class, 'uploadImage'])->middleware('throttle:30,60');
+        Route::delete('/initiatives/{initiative}/image', [InitiativeController::class, 'deleteImage']);
+    });
 });

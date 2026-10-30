@@ -1,0 +1,4 @@
+# Folder za slike korisnika: bez listanja i bez izvršavanja skripti.
+Options -Indexes -ExecCGI
+RemoveHandler .php .phtml .phar .php3 .php4 .php5 .php7 .phps .cgi .pl .py
+AddType text/plain .php .phtml .phar

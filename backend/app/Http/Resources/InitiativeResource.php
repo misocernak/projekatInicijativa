@@ -10,6 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * Oblik odgovora je isti kao tip Initiative na frontu (frontend/src/types.ts),
  * pa front ne mora da prepravlja stranice kada pređe sa mock podataka na API.
  *
+ * Prijavljenom korisniku se dodaje i "viewer": da li je organizator i kakva je njegova prijava.
+ *
  * @mixin Initiative
  */
 class InitiativeResource extends JsonResource
@@ -39,6 +41,16 @@ class InitiativeResource extends JsonResource
         ];
 
         // Prazna opciona polja se izostavljaju, kao undefined na frontu.
-        return array_filter($data, fn ($v) => $v !== null);
+        $data = array_filter($data, fn ($v) => $v !== null);
+
+        if ($user = $request->user()) {
+            $map = $request->attributes->get('participationMap', []);
+            $data['viewer'] = [
+                'isOrganizer' => (int) $user->id === (int) $this->user_id,
+                'participation' => $map[$this->id] ?? null,
+            ];
+        }
+
+        return $data;
     }
 }

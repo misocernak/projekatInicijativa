@@ -47,6 +47,18 @@ return [
             'report' => false,
         ],
 
+        // Slike inicijativa. Na produkciji idu u public_html/uploads (javno dostupno, deploy ih ne dira).
+        'uploads' => [
+            'driver' => 'local',
+            'root' => env('UPLOADS_PATH', env('APP_ENV') === 'production'
+                ? base_path('../public_html/uploads')
+                : storage_path('app/uploads')),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/uploads',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
