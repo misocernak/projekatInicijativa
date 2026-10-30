@@ -1,41 +1,40 @@
 # Zajedno – inicijative u tvom gradu
 
-Platforma na kojoj građani objavljuju društveno korisne inicijative (uređenje, čišćenje, sadnja, pomoć komšijama) i pozivaju sugrađane da im se priključe. Bez novca i prikupljanja sredstava.
+Platforma na kojoj građani objavljuju društveno korisne inicijative (uređenje, čišćenje, sadnja, pomoć komšijama) i pozivaju sugrađane da im se priključe. Bez prikupljanja sredstava.
 
-Radni naziv „Zajedno“ menja se na jednom mestu: `src/data/constants.ts` (`BRAND`).
-
-## Stack
-
-- Front: Vite + React + TypeScript + Tailwind CSS v4 + React Router
-- Mapa: Leaflet + OpenStreetMap
-- Back (planirano): PHP 8 + MySQL na cPanel hostingu, REST API na `/api`
-
-## Pokretanje
-
-```bash
-npm install
-npm run dev      # razvoj na http://localhost:5173
-npm run build    # produkcioni build u dist/
-```
-
-## Deploy na cPanel
-
-1. `npm run build`
-2. Sadržaj foldera `dist/` upload-uj u `public_html` (File Manager ili FTP).
-3. `.htaccess` (već u `public/`, ide u `dist/` pri build-u) preusmerava sve rute na `index.html`, a `/api` ostavlja PHP-u.
-
-## Trenutno stanje
-
-Front radi sa **mock podacima** i `localStorage`-om (prijava, kreirane inicijative i prijave se čuvaju samo u pretraživaču). Sav pristup podacima je u `src/api/index.ts`. Kada back bude gotov, menja se samo taj fajl (fetch ka `/api/...`), a stranice ostaju iste.
+Radni naziv „Zajedno“ menja se na jednom mestu: `frontend/src/data/constants.ts` (`BRAND`).
 
 ## Struktura
 
 ```
-src/
-  api/          pristup podacima (mock → PHP API)
-  components/   Layout, kartice, mapa
-  context/      AuthContext
-  data/         konstante (gradovi, kategorije, brend) i mock podaci
-  lib/          datumi, useAsync
-  pages/        Home, Initiatives, InitiativeDetail, NewInitiative, Auth, Profile, About
+frontend/   Vite + React + TypeScript + Tailwind v4 + React Router + Leaflet
+backend/    Laravel API (PHP 8.2) – u pripremi
+.github/    workflow za automatski deploy
 ```
+
+## Frontend – razvoj
+
+```bash
+cd frontend
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # produkcioni build u frontend/dist
+```
+
+Front trenutno radi sa **mock podacima** i `localStorage`-om. Sav pristup podacima je u `frontend/src/api/index.ts`; kada back bude gotov, menja se samo taj fajl (fetch ka `/api/...`).
+
+## Hosting i deploy (cPanel, lepsasrbija.com)
+
+Svaki push na `main` koji menja `frontend/` pokreće `.github/workflows/deploy.yml`: build u GitHub Actions, pa `rsync` preko SSH-a u `~/public_html`.
+
+Raspored na serveru (`/home/lepslnlp/`):
+
+```
+public_html/            front (dist)
+  api/                  ulazna tačka Laravela (kasnije)
+  uploads/              slike inicijativa (deploy ih ne dira)
+  .well-known/          SSL provera (deploy ga ne dira)
+lepsasrbija-api/        Laravel aplikacija, van weba (kasnije)
+```
+
+GitHub Secrets: `SSH_PRIVATE_KEY`, `SSH_HOST`, `SSH_PORT`, `SSH_USER`. Workflow proverava otisak SSH ključa servera pre slanja.

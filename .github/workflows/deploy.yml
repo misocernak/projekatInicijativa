@@ -1,44 +1,67 @@
-name: Deploy na GitHub Pages
+name: Deploy na lepsasrbija.com
+
+# Front (Vite) se gradi u GitHub Actions i šalje preko SSH-a (rsync) u public_html.
+# Potrebni Secrets: SSH_PRIVATE_KEY, SSH_HOST, SSH_PORT, SSH_USER
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  # Otisak SSH ključa servera (ED25519). Ako se ne poklopi, deploy staje.
+  HOST_KEY_FINGERPRINT: SHA256:f6IUZWAq9cQPXDFnlGqrXLea9QX61chQ9IW8M6nrWcE
 
 jobs:
-  build:
+  deploy-frontend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run build
-        env:
-          VITE_BASE: /projekatInicijativa/
-      # SPA: direktni linkovi (npr. /inicijative/i1) padaju na 404.html, koji učitava aplikaciju
-      - run: cp dist/index.html dist/404.html
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+          cache-dependency-path: frontend/package-lock.json
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: SSH ključ i provera servera
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -t ed25519 "$SSH_HOST" > ~/.ssh/known_hosts
+          ssh-keygen -lf ~/.ssh/known_hosts | tee /dev/stderr | grep -q "$HOST_KEY_FINGERPRINT" \
+            || { echo "::error::Otisak servera se ne poklapa, prekidam."; exit 1; }
+
+      - name: Upload fronta u public_html
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          # --delete uklanja stare fajlove (npr. parking stranicu), a izuzeci ostaju netaknuti:
+          #   .well-known = SSL provera, cgi-bin = cPanel, api = Laravel ulaz, uploads = slike korisnika
+          rsync -az --delete \
+            --exclude '.well-known' --exclude 'cgi-bin' --exclude 'api' --exclude 'uploads' \
+            -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            frontend/dist/ "$SSH_USER@$SSH_HOST:public_html/"
