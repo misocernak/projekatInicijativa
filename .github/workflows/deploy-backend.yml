@@ -1,0 +1,130 @@
+name: Deploy backend (Laravel)
+
+# Gradi Laravel u Actions (composer install, PHP 8.2 kao na serveru) i šalje preko SSH-a (rsync):
+#   backend/                  -> ~/lepsasrbija-api/        (van weba; .env i storage/ ostaju netaknuti)
+#   backend/deploy/public_html_api -> ~/public_html/api/   (jedino javno dostupno)
+# Zatim na serveru: key:generate (samo ako nema ključa), migrate, config cache.
+# Preduslov: ~/lepsasrbija-api/.env mora postojati (pravi se ručno, jednom).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
+env:
+  HOST_KEY_FINGERPRINT: SHA256:f6IUZWAq9cQPXDFnlGqrXLea9QX61chQ9IW8M6nrWcE
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, intl, pdo_mysql, xml, curl, zip, fileinfo, openssl
+          tools: composer:v2
+
+      - name: Composer install (bez dev paketa)
+        working-directory: backend
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: SSH ključ i provera servera
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          for v in SSH_PRIVATE_KEY SSH_HOST SSH_PORT SSH_USER; do
+            [ -n "${!v}" ] || { echo "::error::Secret $v je prazan ili ne postoji."; exit 1; }
+          done
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -t ed25519 "$SSH_HOST" > ~/.ssh/known_hosts 2>/dev/null
+          ssh-keygen -lf ~/.ssh/known_hosts | grep -q "$HOST_KEY_FINGERPRINT" \
+            || { echo "::error::Otisak servera se ne poklapa ili server nije dostupan, prekidam."; exit 1; }
+          out=$(ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST" 'echo ok' 2>&1) \
+            || { echo "::error::SSH prijava nije uspela: ${out//$'\n'/ | }"; exit 1; }
+
+      - name: Provera da .env postoji na serveru
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            "$SSH_USER@$SSH_HOST" 'test -f ~/lepsasrbija-api/.env' \
+            || { echo "::error::Fajl ~/lepsasrbija-api/.env ne postoji na serveru. Napravi ga (vidi backend/.env.example), pa pokreni ponovo."; exit 1; }
+
+      - name: Upload aplikacije u ~/lepsasrbija-api
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          SSH="ssh -p $SSH_PORT -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          # kod i vendor; .env i storage/ (logovi, keš, sesije, upload) ostaju na serveru netaknuti
+          rsync -az --delete \
+            --exclude '/.env' --exclude '/storage' --exclude '/public' --exclude '/deploy' \
+            --exclude '/tests' --exclude '/.git*' --exclude '/.editorconfig' --exclude '/phpunit.xml' \
+            --exclude '/README.md' --exclude '/node_modules' \
+            -e "$SSH" backend/ "$SSH_USER@$SSH_HOST:lepsasrbija-api/"
+          # struktura storage/ samo ako nedostaje (ne prepisuje postojeće)
+          rsync -a --ignore-existing -e "$SSH" backend/storage/ "$SSH_USER@$SSH_HOST:lepsasrbija-api/storage/"
+
+      - name: Upload ulazne tačke u public_html/api
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          rsync -az --delete \
+            -e "ssh -p $SSH_PORT -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            backend/deploy/public_html_api/ "$SSH_USER@$SSH_HOST:public_html/api/"
+
+      - name: Migracije i keš na serveru
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          cat > /tmp/remote.sh <<'REMOTE'
+          set -e
+          cd ~/lepsasrbija-api
+          mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+          chmod -R u+rwX storage bootstrap/cache
+          grep -q '^APP_KEY=base64:' .env || php artisan key:generate --force
+          php artisan migrate --force
+          php artisan config:cache
+          php artisan event:cache
+          php artisan view:cache
+          REMOTE
+          sed -i 's/^          //' /tmp/remote.sh
+          out=$(ssh -p "$SSH_PORT" -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o BatchMode=yes \
+            "$SSH_USER@$SSH_HOST" 'bash -s' < /tmp/remote.sh 2>&1) \
+            || { echo "::error::Komande na serveru nisu uspele: ${out//$'\n'/ | }"; exit 1; }
+          echo "$out"
+
+      - name: Provera /api/health
+        run: |
+          for i in 1 2 3 4 5; do
+            body=$(curl -s -m 15 https://lepsasrbija.com/api/health || true)
+            echo "$body" | grep -q '"status":"ok"' && { echo "::notice::API radi: $body"; exit 0; }
+            sleep 4
+          done
+          echo "::error::/api/health ne vraća status ok. Odgovor: ${body//$'\n'/ }"
+          exit 1
