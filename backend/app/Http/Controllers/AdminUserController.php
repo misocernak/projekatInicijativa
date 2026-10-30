@@ -111,6 +111,7 @@ class AdminUserController extends Controller
             'emailVerified' => $user->hasVerifiedEmail(),
             // false za naloge nastale brzom prijavom na inicijativu
             'hasPassword' => $user->password !== null,
+            'hasGoogle' => $user->google_id !== null,
             'createdAt' => $user->created_at?->toIso8601String(),
             'initiatives' => (int) ($user->initiatives_count ?? 0),
             'participations' => (int) ($user->confirmed_count ?? 0),

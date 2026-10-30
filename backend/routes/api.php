@@ -50,6 +50,11 @@ Route::get('/participations/{participation}/cancel', [ParticipationController::c
     ->middleware(['signed', 'throttle:30,1'])
     ->name('participation.cancel');
 
+// Koji načini prijave su podešeni (front prikazuje dugme tek kada je Google podešen)
+Route::get('/auth/providers', fn () => response()->json([
+    'google' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
+]));
+
 // Nalog
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');

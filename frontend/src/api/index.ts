@@ -327,6 +327,8 @@ export interface AdminUser {
   emailVerified: boolean
   /** false za naloge nastale brzom prijavom na inicijativu */
   hasPassword: boolean
+  /** nalog je povezan sa Google prijavom */
+  hasGoogle: boolean
   createdAt: string | null
   initiatives: number
   participations: number
@@ -352,4 +354,14 @@ export async function adminSetRole(id: string, role: 'admin' | 'user'): Promise<
 /** Admin: šalje korisniku mejl sa linkom za postavljanje lozinke (aktivacija naloga nastalog brzom prijavom). */
 export function adminSendPasswordLink(id: string): Promise<{ status: 'sent' }> {
   return request('POST', `/admin/users/${id}/password-link`)
+}
+
+/** Koji načini prijave su podešeni na serveru (Google dugme se prikazuje tek kada je podešen). */
+export function authProviders(): Promise<{ google: boolean }> {
+  return request('GET', '/auth/providers')
+}
+
+/** Adresa na koju vodi dugme "Nastavi sa Google nalogom". Ovo je običan link (cela strana), ne fetch. */
+export function googleLoginUrl(from: string): string {
+  return `${BASE}/auth/google/redirect?from=${encodeURIComponent(from)}`
 }

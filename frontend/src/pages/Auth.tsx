@@ -1,14 +1,24 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, MailCheck, Sparkles, UserRoundCheck } from 'lucide-react'
-import { errorText, forgotPassword } from '../api'
+import { authProviders, errorText, forgotPassword, googleLoginUrl } from '../api'
 import CityOptions from '../components/CityOptions'
+import GoogleG from '../components/GoogleG'
 import PasswordField from '../components/PasswordField'
 import { useAuth } from '../context/AuthContext'
+import { useAsync } from '../lib/useAsync'
 
 type Mode = 'login' | 'register'
 /** Registracija: prvo se bira da li je korisnik nov ili se već prijavljivao na inicijative bez naloga. */
 type Kind = 'choose' | 'new' | 'returning'
+
+/** Poruke kada se korisnik vrati sa Google-a bez uspešne prijave (?google=...). */
+const GOOGLE_MESSAGES: Record<string, string> = {
+  odbijeno: 'Prijava preko Google-a je otkazana.',
+  greska: 'Prijava preko Google-a nije uspela. Pokušaj ponovo ili se prijavi mejlom.',
+  nepotvrdjen: 'Google nalog nema potvrđenu mejl adresu, pa se ne može koristiti za prijavu.',
+  'nije-podeseno': 'Prijava preko Google-a još nije podešena.',
+}
 
 export default function Auth() {
   const { user, ready, login, register } = useAuth()
@@ -20,6 +30,9 @@ export default function Auth() {
   const [error, setError] = useState('')
   // poslat je mejl sa linkom za postavljanje lozinke
   const [linkSent, setLinkSent] = useState<{ email: string; mailSent: boolean } | null>(null)
+  const [params] = useSearchParams()
+  const googleMessage = GOOGLE_MESSAGES[params.get('google') ?? '']
+  const providers = useAsync(() => authProviders().catch(() => ({ google: false })), [])
 
   if (ready && user) return <Navigate to={from} replace />
 
@@ -100,11 +113,42 @@ export default function Auth() {
   }
 
   const choosing = mode === 'register' && kind === 'choose'
+  const showGoogle = !!providers.data?.google && !(mode === 'register' && kind === 'returning')
 
   return (
     <div className="mx-auto max-w-md px-5 py-14">
       <span className="eyebrow">Nalog</span>
       <h1 className="text-4xl text-sage-deep">{mode === 'login' ? 'Dobro došao/la nazad' : 'Pridruži se'}</h1>
+
+      {googleMessage && (
+        <p role="alert" className="mt-5 rounded-xl bg-clay/10 px-4 py-3 text-sm font-semibold text-clay">
+          {googleMessage}
+        </p>
+      )}
+
+      {showGoogle && (
+        <div className="mt-6">
+          <a href={googleLoginUrl(from)} className="btn-secondary w-full gap-3">
+            <GoogleG /> Nastavi sa Google nalogom
+          </a>
+          <p className="mt-2 text-center text-xs text-ink/55">
+            Nastavkom prihvataš{' '}
+            <Link to="/uslovi" className="underline">
+              uslove
+            </Link>{' '}
+            i{' '}
+            <Link to="/privatnost" className="underline">
+              politiku privatnosti
+            </Link>
+            .
+          </p>
+          <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.16em] text-ink/40">
+            <span className="h-px flex-1 bg-sand" />
+            ili mejlom
+            <span className="h-px flex-1 bg-sand" />
+          </div>
+        </div>
+      )}
 
       {choosing ? (
         <div className="mt-6 space-y-4">

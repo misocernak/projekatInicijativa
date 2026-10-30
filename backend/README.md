@@ -57,6 +57,13 @@ Prijava volontera:
 
 Slike idu na disk `uploads` (`public_html/uploads` na produkciji), a front ih dobija kao pun URL u polju `image`.
 
+Prijava preko Google-a (OAuth 2.0, tok sa autorizacionim kodom, bez dodatnih paketa):
+
+- `GET /api/auth/providers` – da li je Google podešen (front tek tada prikazuje dugme)
+- `GET /api/auth/google/redirect?from=/putanja` i `GET /api/auth/google/callback` (u `routes/web.php`, jer traže sesiju)
+- prihvata samo mejl koji je Google potvrdio; nalog sa istom adresom se povezuje (uloga ostaje), novi nalog je bez lozinke i uvek `user`
+- podešavanje: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` u `.env` (vidi `.env.example`)
+
 ## Šema baze
 
 `users` (password prazan za brze naloge, `role`), `cities`, `categories`, `initiatives` (ULID id),

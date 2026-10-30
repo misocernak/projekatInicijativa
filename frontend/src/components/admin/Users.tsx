@@ -139,11 +139,12 @@ export default function Users() {
                       <span className="font-bold text-sage-deep">{u.name}</span>
                       {u.role === 'admin' && <Badge tone="admin">admin</Badge>}
                       {!u.emailVerified && <Badge tone="warn">mejl nije potvrđen</Badge>}
-                      {!u.hasPassword && <Badge tone="quiet">brza prijava</Badge>}
+                      {!u.hasPassword && !u.hasGoogle && <Badge tone="quiet">brza prijava</Badge>}
+                      {u.hasGoogle && <Badge tone="quiet">Google</Badge>}
                       {u.id === me?.id && <Badge tone="quiet">to si ti</Badge>}
                     </div>
                     <p className="truncate text-[13px] text-ink/65">{u.email}</p>
-                    {!u.hasPassword && (
+                    {!u.hasPassword && !u.hasGoogle && (
                       <p className="mt-1 text-xs text-ink/60">
                         Prijavio/la se na inicijativu samo mejlom, nema lozinku i ne može da se prijavi na sajt dok je ne postavi.
                       </p>
@@ -154,7 +155,7 @@ export default function Users() {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                  {!u.hasPassword && (
+                  {!u.hasPassword && !u.hasGoogle && (
                     <button onClick={() => sendLink(u)} disabled={busyId === u.id} className="btn-secondary min-h-10 px-5">
                       <Mail className="size-4" aria-hidden /> Pošalji link za aktivaciju
                     </button>
