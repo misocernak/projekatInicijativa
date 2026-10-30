@@ -26,7 +26,8 @@ class InitiativeController extends Controller
             ->when($filters['category'] ?? null, fn ($q, $slug) => $q->whereHas('category', fn ($c) => $c->where('slug', $slug)))
             ->when($filters['status'] ?? null, fn ($q, $status) => $q->withStatus($status))
             ->when($filters['q'] ?? null, function ($q, $text) {
-                $like = '%'.addcslashes($text, '%_\').'%';
+                // escape džokera (% i _) i same kose crte, da se pretraga tretira kao običan tekst
+                $like = '%'.addcslashes($text, '%_'.chr(92)).'%';
 
                 return $q->where(fn ($w) => $w
                     ->where('title', 'like', $like)
