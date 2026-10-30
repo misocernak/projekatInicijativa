@@ -1,4 +1,4 @@
-import CityOptions from '../components/CityOptions'
+import CitySelect from '../components/CitySelect'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { List, Map as MapIcon } from 'lucide-react'
@@ -85,10 +85,7 @@ export default function Initiatives() {
           <label className="label" htmlFor="f-grad">
             Grad
           </label>
-          <select id="f-grad" className="field" value={cityId} onChange={(e) => set('grad', e.target.value)}>
-            <option value="">Svi gradovi</option>
-            <CityOptions />
-          </select>
+          <CitySelect id="f-grad" value={cityId} onChange={(id) => set('grad', id)} allLabel="Svi gradovi" />
         </div>
         <div>
           <label className="label" htmlFor="f-status">

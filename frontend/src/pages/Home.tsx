@@ -1,4 +1,4 @@
-import CityOptions from '../components/CityOptions'
+import CitySelect from '../components/CitySelect'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, CalendarPlus, HandHeart, MapPin, Search } from 'lucide-react'
 import { listInitiatives } from '../api'
@@ -86,14 +86,10 @@ export default function Home() {
           }}
         >
           <div className="grid gap-3 rounded-[2rem] border border-sand bg-white p-3 shadow-lift sm:grid-cols-[1fr_1fr_auto] sm:items-center sm:rounded-full sm:p-2.5 sm:pl-6">
-            <label className="flex items-center gap-3 sm:border-r sm:border-sand sm:pr-4">
+            <div className="flex items-center gap-3 sm:border-r sm:border-sand sm:pr-4">
               <MapPin className="size-5 shrink-0 text-coral" aria-hidden />
-              <span className="sr-only">Grad</span>
-              <select name="grad" className="min-h-12 w-full bg-transparent text-[15px] font-medium text-sage-deep outline-none">
-                <option value="">Svi gradovi</option>
-                <CityOptions />
-              </select>
-            </label>
+              <CitySelect name="grad" allLabel="Svi gradovi" variant="bare" ariaLabel="Grad" />
+            </div>
             <label className="flex items-center gap-3 sm:pr-2">
               <Search className="size-5 shrink-0 text-coral" aria-hidden />
               <span className="sr-only">Vrsta inicijative</span>

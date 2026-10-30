@@ -1,4 +1,4 @@
-import CityOptions from './CityOptions'
+import CitySelect from './CitySelect'
 import { useEffect, useState, type FormEvent } from 'react'
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
@@ -166,22 +166,15 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
           <label className="label" htmlFor="city">
             Grad ili opština
           </label>
-          <select
+          <CitySelect
             id="city"
-            className="field"
             value={cityId}
-            required
-            onChange={(e) => {
-              setCityId(e.target.value)
-              const c = CITIES.find((x) => x.id === e.target.value)
+            onChange={(id) => {
+              setCityId(id)
+              const c = CITIES.find((x) => x.id === id)
               setPos(c ? [c.lat, c.lng] : null)
             }}
-          >
-            <option value="" disabled>
-              — izaberi grad —
-            </option>
-            <CityOptions />
-          </select>
+          />
         </div>
       </div>
 
