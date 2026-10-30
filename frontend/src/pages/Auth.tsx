@@ -1,42 +1,33 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { MailCheck } from 'lucide-react'
-import { checkRegistration, errorText, requestActivation } from '../api'
+import { ArrowLeft, MailCheck, Sparkles, UserRoundCheck } from 'lucide-react'
+import { errorText, forgotPassword } from '../api'
 import CityOptions from '../components/CityOptions'
 import PasswordField from '../components/PasswordField'
 import { useAuth } from '../context/AuthContext'
+
+type Mode = 'login' | 'register'
+/** Registracija: prvo se bira da li je korisnik nov ili se već prijavljivao na inicijative bez naloga. */
+type Kind = 'choose' | 'new' | 'returning'
 
 export default function Auth() {
   const { user, ready, login, register } = useAuth()
   const navigate = useNavigate()
   const from = (useLocation().state as { from?: string } | null)?.from ?? '/profil'
-  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [mode, setMode] = useState<Mode>('login')
+  const [kind, setKind] = useState<Kind>('choose')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  // mejl je već korišćen za prijavu na inicijativu bez naloga: poslat je link za postavljanje lozinke
-  const [activation, setActivation] = useState<{ email: string; mailSent: boolean } | null>(null)
-  const [email, setEmail] = useState('')
-  // mejl ima nalog bez lozinke: registracija ne traži ništa osim mejla, a lozinku postavlja iz mejla
-  const [needsActivation, setNeedsActivation] = useState(false)
-
-  useEffect(() => {
-    if (mode !== 'register' || !/^\S+@\S+\.\S+$/.test(email)) {
-      setNeedsActivation(false)
-      return
-    }
-    let alive = true
-    const t = setTimeout(() => {
-      checkRegistration(email)
-        .then((r) => alive && setNeedsActivation(r.activation))
-        .catch(() => alive && setNeedsActivation(false))
-    }, 400)
-    return () => {
-      alive = false
-      clearTimeout(t)
-    }
-  }, [mode, email])
+  // poslat je mejl sa linkom za postavljanje lozinke
+  const [linkSent, setLinkSent] = useState<{ email: string; mailSent: boolean } | null>(null)
 
   if (ready && user) return <Navigate to={from} replace />
+
+  function switchMode(next: Mode) {
+    setMode(next)
+    setKind('choose')
+    setError('')
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -48,9 +39,11 @@ export default function Auth() {
       if (mode === 'login') {
         await login(s('email'), String(f.get('password') ?? ''))
         navigate(from, { replace: true })
-      } else if (needsActivation) {
-        const res = await requestActivation(s('email'))
-        setActivation({ email: s('email'), mailSent: res.mailSent !== false })
+      } else if (kind === 'returning') {
+        // isti mehanizam kao "zaboravljena lozinka": za nalog bez lozinke stiže mejl "Aktiviraj svoj nalog",
+        // a odgovor je isti bez obzira da li adresa postoji
+        await forgotPassword(s('email'))
+        setLinkSent({ email: s('email'), mailSent: true })
         setBusy(false)
       } else {
         const res = await register({
@@ -62,7 +55,8 @@ export default function Auth() {
           consent: f.get('consent') === 'on',
         })
         if (res.activationSent) {
-          setActivation({ email: s('email'), mailSent: res.mailSent })
+          // izabrao je "nov sam", a mejl već ima nalog bez lozinke: i tada dobija link
+          setLinkSent({ email: s('email'), mailSent: res.mailSent })
           setBusy(false)
         } else {
           navigate(from, { replace: true })
@@ -74,28 +68,28 @@ export default function Auth() {
     }
   }
 
-  if (activation) {
+  if (linkSent) {
     return (
       <div className="mx-auto max-w-md px-5 py-14">
         <span className="eyebrow">Nalog</span>
-        <h1 className="text-4xl text-sage-deep">Još jedan korak</h1>
+        <h1 className="text-4xl text-sage-deep">Proveri mejl</h1>
         <div className="card mt-6 space-y-4 p-7">
           <MailCheck className="size-10 text-sage-dark" aria-hidden />
           <p className="text-[15px] text-ink/85">
-            Sa adresom <strong>{activation.email}</strong> si se već prijavio/la na inicijativu, bez lozinke. Da završiš registraciju,
-            poslali smo ti mejl sa linkom za postavljanje lozinke.
+            Ako je adresa <strong>{linkSent.email}</strong> korišćena za prijavu na inicijativu, poslali smo joj mejl sa linkom za
+            postavljanje lozinke. Klikni na link i nalog je spreman.
           </p>
-          {!activation.mailSent && (
+          {!linkSent.mailSent && (
             <p className="rounded-xl bg-clay/10 px-4 py-3 text-sm font-semibold text-clay">
-              Slanje mejla nije uspelo. Pokušaj ponovo kasnije, ili koristi „Zaboravljena lozinka“.
+              Slanje mejla nije uspelo. Pokušaj ponovo kasnije.
             </p>
           )}
           <p className="text-[13px] text-ink/60">Proveri i spam. Tvoje prijave na inicijative ostaju sačuvane.</p>
           <button
             className="btn-secondary w-full"
             onClick={() => {
-              setActivation(null)
-              setMode('login')
+              setLinkSent(null)
+              switchMode('login')
             }}
           >
             Nazad na prijavu
@@ -105,121 +99,151 @@ export default function Auth() {
     )
   }
 
+  const choosing = mode === 'register' && kind === 'choose'
+
   return (
     <div className="mx-auto max-w-md px-5 py-14">
       <span className="eyebrow">Nalog</span>
       <h1 className="text-4xl text-sage-deep">{mode === 'login' ? 'Dobro došao/la nazad' : 'Pridruži se'}</h1>
-      {mode === 'register' && (
-        <p className="mt-4 text-[14px] text-ink/70">
-          Nalog ti treba da bi pokretao/la inicijative. Za prijavu na tuđu inicijativu dovoljni su ti ime i mejl, bez naloga.
-        </p>
-      )}
 
-      <form onSubmit={onSubmit} className="card mt-6 space-y-5 p-7">
-        {mode === 'register' && !needsActivation && (
-          <>
-            <div>
-              <label className="label" htmlFor="name">
-                Ime
-              </label>
-              <input id="name" name="name" required autoComplete="name" maxLength={120} className="field" />
-            </div>
-            <div>
-              <label className="label" htmlFor="city">
-                Grad ili opština
-              </label>
-              <select id="city" name="city" className="field" defaultValue="">
-                <option value="">Izaberi grad</option>
-                <CityOptions />
-              </select>
-            </div>
-          </>
-        )}
-        <div>
-          <label className="label" htmlFor="email">
-            Mejl adresa
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            className="field"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+      {choosing ? (
+        <div className="mt-6 space-y-4">
+          <p className="text-[14px] text-ink/70">Ko si ti?</p>
+          <button
+            onClick={() => setKind('new')}
+            className="card flex w-full items-start gap-4 p-5 text-left transition hover:-translate-y-0.5 hover:shadow-lift"
+          >
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-sage/15 text-sage-dark">
+              <Sparkles className="size-5" aria-hidden />
+            </span>
+            <span>
+              <span className="block font-display text-xl font-extrabold text-sage-deep">Potpuno sam nov/a</span>
+              <span className="mt-0.5 block text-[13px] text-ink/65">Pravim nalog da bih pokretao/la inicijative.</span>
+            </span>
+          </button>
+          <button
+            onClick={() => setKind('returning')}
+            className="card flex w-full items-start gap-4 p-5 text-left transition hover:-translate-y-0.5 hover:shadow-lift"
+          >
+            <span className="grid size-11 shrink-0 place-items-center rounded-full bg-sun/50 text-sage-deep">
+              <UserRoundCheck className="size-5" aria-hidden />
+            </span>
+            <span>
+              <span className="block font-display text-xl font-extrabold text-sage-deep">Već sam se prijavljivao/la na inicijative</span>
+              <span className="mt-0.5 block text-[13px] text-ink/65">Prijavio/la sam se samo mejlom i želim pravi nalog.</span>
+            </span>
+          </button>
         </div>
-        {mode === 'register' && needsActivation && (
-          <p className="rounded-2xl bg-sun/40 px-4 py-3 text-[14px] text-sage-deep">
-            Sa ovom adresom si se već prijavio/la na inicijativu, ali nalog još nema lozinku. <strong>Ne moraš ništa da popunjavaš.</strong>{' '}
-            Pošalji sebi link i lozinku postavljaš u mejlu.
-          </p>
-        )}
-        {!(mode === 'register' && needsActivation) && (
-          <PasswordField
-            id="password"
-            name="password"
-            label="Lozinka"
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            minLength={mode === 'register' ? 8 : undefined}
-            hint={mode === 'register' ? 'Najmanje 8 znakova.' : undefined}
-          />
-        )}
-        {mode === 'register' && !needsActivation && (
-          <>
-            <PasswordField id="password_confirmation" name="password_confirmation" label="Ponovi lozinku" autoComplete="new-password" />
-            <label className="flex items-start gap-3 text-[13px] leading-snug text-ink/75">
-              <input type="checkbox" name="consent" required className="mt-0.5 size-5 shrink-0 accent-[#0b7a4b]" />
-              <span>
-                Saglasan/na sam da platforma čuva moje podatke (ime i mejl) radi organizovanja inicijativa i slanja obaveštenja, i
-                prihvatam{' '}
-                <Link to="/uslovi" className="font-semibold text-sage-dark underline">
-                  uslove korišćenja
-                </Link>{' '}
-                i{' '}
-                <Link to="/privatnost" className="font-semibold text-sage-dark underline">
-                  politiku privatnosti
+      ) : (
+        <>
+          {mode === 'register' && (
+            <button
+              onClick={() => {
+                setKind('choose')
+                setError('')
+              }}
+              className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-sage-dark hover:underline"
+            >
+              <ArrowLeft className="size-4" aria-hidden /> Promeni izbor
+            </button>
+          )}
+          {mode === 'register' && kind === 'new' && (
+            <p className="mt-4 text-[14px] text-ink/70">
+              Nalog ti treba da bi pokretao/la inicijative. Za prijavu na tuđu inicijativu dovoljni su ti ime i mejl, bez naloga.
+            </p>
+          )}
+          {mode === 'register' && kind === 'returning' && (
+            <p className="mt-4 text-[14px] text-ink/70">
+              Upiši mejl adresu kojom si se prijavljivao/la na inicijative. Poslaćemo ti link na koji postavljaš lozinku, i to je sve.
+            </p>
+          )}
+
+          <form onSubmit={onSubmit} className="card mt-6 space-y-5 p-7">
+            {mode === 'register' && kind === 'new' && (
+              <>
+                <div>
+                  <label className="label" htmlFor="name">
+                    Ime
+                  </label>
+                  <input id="name" name="name" required autoComplete="name" maxLength={120} className="field" />
+                </div>
+                <div>
+                  <label className="label" htmlFor="city">
+                    Grad ili opština
+                  </label>
+                  <select id="city" name="city" className="field" defaultValue="">
+                    <option value="">Izaberi grad</option>
+                    <CityOptions />
+                  </select>
+                </div>
+              </>
+            )}
+            <div>
+              <label className="label" htmlFor="email">
+                Mejl adresa
+              </label>
+              <input id="email" name="email" type="email" required autoComplete="email" className="field" />
+            </div>
+            {!(mode === 'register' && kind === 'returning') && (
+              <PasswordField
+                id="password"
+                name="password"
+                label="Lozinka"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                minLength={mode === 'register' ? 8 : undefined}
+                hint={mode === 'register' ? 'Najmanje 8 znakova.' : undefined}
+              />
+            )}
+            {mode === 'register' && kind === 'new' && (
+              <>
+                <PasswordField id="password_confirmation" name="password_confirmation" label="Ponovi lozinku" autoComplete="new-password" />
+                <label className="flex items-start gap-3 text-[13px] leading-snug text-ink/75">
+                  <input type="checkbox" name="consent" required className="mt-0.5 size-5 shrink-0 accent-[#0b7a4b]" />
+                  <span>
+                    Saglasan/na sam da platforma čuva moje podatke (ime i mejl) radi organizovanja inicijativa i slanja obaveštenja, i
+                    prihvatam{' '}
+                    <Link to="/uslovi" className="font-semibold text-sage-dark underline">
+                      uslove korišćenja
+                    </Link>{' '}
+                    i{' '}
+                    <Link to="/privatnost" className="font-semibold text-sage-dark underline">
+                      politiku privatnosti
+                    </Link>
+                    .
+                  </span>
+                </label>
+              </>
+            )}
+
+            {error && (
+              <p role="alert" className="rounded-xl bg-clay/10 px-4 py-3 text-sm font-semibold text-clay">
+                {error}
+              </p>
+            )}
+
+            <button disabled={busy} className="btn-primary w-full">
+              {busy
+                ? 'Sačekaj…'
+                : mode === 'login'
+                  ? 'Prijavi se'
+                  : kind === 'returning'
+                    ? 'Pošalji mi link za lozinku'
+                    : 'Napravi nalog'}
+            </button>
+            {mode === 'login' && (
+              <p className="text-center text-[13px]">
+                <Link to="/zaboravljena-lozinka" className="font-semibold text-sage-dark hover:underline">
+                  Zaboravljena lozinka?
                 </Link>
-                .
-              </span>
-            </label>
-          </>
-        )}
-
-        {error && (
-          <p role="alert" className="rounded-xl bg-clay/10 px-4 py-3 text-sm font-semibold text-clay">
-            {error}
-          </p>
-        )}
-
-        <button disabled={busy} className="btn-primary w-full">
-          {busy ? 'Sačekaj…' : mode === 'login' ? 'Prijavi se' : needsActivation ? 'Pošalji mi link za aktivaciju' : 'Napravi nalog'}
-        </button>
-        {mode === 'login' && (
-          <div className="space-y-2 text-center text-[13px]">
-            <p>
-              <Link to="/zaboravljena-lozinka" className="font-semibold text-sage-dark hover:underline">
-                Zaboravljena lozinka?
-              </Link>
-            </p>
-            <p className="rounded-xl bg-mist px-4 py-3 text-left text-ink/70">
-              Prijavio/la si se na inicijativu samo mejlom? Izaberi <strong>Registruj se</strong> sa istom mejl adresom i poslaćemo ti
-              link da postaviš lozinku.
-            </p>
-          </div>
-        )}
-      </form>
+              </p>
+            )}
+          </form>
+        </>
+      )}
 
       <p className="mt-6 text-center text-sm text-ink/70">
         {mode === 'login' ? 'Nemaš nalog?' : 'Već imaš nalog?'}{' '}
-        <button
-          className="font-bold text-sage-dark underline"
-          onClick={() => {
-            setMode(mode === 'login' ? 'register' : 'login')
-            setError('')
-          }}
-        >
+        <button className="font-bold text-sage-dark underline" onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}>
           {mode === 'login' ? 'Registruj se' : 'Prijavi se'}
         </button>
       </p>
