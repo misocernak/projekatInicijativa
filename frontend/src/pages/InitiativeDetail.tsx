@@ -16,6 +16,7 @@ import {
 } from '../api'
 import { Art, AvatarStack, CATEGORY_STYLE, DateChip, Empty, Spinner, StatusBadge } from '../components/Bits'
 import MapView from '../components/MapView'
+import ShareInitiative from '../components/ShareInitiative'
 import { useAuth } from '../context/AuthContext'
 import { categoryLabel, cityName } from '../data/constants'
 import { formatWhen, getStatus } from '../lib/dates'
@@ -380,6 +381,15 @@ export default function InitiativeDetail() {
                 <p role="alert" className="mt-4 rounded-xl bg-clay/10 px-4 py-3 text-[13px] font-semibold text-clay">
                   {actionError}
                 </p>
+              )}
+
+              {!closed && (
+                <ShareInitiative
+                  id={item.id}
+                  title={item.title}
+                  where={cityName(item.cityId)}
+                  when={item.kind === 'permanent' ? '' : formatWhen(item)}
+                />
               )}
 
               {canManage && !item.cancelled && (

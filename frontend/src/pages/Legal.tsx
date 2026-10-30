@@ -21,7 +21,8 @@ export function Privacy() {
       <section>
         <h2>1. Ko obrađuje tvoje podatke</h2>
         <p>
-          Rukovalac podacima je <strong>{OPERATOR.name}</strong>, {OPERATOR.address}
+          Rukovalac podacima je <strong>{OPERATOR.name}</strong>
+          {OPERATOR.address ? `, ${OPERATOR.address}` : ''}
           {OPERATOR.idNumber ? ` (${OPERATOR.idNumber})` : ''}. Pitanja o podacima možeš da pošalješ na{' '}
           <strong>{OPERATOR.email}</strong>.
         </p>
@@ -216,7 +217,8 @@ export function Terms() {
           . Uslove možemo da menjamo; nova verzija važi kada se objavi na ovoj strani. Primenjuje se pravo Republike Srbije.
         </p>
         <p>
-          Operater platforme: <strong>{OPERATOR.name}</strong>, {OPERATOR.address}. Kontakt: <strong>{OPERATOR.email}</strong>.
+          Operater platforme: <strong>{OPERATOR.name}</strong>
+          {OPERATOR.address ? `, ${OPERATOR.address}` : ''}. Kontakt: <strong>{OPERATOR.email}</strong>.
         </p>
       </section>
     </Legal>

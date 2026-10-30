@@ -66,7 +66,7 @@
     @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-sage-deep/15 bg-white px-7 text-[14px] font-semibold text-sage-deep transition duration-200 hover:border-sage-deep/40 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .field {
-    @apply min-h-12 w-full rounded-2xl border border-sand bg-white px-4 text-[15px] text-ink transition placeholder:text-ink/35 hover:border-sage-deep/30 focus:border-sage-dark focus:outline-none focus:ring-4 focus:ring-sage-dark/10;
+    @apply min-h-12 min-w-0 appearance-none w-full rounded-2xl border border-sand bg-white px-4 text-[15px] text-ink transition placeholder:text-ink/35 hover:border-sage-deep/30 focus:border-sage-dark focus:outline-none focus:ring-4 focus:ring-sage-dark/10;
   }
   .label {
     @apply mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-sage-deep/70;
@@ -77,6 +77,22 @@
   .card {
     @apply rounded-3xl border border-sand bg-white shadow-soft;
   }
+}
+
+/* ista visina svih jednoredih polja (iOS/Android datum i broj inače izlaze iz mere) */
+input.field,
+select.field {
+  height: 3rem;
+}
+input[type='date'].field::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.5em;
+}
+select.field {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23566' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
 }
 
 .leaflet-container {

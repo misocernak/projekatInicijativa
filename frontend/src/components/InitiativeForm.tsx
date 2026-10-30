@@ -1,4 +1,5 @@
 import CitySelect from './CitySelect'
+import DateTimeField from './DateTimeField'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
@@ -113,6 +114,17 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
   const defEnd = new Date(defStart.getTime() + 3 * 3600_000)
   const startValue = initial?.startDate ? toLocalInput(new Date(initial.startDate)) : toLocalInput(defStart)
   const endValue = initial?.endDate ? toLocalInput(new Date(initial.endDate)) : toLocalInput(defEnd)
+  const [startVal, setStartVal] = useState(startValue)
+  const [endVal, setEndVal] = useState(endValue)
+
+  /** Pomeranjem početka kraj se pomera zajedno sa njim, pa trajanje ostaje isto. */
+  function changeStart(next: string) {
+    const a = new Date(startVal).getTime()
+    const b = new Date(endVal).getTime()
+    const n = new Date(next).getTime()
+    setStartVal(next)
+    if (!isNaN(a) && !isNaN(b) && !isNaN(n) && b > a) setEndVal(toLocalInput(new Date(n + (b - a))))
+  }
 
   // slika koja se trenutno prikazuje: nova, ili postojeća ako nije uklonjena
   const shownImage = preview ?? (!removeExisting ? initial?.image : undefined)
@@ -126,8 +138,8 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
     let startDate: string | undefined
     let endDate: string | undefined
     if (kind === 'timed') {
-      const start = new Date(s('start'))
-      const end = new Date(s('end'))
+      const start = new Date(startVal)
+      const end = new Date(endVal)
       if (isNaN(+start) || isNaN(+end)) return setError('Unesi početak i kraj inicijative.')
       if (end <= start) return setError('Kraj mora biti posle početka.')
       startDate = start.toISOString()
@@ -282,26 +294,14 @@ export default function InitiativeForm({ initial, defaultCityId, submitLabel, sa
         </div>
         {kind === 'timed' && (
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="label" htmlFor="start">
-                Početak
-              </label>
-              <input
-                id="start"
-                name="start"
-                type="datetime-local"
-                required
-                defaultValue={startValue}
-                min={editing ? undefined : toLocalInput(now)}
-                className="field"
-              />
-            </div>
-            <div>
-              <label className="label" htmlFor="end">
-                Kraj
-              </label>
-              <input id="end" name="end" type="datetime-local" required defaultValue={endValue} className="field" />
-            </div>
+            <DateTimeField
+              idPrefix="start"
+              label="Početak"
+              value={startVal}
+              onChange={changeStart}
+              min={editing ? undefined : toLocalInput(now)}
+            />
+            <DateTimeField idPrefix="end" label="Kraj" value={endVal} onChange={setEndVal} min={startVal} />
           </div>
         )}
         {editing && (
