@@ -56,6 +56,33 @@ class AccountActivationTest extends TestCase
         $this->assertGuest('web');
     }
 
+    public function test_registration_form_can_ask_whether_an_email_only_needs_activation(): void
+    {
+        $this->quickUser();
+        User::factory()->create(['email' => 'pravi@example.com']);
+
+        $this->postJson('/register/check', ['email' => 'Drugar@Example.com'])
+            ->assertOk()->assertExactJson(['activation' => true]);
+
+        // pravi nalog i nepoznat mejl izgledaju isto: ne otkriva se ko ima nalog
+        $this->postJson('/register/check', ['email' => 'pravi@example.com'])->assertOk()->assertExactJson(['activation' => false]);
+        $this->postJson('/register/check', ['email' => 'niko@example.com'])->assertOk()->assertExactJson(['activation' => false]);
+
+        $this->postJson('/register/check', ['email' => 'nije-mejl'])->assertStatus(422);
+        $this->postJson('/register/check', [])->assertStatus(422);
+    }
+
+    public function test_activation_can_be_requested_with_nothing_but_an_email(): void
+    {
+        Notification::fake();
+        $quick = $this->quickUser();
+
+        $this->spa()->postJson('/register', ['email' => 'drugar@example.com'])
+            ->assertStatus(202)->assertJsonPath('status', 'activation-sent');
+
+        Notification::assertSentTo($quick, ResetPassword::class);
+    }
+
     public function test_registering_with_a_full_account_email_is_still_rejected(): void
     {
         Notification::fake();

@@ -75,6 +75,20 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * Da li je mejl već korišćen za brzu prijavu na inicijativu (nalog bez lozinke)? Forma za registraciju na osnovu
+     * toga ne traži lozinku, jer je takav nalog aktivira link iz mejla. Odgovara samo za tu vrstu naloga: ne otkriva
+     * da li mejl ima pravi nalog (to već važi i bez ove provere, kroz grešku pri registraciji).
+     */
+    public function checkRegistration(Request $request): JsonResponse
+    {
+        $data = $request->validate(['email' => ['required', 'email:rfc', 'max:190']]);
+
+        return response()->json([
+            'activation' => User::where('email', Str::lower($data['email']))->whereNull('password')->exists(),
+        ]);
+    }
+
     public function login(Request $request): JsonResponse
     {
         $this->requireSession($request);

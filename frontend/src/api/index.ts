@@ -353,3 +353,13 @@ export async function adminSetRole(id: string, role: 'admin' | 'user'): Promise<
 export function adminSendPasswordLink(id: string): Promise<{ status: 'sent' }> {
   return request('POST', `/admin/users/${id}/password-link`)
 }
+
+/** Da li je mejl već korišćen za brzu prijavu na inicijativu (nalog bez lozinke)? Tada registracija ne traži lozinku. */
+export function checkRegistration(email: string): Promise<{ activation: boolean }> {
+  return request('POST', '/register/check', { email })
+}
+
+/** Šalje link za postavljanje lozinke na mejl koji ima nalog bez lozinke (potrebna je samo adresa). */
+export function requestActivation(email: string): Promise<RegisterResult> {
+  return request('POST', '/register', { email })
+}

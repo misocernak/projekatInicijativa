@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { MailCheck } from 'lucide-react'
-import { errorText } from '../api'
+import { checkRegistration, errorText, requestActivation } from '../api'
 import CityOptions from '../components/CityOptions'
 import PasswordField from '../components/PasswordField'
 import { useAuth } from '../context/AuthContext'
@@ -15,6 +15,26 @@ export default function Auth() {
   const [error, setError] = useState('')
   // mejl je već korišćen za prijavu na inicijativu bez naloga: poslat je link za postavljanje lozinke
   const [activation, setActivation] = useState<{ email: string; mailSent: boolean } | null>(null)
+  const [email, setEmail] = useState('')
+  // mejl ima nalog bez lozinke: registracija ne traži ništa osim mejla, a lozinku postavlja iz mejla
+  const [needsActivation, setNeedsActivation] = useState(false)
+
+  useEffect(() => {
+    if (mode !== 'register' || !/^\S+@\S+\.\S+$/.test(email)) {
+      setNeedsActivation(false)
+      return
+    }
+    let alive = true
+    const t = setTimeout(() => {
+      checkRegistration(email)
+        .then((r) => alive && setNeedsActivation(r.activation))
+        .catch(() => alive && setNeedsActivation(false))
+    }, 400)
+    return () => {
+      alive = false
+      clearTimeout(t)
+    }
+  }, [mode, email])
 
   if (ready && user) return <Navigate to={from} replace />
 
@@ -28,6 +48,10 @@ export default function Auth() {
       if (mode === 'login') {
         await login(s('email'), String(f.get('password') ?? ''))
         navigate(from, { replace: true })
+      } else if (needsActivation) {
+        const res = await requestActivation(s('email'))
+        setActivation({ email: s('email'), mailSent: res.mailSent !== false })
+        setBusy(false)
       } else {
         const res = await register({
           name: s('name'),
@@ -92,7 +116,7 @@ export default function Auth() {
       )}
 
       <form onSubmit={onSubmit} className="card mt-6 space-y-5 p-7">
-        {mode === 'register' && (
+        {mode === 'register' && !needsActivation && (
           <>
             <div>
               <label className="label" htmlFor="name">
@@ -115,17 +139,34 @@ export default function Auth() {
           <label className="label" htmlFor="email">
             Mejl adresa
           </label>
-          <input id="email" name="email" type="email" required autoComplete="email" className="field" />
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            className="field"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
-        <PasswordField
-          id="password"
-          name="password"
-          label="Lozinka"
-          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-          minLength={mode === 'register' ? 8 : undefined}
-          hint={mode === 'register' ? 'Najmanje 8 znakova.' : undefined}
-        />
-        {mode === 'register' && (
+        {mode === 'register' && needsActivation && (
+          <p className="rounded-2xl bg-sun/40 px-4 py-3 text-[14px] text-sage-deep">
+            Sa ovom adresom si se već prijavio/la na inicijativu, ali nalog još nema lozinku. <strong>Ne moraš ništa da popunjavaš.</strong>{' '}
+            Pošalji sebi link i lozinku postavljaš u mejlu.
+          </p>
+        )}
+        {!(mode === 'register' && needsActivation) && (
+          <PasswordField
+            id="password"
+            name="password"
+            label="Lozinka"
+            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            minLength={mode === 'register' ? 8 : undefined}
+            hint={mode === 'register' ? 'Najmanje 8 znakova.' : undefined}
+          />
+        )}
+        {mode === 'register' && !needsActivation && (
           <>
             <PasswordField id="password_confirmation" name="password_confirmation" label="Ponovi lozinku" autoComplete="new-password" />
             <label className="flex items-start gap-3 text-[13px] leading-snug text-ink/75">
@@ -153,7 +194,7 @@ export default function Auth() {
         )}
 
         <button disabled={busy} className="btn-primary w-full">
-          {busy ? 'Sačekaj…' : mode === 'login' ? 'Prijavi se' : 'Napravi nalog'}
+          {busy ? 'Sačekaj…' : mode === 'login' ? 'Prijavi se' : needsActivation ? 'Pošalji mi link za aktivaciju' : 'Napravi nalog'}
         </button>
         {mode === 'login' && (
           <div className="space-y-2 text-center text-[13px]">
