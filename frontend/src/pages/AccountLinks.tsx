@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { errorText, forgotPassword, resetPassword } from '../api'
+import PasswordField from '../components/PasswordField'
 import { useAuth } from '../context/AuthContext'
 
 /** /potvrda-mejla?status=ok|invalid: na ovu stranu vodi link iz mejla za potvrdu adrese. */
@@ -148,25 +149,8 @@ export function ResetPassword() {
           <p className="text-[14px] text-ink/70">
             Nalog: <strong>{email}</strong>
           </p>
-          <div>
-            <label className="label" htmlFor="password">
-              Nova lozinka
-            </label>
-            <input id="password" name="password" type="password" required minLength={8} autoComplete="new-password" className="field" />
-          </div>
-          <div>
-            <label className="label" htmlFor="password_confirmation">
-              Ponovi lozinku
-            </label>
-            <input
-              id="password_confirmation"
-              name="password_confirmation"
-              type="password"
-              required
-              autoComplete="new-password"
-              className="field"
-            />
-          </div>
+          <PasswordField id="password" name="password" label="Nova lozinka" autoComplete="new-password" minLength={8} hint="Najmanje 8 znakova." />
+          <PasswordField id="password_confirmation" name="password_confirmation" label="Ponovi lozinku" autoComplete="new-password" />
           {error && (
             <p role="alert" className="rounded-xl bg-clay/10 px-4 py-3 text-sm font-semibold text-clay">
               {error}

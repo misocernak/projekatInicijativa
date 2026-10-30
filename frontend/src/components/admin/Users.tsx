@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { ShieldCheck, ShieldOff } from 'lucide-react'
-import { adminSetRole, adminUsers, errorText, type AdminUser } from '../../api'
+import { Mail, ShieldCheck, ShieldOff } from 'lucide-react'
+import { adminSendPasswordLink, adminSetRole, adminUsers, errorText, type AdminUser } from '../../api'
 import { useAuth } from '../../context/AuthContext'
 import { useAsync } from '../../lib/useAsync'
 import { Empty, Spinner } from '../Bits'
@@ -51,6 +51,20 @@ export default function Users() {
       await adminSetRole(u.id, grant ? 'admin' : 'user')
       setNotice(grant ? `${u.name} je sada admin.` : `${u.name} više nije admin.`)
       reload()
+    } catch (err) {
+      setActionError(errorText(err))
+    }
+    setBusyId(null)
+  }
+
+  async function sendLink(u: AdminUser) {
+    if (!confirm(`Poslati ${u.email} mejl sa linkom da postavi lozinku i aktivira nalog?`)) return
+    setBusyId(u.id)
+    setActionError('')
+    setNotice('')
+    try {
+      await adminSendPasswordLink(u.id)
+      setNotice(`Link za lozinku je poslat na ${u.email}.`)
     } catch (err) {
       setActionError(errorText(err))
     }
@@ -129,11 +143,22 @@ export default function Users() {
                       {u.id === me?.id && <Badge tone="quiet">to si ti</Badge>}
                     </div>
                     <p className="truncate text-[13px] text-ink/65">{u.email}</p>
+                    {!u.hasPassword && (
+                      <p className="mt-1 text-xs text-ink/60">
+                        Prijavio/la se na inicijativu samo mejlom, nema lozinku i ne može da se prijavi na sajt dok je ne postavi.
+                      </p>
+                    )}
                     <p className="mt-1 text-xs text-ink/50">
                       {u.initiatives} inicijativa · {u.participations} prijava
                       {u.createdAt && ` · od ${dateFmt.format(new Date(u.createdAt))}`}
                     </p>
                   </div>
+                  <div className="flex flex-wrap gap-2">
+                  {!u.hasPassword && (
+                    <button onClick={() => sendLink(u)} disabled={busyId === u.id} className="btn-secondary min-h-10 px-5">
+                      <Mail className="size-4" aria-hidden /> Pošalji link za aktivaciju
+                    </button>
+                  )}
                   <button
                     onClick={() => toggle(u)}
                     disabled={busyId === u.id || !!blocked}
@@ -150,6 +175,7 @@ export default function Users() {
                       </>
                     )}
                   </button>
+                  </div>
                 </li>
               )
             })}

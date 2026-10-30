@@ -7,6 +7,7 @@ use App\Notifications\RoleChanged;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password as PasswordBroker;
 use Throwable;
 
 /**
@@ -46,6 +47,26 @@ class AdminUserController extends Controller
                 'total' => $page->total(),
             ],
         ]);
+    }
+
+    /**
+     * Šalje korisniku mejl sa linkom za postavljanje lozinke. Namenjeno nalozima nastalim brzom prijavom na
+     * inicijativu (bez lozinke), ali radi za svaki nalog. Link ide na mejl adresu naloga, ne vidi ga admin.
+     */
+    public function sendPasswordLink(Request $request, User $user): JsonResponse
+    {
+        try {
+            $status = PasswordBroker::sendResetLink(['email' => $user->email]);
+        } catch (Throwable $e) {
+            Log::error('Slanje linka za lozinku (admin) nije uspelo: '.$e->getMessage());
+            abort(502, 'Slanje mejla nije uspelo. Proveri podešavanje mejla na serveru.');
+        }
+
+        abort_if($status === PasswordBroker::RESET_THROTTLED, 429, 'Link je upravo poslat. Pokušaj ponovo za minut.');
+
+        Log::info('Admin poslao link za lozinku', ['by' => $request->user()->email, 'target' => $user->email]);
+
+        return response()->json(['status' => 'sent']);
     }
 
     /** Postavlja ili skida admin ulogu. */

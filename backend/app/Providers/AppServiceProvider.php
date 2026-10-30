@@ -64,6 +64,18 @@ class AppServiceProvider extends ServiceProvider
             $url = rtrim(config('app.url'), '/').'/nova-lozinka?token='.$token
                 .'&email='.urlencode($notifiable->getEmailForPasswordReset());
 
+            // nalog nastao brzom prijavom na inicijativu još nema lozinku: ovo je njegova aktivacija
+            if ($notifiable->password === null) {
+                return (new MailMessage)
+                    ->subject('Aktiviraj svoj nalog')
+                    ->greeting('Zdravo, '.$notifiable->name.'!')
+                    ->line('Ranije si se prijavio/la na inicijativu samo mejl adresom, pa nalog još nema lozinku.')
+                    ->line('Postavi lozinku da završiš registraciju. Posle toga možeš da se prijaviš, pratiš svoje prijave i pokrećeš sopstvene inicijative.')
+                    ->action('Postavi lozinku', $url)
+                    ->line('Link važi 60 minuta. Ako nisi ti tražio/la ovo, slobodno ignoriši poruku; tvoje prijave ostaju kakve jesu.')
+                    ->salutation('Lepša Srbija');
+            }
+
             return (new MailMessage)
                 ->subject('Nova lozinka')
                 ->greeting('Zdravo, '.$notifiable->name.'!')

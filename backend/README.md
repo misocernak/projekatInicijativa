@@ -30,6 +30,9 @@ Nalog (sesija preko kolačića, isti domen; front prvo poziva `GET /api/sanctum/
 - `POST /api/email/verification-notification` – ponovno slanje potvrde
 - `POST /api/forgot-password`, `POST /api/reset-password` – link vodi na front `/nova-lozinka?token=..&email=..`
   (radi i za "brze" naloge bez lozinke: link iz mejla dokazuje vlasništvo adrese)
+- Registracija sa mejlom koji već ima "brzi" nalog (nastao prijavom na inicijativu bez naloga) ne daje grešku: odgovor je `202 activation-sent`
+  i na tu adresu stiže mejl "Aktiviraj svoj nalog" sa linkom za lozinku. Nalog se tako ne može preuzeti bez pristupa mejlu.
+- `POST /api/admin/users/{id}/password-link` – admin šalje korisniku isti link (npr. prijatelju koji se prijavio samo mejlom)
 
 Oblik inicijative u odgovoru je isti kao tip `Initiative` na frontu (`frontend/src/types.ts`).
 

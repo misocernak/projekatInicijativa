@@ -47,8 +47,15 @@ class ParticipationConfirmed extends Notification
         }
 
         $message->action('Pogledaj inicijativu', $front)
-            ->line('Ako ne možeš da dođeš, odjavi se da bi se oslobodilo mesto: '.$cancelUrl)
-            ->salutation('Lepša Srbija');
+            ->line('Ako ne možeš da dođeš, odjavi se da bi se oslobodilo mesto: '.$cancelUrl);
+
+        // prijava bez naloga: objasni kako da dobije pravi nalog
+        if ($notifiable->password === null) {
+            $message->line('Prijavio/la si se bez naloga. Ako želiš da pratiš svoje prijave i da pokreneš sopstvenu inicijativu, otvori '
+                .rtrim(config('app.url'), '/').'/prijava, izaberi „Registruj se“ sa ovom mejl adresom i poslaćemo ti link da postaviš lozinku.');
+        }
+
+        $message->salutation('Lepša Srbija');
 
         if ($ics = Ics::forInitiative($initiative)) {
             $message->attachData($ics, 'inicijativa.ics', ['mime' => 'text/calendar']);

@@ -1,7 +1,9 @@
-import CityOptions from '../components/CityOptions'
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { MailCheck } from 'lucide-react'
 import { errorText } from '../api'
+import CityOptions from '../components/CityOptions'
+import PasswordField from '../components/PasswordField'
 import { useAuth } from '../context/AuthContext'
 
 export default function Auth() {
@@ -11,6 +13,8 @@ export default function Auth() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  // mejl je već korišćen za prijavu na inicijativu bez naloga: poslat je link za postavljanje lozinke
+  const [activation, setActivation] = useState<{ email: string; mailSent: boolean } | null>(null)
 
   if (ready && user) return <Navigate to={from} replace />
 
@@ -23,8 +27,9 @@ export default function Auth() {
     try {
       if (mode === 'login') {
         await login(s('email'), String(f.get('password') ?? ''))
+        navigate(from, { replace: true })
       } else {
-        await register({
+        const res = await register({
           name: s('name'),
           email: s('email'),
           password: String(f.get('password') ?? ''),
@@ -32,12 +37,48 @@ export default function Auth() {
           city: s('city') || undefined,
           consent: f.get('consent') === 'on',
         })
+        if (res.activationSent) {
+          setActivation({ email: s('email'), mailSent: res.mailSent })
+          setBusy(false)
+        } else {
+          navigate(from, { replace: true })
+        }
       }
-      navigate(from, { replace: true })
     } catch (err) {
       setError(errorText(err))
       setBusy(false)
     }
+  }
+
+  if (activation) {
+    return (
+      <div className="mx-auto max-w-md px-5 py-14">
+        <span className="eyebrow">Nalog</span>
+        <h1 className="text-4xl text-sage-deep">Još jedan korak</h1>
+        <div className="card mt-6 space-y-4 p-7">
+          <MailCheck className="size-10 text-sage-dark" aria-hidden />
+          <p className="text-[15px] text-ink/85">
+            Sa adresom <strong>{activation.email}</strong> si se već prijavio/la na inicijativu, bez lozinke. Da završiš registraciju,
+            poslali smo ti mejl sa linkom za postavljanje lozinke.
+          </p>
+          {!activation.mailSent && (
+            <p className="rounded-xl bg-clay/10 px-4 py-3 text-sm font-semibold text-clay">
+              Slanje mejla nije uspelo. Pokušaj ponovo kasnije, ili koristi „Zaboravljena lozinka“.
+            </p>
+          )}
+          <p className="text-[13px] text-ink/60">Proveri i spam. Tvoje prijave na inicijative ostaju sačuvane.</p>
+          <button
+            className="btn-secondary w-full"
+            onClick={() => {
+              setActivation(null)
+              setMode('login')
+            }}
+          >
+            Nazad na prijavu
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -61,7 +102,7 @@ export default function Auth() {
             </div>
             <div>
               <label className="label" htmlFor="city">
-                Grad
+                Grad ili opština
               </label>
               <select id="city" name="city" className="field" defaultValue="">
                 <option value="">Izaberi grad</option>
@@ -76,36 +117,17 @@ export default function Auth() {
           </label>
           <input id="email" name="email" type="email" required autoComplete="email" className="field" />
         </div>
-        <div>
-          <label className="label" htmlFor="password">
-            Lozinka
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            minLength={mode === 'register' ? 8 : undefined}
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            className="field"
-          />
-          {mode === 'register' && <p className="mt-1.5 text-xs text-ink/55">Najmanje 8 znakova.</p>}
-        </div>
+        <PasswordField
+          id="password"
+          name="password"
+          label="Lozinka"
+          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+          minLength={mode === 'register' ? 8 : undefined}
+          hint={mode === 'register' ? 'Najmanje 8 znakova.' : undefined}
+        />
         {mode === 'register' && (
           <>
-            <div>
-              <label className="label" htmlFor="password_confirmation">
-                Ponovi lozinku
-              </label>
-              <input
-                id="password_confirmation"
-                name="password_confirmation"
-                type="password"
-                required
-                autoComplete="new-password"
-                className="field"
-              />
-            </div>
+            <PasswordField id="password_confirmation" name="password_confirmation" label="Ponovi lozinku" autoComplete="new-password" />
             <label className="flex items-start gap-3 text-[13px] leading-snug text-ink/75">
               <input type="checkbox" name="consent" required className="mt-0.5 size-5 shrink-0 accent-[#0b7a4b]" />
               <span>
@@ -134,11 +156,17 @@ export default function Auth() {
           {busy ? 'Sačekaj…' : mode === 'login' ? 'Prijavi se' : 'Napravi nalog'}
         </button>
         {mode === 'login' && (
-          <p className="text-center text-[13px]">
-            <Link to="/zaboravljena-lozinka" className="font-semibold text-sage-dark hover:underline">
-              Zaboravljena lozinka?
-            </Link>
-          </p>
+          <div className="space-y-2 text-center text-[13px]">
+            <p>
+              <Link to="/zaboravljena-lozinka" className="font-semibold text-sage-dark hover:underline">
+                Zaboravljena lozinka?
+              </Link>
+            </p>
+            <p className="rounded-xl bg-mist px-4 py-3 text-left text-ink/70">
+              Prijavio/la si se na inicijativu samo mejlom? Izaberi <strong>Registruj se</strong> sa istom mejl adresom i poslaćemo ti
+              link da postaviš lozinku.
+            </p>
+          </div>
         )}
       </form>
 

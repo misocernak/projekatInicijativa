@@ -7,7 +7,7 @@ interface AuthValue {
   /** false dok se ne proveri da li postoji aktivna sesija (izbegava treperenje "Prijava") */
   ready: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (data: api.RegisterData) => Promise<{ verificationEmailSent: boolean }>
+  register: (data: api.RegisterData) => Promise<{ activationSent: boolean; mailSent: boolean }>
   logout: () => Promise<void>
   refresh: () => Promise<void>
 }
@@ -38,8 +38,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login: async (email, password) => setUser(await api.login(email, password)),
       register: async (data) => {
         const res = await api.register(data)
-        setUser(res.user)
-        return { verificationEmailSent: res.verificationEmailSent }
+        // mejl već ima nalog bez lozinke: korisnik ostaje odjavljen, a dobija link za aktivaciju
+        if (res.user) setUser(res.user)
+        return {
+          activationSent: res.status === 'activation-sent',
+          mailSent: res.status === 'activation-sent' ? res.mailSent !== false : res.verificationEmailSent !== false,
+        }
       },
       logout: async () => {
         try {

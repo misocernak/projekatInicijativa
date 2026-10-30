@@ -189,7 +189,16 @@ export interface RegisterData {
   consent: boolean
 }
 
-export async function register(data: RegisterData): Promise<{ user: User; verificationEmailSent: boolean }> {
+export interface RegisterResult {
+  /** postoji samo kada je nalog napravljen (i korisnik prijavljen) */
+  user?: User
+  verificationEmailSent?: boolean
+  /** mejl je već korišćen za brzu prijavu na inicijativu: poslat je link za postavljanje lozinke */
+  status?: 'activation-sent'
+  mailSent?: boolean
+}
+
+export async function register(data: RegisterData): Promise<RegisterResult> {
   return request('POST', '/register', data)
 }
 
@@ -338,4 +347,9 @@ export function adminUsers(params: { q?: string; role?: 'admin'; page?: number }
 
 export async function adminSetRole(id: string, role: 'admin' | 'user'): Promise<AdminUser> {
   return (await request<{ user: AdminUser }>('POST', `/admin/users/${id}/role`, { role })).user
+}
+
+/** Admin: šalje korisniku mejl sa linkom za postavljanje lozinke (aktivacija naloga nastalog brzom prijavom). */
+export function adminSendPasswordLink(id: string): Promise<{ status: 'sent' }> {
+  return request('POST', `/admin/users/${id}/password-link`)
 }

@@ -76,6 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stats', AdminStatsController::class);
         Route::get('/users', [AdminUserController::class, 'index']);
         Route::post('/users/{user}/role', [AdminUserController::class, 'setRole']);
+        Route::post('/users/{user}/password-link', [AdminUserController::class, 'sendPasswordLink'])->middleware('throttle:20,1');
         Route::get('/reports', [AdminController::class, 'reports']);
         Route::post('/reports/{report}/resolve', [AdminController::class, 'resolve']);
         Route::post('/initiatives/{initiative}/hide', [AdminController::class, 'hide']);

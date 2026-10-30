@@ -25,6 +25,20 @@ class AuthController extends Controller
     {
         $this->requireSession($request);
 
+        // Mejl je već korišćen za brzu prijavu na inicijativu (nalog bez lozinke): umesto greške šaljemo link
+        // za aktivaciju. Link stiže na tu adresu, pa samo njen vlasnik može da postavi lozinku.
+        $email = Str::lower((string) $request->input('email'));
+        $quick = filter_var($email, FILTER_VALIDATE_EMAIL)
+            ? User::where('email', $email)->whereNull('password')->first()
+            : null;
+
+        if ($quick) {
+            return response()->json([
+                'status' => 'activation-sent',
+                'mailSent' => $this->sendActivation($quick),
+            ], 202);
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email:rfc', 'max:190', 'unique:users,email'],
@@ -179,6 +193,20 @@ class AuthController extends Controller
         }
 
         return response()->json(['status' => 'ok']);
+    }
+
+    /** Šalje link za postavljanje lozinke (isti mehanizam kao "zaboravljena lozinka"). */
+    private function sendActivation(User $user): bool
+    {
+        try {
+            PasswordBroker::sendResetLink(['email' => $user->email]);
+
+            return true;
+        } catch (Throwable $e) {
+            Log::error('Slanje mejla za aktivaciju naloga nije uspelo: '.$e->getMessage());
+
+            return false;
+        }
     }
 
     /** Oblik korisnika za front. */
