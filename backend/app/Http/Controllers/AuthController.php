@@ -190,7 +190,8 @@ class AuthController extends Controller
             'email' => $user->email,
             'cityId' => $user->city?->slug,
             'emailVerified' => $user->hasVerifiedEmail(),
-            'role' => $user->role,
+            // novi korisnik nema učitanu podrazumevanu vrednost iz baze
+            'role' => $user->role ?? 'user',
         ];
     }
 

@@ -5,7 +5,6 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Exceptions\InvalidSignatureException;
-use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,10 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Front je na istom domenu: prijava preko sesije (kolačić), uz CSRF zaštitu za pozive sa fronta.
         $middleware->statefulApi();
+
+        // Nema strane za prijavu na API-ju: neprijavljen zahtev dobija 401 JSON, ne preusmeravanje.
+        $middleware->redirectGuestsTo(fn () => '/');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Ovo je čist API: greške su uvek JSON (bez preusmeravanja na nepostojeću stranu za prijavu).
-        $exceptions->shouldRenderJsonWhen(fn (Request $request, Throwable $e) => true);
+        $exceptions->shouldRenderJsonWhen(fn (Request $request, \Throwable $e) => true);
 
         // Istekao ili izmenjen link iz mejla: vodi na front sa porukom, umesto na golu 403 stranu.
         $exceptions->render(function (InvalidSignatureException $e, Request $request) {
