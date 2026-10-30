@@ -23,6 +23,14 @@ composer install → **testovi** (deploy staje ako padnu) → composer install b
 - `GET /api/initiatives?city=&category=&status=&q=&per_page=` – lista (paginirana); `status`: upcoming, ongoing, finished, permanent, cancelled
 - `GET /api/initiatives/{id}` – detalj
 
+Nalog (sesija preko kolačića, isti domen; front prvo poziva `GET /api/sanctum/csrf-cookie`):
+
+- `POST /api/register` (ime, mejl, lozinka + potvrda, grad, `consent`), `POST /api/login`, `POST /api/logout`, `GET /api/me`
+- `GET /api/email/verify/{id}/{hash}` – potpisan link iz mejla, vodi na front `/potvrda-mejla?status=ok|invalid`
+- `POST /api/email/verification-notification` – ponovno slanje potvrde
+- `POST /api/forgot-password`, `POST /api/reset-password` – link vodi na front `/nova-lozinka?token=..&email=..`
+  (radi i za "brze" naloge bez lozinke: link iz mejla dokazuje vlasništvo adrese)
+
 Oblik inicijative u odgovoru je isti kao tip `Initiative` na frontu (`frontend/src/types.ts`).
 
 ## Šema baze
