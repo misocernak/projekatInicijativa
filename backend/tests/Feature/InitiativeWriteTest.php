@@ -117,6 +117,8 @@ class InitiativeWriteTest extends TestCase
         $this->assertStringContainsString('/uploads/initiatives/', $response->json('data.image'));
 
         $path = Initiative::firstOrFail()->image_path;
+        // slika se čuva kao WebP (ili JPEG ako GD na serveru nema WebP)
+        $this->assertStringEndsWith(function_exists('imagewebp') ? '.webp' : '.jpg', $path);
         $this->assertNotNull($path);
         Storage::disk('uploads')->assertExists($path);
     }

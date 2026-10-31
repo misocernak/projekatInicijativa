@@ -8,14 +8,16 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Čuvanje slika akcija na disku "uploads".
  *
- * Ako je dostupan GD, slika se ponovo kodira kao JPEG (max 1600 px): tako se uklanjaju EXIF podaci
- * (npr. GPS lokacija sa telefona) i sve što nije prava slika. Bez GD-a čuva se original, uz ekstenziju
+ * Ako je dostupan GD, slika se ponovo kodira kao WebP (max 1600 px, ili JPEG ako server nema WebP):
+ * tako je fajl mali (stotinak KB umesto desetina MB) i uklanjaju se EXIF podaci (npr. GPS lokacija sa telefona)
+ * i sve što nije prava slika. Bez GD-a čuva se original, uz ekstenziju
  * određenu po sadržaju (nikad po imenu koje je poslao korisnik).
  */
 class ImageStore
 {
     public const DIR = 'initiatives';
     public const MAX_SIDE = 1600;
+    public const QUALITY = 80;
 
     public static function store(UploadedFile $file, string $basename): string
     {
@@ -26,9 +28,9 @@ class ImageStore
             $source = @imagecreatefromstring($bytes);
 
             if ($source !== false) {
-                $jpeg = self::encodeJpeg($source);
-                $path = self::DIR.'/'.$basename.'.jpg';
-                $disk->put($path, $jpeg);
+                [$encoded, $extension] = self::encode($source);
+                $path = self::DIR.'/'.$basename.'.'.$extension;
+                $disk->put($path, $encoded);
 
                 return $path;
             }
@@ -52,7 +54,8 @@ class ImageStore
         }
     }
 
-    private static function encodeJpeg(\GdImage $source): string
+    /** @return array{0: string, 1: string} sadržaj i ekstenzija (webp, a jpg ako GD nema podršku za WebP) */
+    private static function encode(\GdImage $source): array
     {
         $width = imagesx($source);
         $height = imagesy($source);
@@ -66,8 +69,14 @@ class ImageStore
         imagecopyresampled($canvas, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
         ob_start();
-        imagejpeg($canvas, null, 82);
+        if (function_exists('imagewebp')) {
+            imagewebp($canvas, null, self::QUALITY);
+            $extension = 'webp';
+        } else {
+            imagejpeg($canvas, null, 82);
+            $extension = 'jpg';
+        }
 
-        return (string) ob_get_clean();
+        return [(string) ob_get_clean(), $extension];
     }
 }
