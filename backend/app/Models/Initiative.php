@@ -26,6 +26,7 @@ class Initiative extends Model
             'ends_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'hidden_at' => 'datetime',
+            'result_published_at' => 'datetime',
         ];
     }
 

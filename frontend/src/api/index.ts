@@ -144,6 +144,35 @@ export async function createInitiative(data: NewInitiative, image?: Blob): Promi
   return (await request<Wrapped<Initiative>>('POST', '/initiatives', form)).data
 }
 
+/* ---------------- Uradili smo (rezultati završenih akcija) ---------------- */
+
+export interface ResultsPage {
+  stats: { actions: number; volunteers: number; cities: number }
+  data: Initiative[]
+  meta: { page: number; lastPage: number; total: number }
+}
+
+export function listResults(f: { city?: string; category?: string; perPage?: number } = {}): Promise<ResultsPage> {
+  const p = new URLSearchParams()
+  if (f.city) p.set('city', f.city)
+  if (f.category) p.set('category', f.category)
+  if (f.perPage) p.set('per_page', String(f.perPage))
+  return request('GET', `/results${p.size ? `?${p}` : ''}`)
+}
+
+export async function publishResult(id: string, data: { text: string; before?: Blob; after?: Blob; removeBefore?: boolean }): Promise<Initiative> {
+  const form = new FormData()
+  form.append('text', data.text)
+  if (data.before) form.append('before', data.before, 'pre.webp')
+  if (data.after) form.append('after', data.after, 'posle.webp')
+  if (data.removeBefore) form.append('removeBefore', '1')
+  return (await request<Wrapped<Initiative>>('POST', `/initiatives/${id}/result`, form)).data
+}
+
+export function removeResult(id: string): Promise<unknown> {
+  return request('DELETE', `/initiatives/${id}/result`)
+}
+
 export async function cancelInitiative(id: string): Promise<Initiative> {
   return (await request<Wrapped<Initiative>>('POST', `/initiatives/${id}/cancel`)).data
 }

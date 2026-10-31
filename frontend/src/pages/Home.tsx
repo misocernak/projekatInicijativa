@@ -1,10 +1,12 @@
 import CitySelect from '../components/CitySelect'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, CalendarPlus, HandHeart, MapPin, Search } from 'lucide-react'
-import { listInitiatives } from '../api'
+import { listInitiatives, listResults } from '../api'
 import { Art, AvatarStack, CATEGORY_ICON, CATEGORY_STYLE, DateChip, Spinner } from '../components/Bits'
 import InitiativeCard from '../components/InitiativeCard'
 import MapView from '../components/MapView'
+import ResultCard from '../components/ResultCard'
+import ResultStats from '../components/ResultStats'
 import { CATEGORIES, cityName } from '../data/constants'
 import { getStatus } from '../lib/dates'
 import { useAsync } from '../lib/useAsync'
@@ -20,6 +22,7 @@ export default function Home() {
   const navigate = useNavigate()
   const { data, loading } = useAsync(() => listInitiatives(), [])
   const all = data ?? []
+  const results = useAsync(() => listResults({ perPage: 3 }).catch(() => null), [])
   const upcoming = all.filter((i) => ['upcoming', 'ongoing'].includes(getStatus(i)))
   const featured = upcoming.slice(0, 3)
   const volunteers = all.reduce((s, i) => s + i.participants, 0)
@@ -209,6 +212,32 @@ export default function Home() {
           ))}
         </ol>
       </section>
+
+      {/* ULADILI SMO */}
+      {results.data && results.data.stats.actions > 0 && (
+        <section className="mx-auto mt-28 max-w-6xl px-5">
+          <div className="rounded-[2.5rem] bg-sage-deep px-6 py-12 sm:px-12 sm:py-16">
+            <span className="eyebrow">Uradili smo</span>
+            <h2 className="max-w-2xl text-3xl text-white sm:text-5xl">Ovo smo već uradili zajedno</h2>
+            <p className="mt-4 max-w-xl text-white/75">
+              Svaka od ovih akcija počela je kao ideja jednog komšije. Pogledaj kako su izgledale pre i posle.
+            </p>
+            <div className="mt-9">
+              <ResultStats stats={results.data.stats} dark />
+            </div>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {results.data.data
+                .filter((i) => i.result?.after)
+                .map((i) => (
+                  <ResultCard key={i.id} item={i} />
+                ))}
+            </div>
+            <Link to="/uradili-smo" className="mt-10 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-[14px] font-semibold text-sage-deep transition hover:-translate-y-0.5">
+              Pogledaj sve rezultate <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="mx-auto mt-28 max-w-6xl px-5">

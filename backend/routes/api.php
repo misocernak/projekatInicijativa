@@ -9,6 +9,7 @@ use App\Http\Controllers\MeController;
 use App\Http\Controllers\ParticipationController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ResultController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,7 @@ Route::get('/cities', [ReferenceController::class, 'cities']);
 Route::get('/categories', [ReferenceController::class, 'categories']);
 Route::get('/initiatives', [InitiativeController::class, 'index']);
 Route::get('/initiatives/{initiative}', [InitiativeController::class, 'show']);
+Route::get('/results', [ResultController::class, 'index']);
 
 // Prijava neprikladnog sadržaja (i bez naloga)
 Route::post('/initiatives/{initiative}/report', [ReportController::class, 'store'])->middleware(['throttle:5,60', 'turnstile:guests']);
@@ -98,5 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/initiatives/{initiative}/cancel', [InitiativeController::class, 'cancel']);
         Route::post('/initiatives/{initiative}/image', [InitiativeController::class, 'uploadImage'])->middleware('throttle:30,60');
         Route::delete('/initiatives/{initiative}/image', [InitiativeController::class, 'deleteImage']);
+        Route::post('/initiatives/{initiative}/result', [ResultController::class, 'store'])->middleware('throttle:20,60');
+        Route::delete('/initiatives/{initiative}/result', [ResultController::class, 'destroy']);
     });
 });

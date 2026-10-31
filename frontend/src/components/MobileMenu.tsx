@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   X,
   type LucideIcon,
+  Images,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { BRAND } from '../data/constants'
@@ -145,6 +146,13 @@ export default function MobileMenu({ open, onClose }: Props) {
               icon={MapIcon}
               label="Mapa akcija"
               active={pathname === '/inicijative' && isMap}
+              onClick={onClose}
+            />
+            <Item
+              to="/uradili-smo"
+              icon={Images}
+              label="Uradili smo"
+              active={pathname === '/uradili-smo'}
               onClick={onClose}
             />
             <Item

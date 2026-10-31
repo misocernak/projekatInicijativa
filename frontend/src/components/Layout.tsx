@@ -61,6 +61,9 @@ export default function Layout() {
             <NavLink to="/inicijative" className={navCls}>
               Akcije
             </NavLink>
+            <NavLink to="/uradili-smo" className={navCls}>
+              Uradili smo
+            </NavLink>
             <NavLink to="/o-projektu" className={navCls}>
               O projektu
             </NavLink>
@@ -122,6 +125,9 @@ export default function Layout() {
             </Link>
             <Link to="/nova-inicijativa" className="hover:text-sage-deep hover:underline">
               Pokreni akciju
+            </Link>
+            <Link to="/uradili-smo" className="hover:text-sage-deep hover:underline">
+              Uradili smo
             </Link>
             <Link to="/o-projektu" className="hover:text-sage-deep hover:underline">
               O projektu

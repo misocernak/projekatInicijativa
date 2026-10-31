@@ -2,6 +2,7 @@ import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import { AuthProvider } from './context/AuthContext'
 import About from './pages/About'
+import Results from './pages/Results'
 import Admin from './pages/Admin'
 import EditInitiative from './pages/EditInitiative'
 import { Privacy, Terms } from './pages/Legal'
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="inicijative" element={<Initiatives />} />
             <Route path="inicijative/:id" element={<InitiativeDetail />} />
             <Route path="inicijative/:id/izmena" element={<EditInitiative />} />
+            <Route path="uradili-smo" element={<Results />} />
             <Route path="nova-inicijativa" element={<NewInitiative />} />
             <Route path="admin" element={<Admin />} />
             <Route path="privatnost" element={<Privacy />} />

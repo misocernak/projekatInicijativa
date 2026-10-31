@@ -61,7 +61,9 @@ class AdminController extends Controller
     /** Trajno brisanje (npr. test akcije): sa slikom, prijavama i prijavljenim volonterima. Ne može da se vrati. */
     public function destroy(Initiative $initiative): JsonResponse
     {
-        ImageStore::delete($initiative->image_path);
+        foreach ([$initiative->image_path, $initiative->result_before_path, $initiative->result_after_path] as $path) {
+            ImageStore::delete($path);
+        }
         $initiative->delete();
 
         return response()->json(['status' => 'deleted']);

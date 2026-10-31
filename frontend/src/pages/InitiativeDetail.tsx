@@ -6,6 +6,7 @@ import {
   adminHideInitiative,
   adminUnhideInitiative,
   cancelInitiative,
+  removeResult,
   errorText,
   getInitiative,
   join,
@@ -16,7 +17,9 @@ import {
   type ReportReason,
 } from '../api'
 import { Art, AvatarStack, CATEGORY_STYLE, DateChip, Empty, Spinner, StatusBadge } from '../components/Bits'
+import BeforeAfter from '../components/BeforeAfter'
 import MapView from '../components/MapView'
+import ResultForm from '../components/ResultForm'
 import Turnstile from '../components/Turnstile'
 import ShareInitiative from '../components/ShareInitiative'
 import { useAuth } from '../context/AuthContext'
@@ -43,6 +46,7 @@ export default function InitiativeDetail() {
   const [sentTo, setSentTo] = useState<{ email: string; mailSent: boolean } | null>(null)
   const [guest, setGuest] = useState({ name: '', email: '', consent: false })
   const [participants, setParticipants] = useState<ParticipantRow[]>([])
+  const [resultOpen, setResultOpen] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
   const [report, setReport] = useState<{ reason: ReportReason; message: string; email: string }>({
     reason: 'spam',
@@ -216,6 +220,71 @@ export default function InitiativeDetail() {
                 <Package className="size-6 text-sage-dark" aria-hidden /> Šta poneti
               </h2>
               <p className="text-ink/80">{item.bring}</p>
+            </section>
+          )}
+
+          {item.result?.after && (
+            <section className="mt-10" aria-labelledby="rezultat">
+              <h2 id="rezultat" className="mb-4 text-2xl text-sage-deep sm:text-3xl">
+                Šta smo uradili
+              </h2>
+              <BeforeAfter before={item.result.before} after={item.result.after} alt={item.title} className="aspect-[4/3] rounded-[2rem] sm:aspect-[16/10]" />
+              <div className="mt-6 space-y-4 text-[17px] leading-[1.85] text-ink/85">
+                {item.result.text.split(/\n{2,}/).map((p, idx) => (
+                  <p key={idx}>{p}</p>
+                ))}
+              </div>
+              <p className="mt-5 inline-flex items-center gap-2 rounded-full bg-sage/15 px-4 py-2 text-[13px] font-semibold text-sage-deep">
+                <Users className="size-4" aria-hidden /> {item.participants} {item.participants === 1 ? 'volonter' : 'volontera'} je učestvovalo
+              </p>
+            </section>
+          )}
+
+          {canManage && status === 'finished' && (
+            <section className="mt-10">
+              {resultOpen ? (
+                <ResultForm
+                  item={item}
+                  onCancel={() => setResultOpen(false)}
+                  onDone={(updated) => {
+                    setData(updated)
+                    setResultOpen(false)
+                  }}
+                />
+              ) : item.result ? (
+                <div className="flex flex-wrap items-center gap-4 text-[13px] font-semibold">
+                  <button onClick={() => setResultOpen(true)} className="btn-secondary">
+                    <Pencil className="size-4" aria-hidden /> Izmeni rezultat
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm('Ukloniti rezultat sa strane „Uradili smo“? Akcija ostaje.')) return
+                      try {
+                        await removeResult(id)
+                        await refresh()
+                      } catch (err) {
+                        setActionError(errorText(err))
+                      }
+                    }}
+                    className="text-clay hover:underline"
+                  >
+                    Ukloni rezultat
+                  </button>
+                </div>
+              ) : (
+                <div className="rounded-3xl bg-sage-dark p-7 text-white sm:p-9">
+                  <h2 className="text-2xl text-white sm:text-3xl">Akcija je završena. Pokaži šta ste uradili.</h2>
+                  <p className="mt-3 max-w-xl text-white/85">
+                    Dodaj slike pre i posle i kratak opis. Rezultat se objavljuje na strani „Uradili smo“ i inspiriše druge u gradu.
+                  </p>
+                  <button
+                    onClick={() => setResultOpen(true)}
+                    className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-[14px] font-semibold text-sage-deep transition hover:-translate-y-0.5"
+                  >
+                    Objavi rezultat
+                  </button>
+                </div>
+              )}
             </section>
           )}
 

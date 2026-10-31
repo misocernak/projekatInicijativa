@@ -41,6 +41,17 @@ class InitiativeResource extends JsonResource
             'hidden' => $this->hidden_at ? true : null,
         ];
 
+        // "Uradili smo": rezultat završene akcije (opis, slike pre i posle)
+        if ($this->result_published_at) {
+            $url = fn (?string $path) => $path ? rtrim(config('app.url'), '/').'/uploads/'.$path : null;
+            $data['result'] = array_filter([
+                'text' => $this->result_text,
+                'before' => $url($this->result_before_path),
+                'after' => $url($this->result_after_path),
+                'publishedAt' => $this->result_published_at->toIso8601String(),
+            ], fn ($v) => $v !== null);
+        }
+
         // Prazna opciona polja se izostavljaju, kao undefined na frontu.
         $data = array_filter($data, fn ($v) => $v !== null);
 

@@ -48,6 +48,16 @@ export interface Initiative {
   /** sakrivena sa javne liste (vide je samo organizator i admin) */
   hidden?: boolean
   viewer?: Viewer
+  /** rezultat završene akcije ("Uradili smo"), kada ga je organizator objavio */
+  result?: ActionResult
+}
+
+export interface ActionResult {
+  text: string
+  /** slika pre (opciono) i posle */
+  before?: string
+  after?: string
+  publishedAt: string
 }
 
 export type InitiativeStatus = 'upcoming' | 'ongoing' | 'finished' | 'permanent' | 'cancelled'
