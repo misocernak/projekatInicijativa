@@ -26,6 +26,16 @@ import { useAuth } from '../context/AuthContext'
 import { categoryLabel, cityName } from '../data/constants'
 import { formatWhen, getStatus } from '../lib/dates'
 import { useAsync } from '../lib/useAsync'
+import { usePageMeta } from '../lib/seo'
+import type { Initiative } from '../types'
+
+/** Opis za pretragu i deljenje: kada i gde, pa početak opisa; najviše oko 155 znakova. */
+function shortDescription(i: Initiative): string {
+  const lead = [i.kind === 'permanent' ? 'Trajna akcija' : formatWhen(i), `${cityName(i.cityId)}, ${i.address}`].filter(Boolean).join(' · ')
+  const body = (i.result?.text ?? i.description).replace(/\s+/g, ' ').trim()
+  const text = `${lead}. ${body}`
+  return text.length <= 155 ? text : `${text.slice(0, 154).replace(/\s+\S*$/, '')}…`
+}
 
 /** Poruke posle klika na link iz mejla (?prijava=...). */
 const BANNERS: Record<string, { text: string; good: boolean }> = {
@@ -55,6 +65,16 @@ export default function InitiativeDetail() {
   })
   const [reportState, setReportState] = useState<'idle' | 'busy' | 'done'>('idle')
   const [reportError, setReportError] = useState('')
+
+  usePageMeta(
+    item && !item.hidden
+      ? {
+          title: `${item.title} – ${cityName(item.cityId)} | Lepša Srbija`,
+          description: shortDescription(item),
+          image: item.image ?? item.result?.after,
+        }
+      : undefined,
+  )
 
   const canManage = !!item && (!!item.viewer?.isOrganizer || user?.role === 'admin')
   const isAdmin = user?.role === 'admin'

@@ -5,6 +5,7 @@ import MobileMenu from './MobileMenu'
 import Wordmark from './Wordmark'
 import { useAuth } from '../context/AuthContext'
 import { BRAND } from '../data/constants'
+import { applyMeta, metaFor } from '../lib/seo'
 
 const navCls = ({ isActive }: { isActive: boolean }) =>
   `relative px-1 py-2 text-[13px] font-medium tracking-[0.04em] transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-sage-dark after:transition-transform ${
@@ -26,6 +27,9 @@ export default function Layout() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { pathname } = useLocation()
+
+  // naslov, opis i slika za deljenje po stranici (akcija ih sama postavlja kad se učita)
+  useEffect(() => applyMeta(metaFor(pathname), pathname), [pathname])
   const closeMenu = useCallback(() => setOpen(false), [])
 
   useEffect(() => {

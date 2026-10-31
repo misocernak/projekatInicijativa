@@ -10,6 +10,7 @@ use App\Http\Controllers\ParticipationController;
 use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResultController;
+use App\Http\Controllers\SeoController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,9 @@ Route::get('/categories', [ReferenceController::class, 'categories']);
 Route::get('/initiatives', [InitiativeController::class, 'index']);
 Route::get('/initiatives/{initiative}', [InitiativeController::class, 'show']);
 Route::get('/results', [ResultController::class, 'index']);
+
+// Meta podaci za botove (deljenje na mrežama, pretraga); .htaccess na frontu im šalje zahteve ovamo
+Route::get('/seo', SeoController::class);
 
 // Prijava neprikladnog sadržaja (i bez naloga)
 Route::post('/initiatives/{initiative}/report', [ReportController::class, 'store'])->middleware(['throttle:5,60', 'turnstile:guests']);

@@ -3,6 +3,15 @@
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
+
+  # Botovi za deljenje i pretragu ne izvršavaju JavaScript: njima se vraća index.html sa naslovom,
+  # opisom i slikom konkretne strane (backend/app/Http/Controllers/SeoController.php).
+  RewriteCond %{REQUEST_URI} !^/(api|uploads|assets)/
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|facebot|meta-externalagent|twitterbot|whatsapp|linkedinbot|slackbot|telegrambot|viber|discordbot|pinterest|skypeuripreview|embedly|vkshare|redditbot|applebot|googlebot|bingbot|duckduckbot|yandex|iframely) [NC]
+  RewriteRule ^(.*)$ /api/seo?path=/$1 [L,QSA,B]
+
   RewriteCond %{REQUEST_URI} !^/api/
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d

@@ -54,6 +54,9 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    // index.html fronta (SeoController ubacuje meta podatke u njega). Na serveru je pored foldera "api".
+    'frontend_index' => env('FRONTEND_INDEX_PATH', dirname(base_path()).'/public_html/index.html'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
