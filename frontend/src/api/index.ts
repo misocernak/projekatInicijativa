@@ -10,6 +10,7 @@ import type {
   ParticipationStatus,
   User,
 } from '../types'
+import { captcha } from '../lib/captcha'
 
 const BASE = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '')
 
@@ -46,7 +47,10 @@ async function ensureCsrf(force = false) {
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
-async function request<T>(method: Method, path: string, body?: unknown, retry = true): Promise<T> {
+/** Rute koje štiti Cloudflare Turnstile (vidi backend/routes/api.php). */
+const PROTECTED = /^\/(register|login|forgot-password|initiatives\/[^/]+\/(join|report))$/
+
+async function request<T>(method: Method, path: string, body?: unknown, retry = true, botToken?: string | null): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json' }
   let payload: BodyInit | undefined
 
@@ -55,6 +59,11 @@ async function request<T>(method: Method, path: string, body?: unknown, retry = 
   } else if (body !== undefined) {
     headers['Content-Type'] = 'application/json'
     payload = JSON.stringify(body)
+  }
+
+  if (method === 'POST' && PROTECTED.test(path)) {
+    botToken = botToken === undefined ? await captcha.take() : botToken
+    if (botToken) headers['X-Turnstile-Token'] = botToken
   }
 
   if (method !== 'GET') {
@@ -73,7 +82,7 @@ async function request<T>(method: Method, path: string, body?: unknown, retry = 
   // 419: istekao CSRF token ili sesija; jednom osveži kolačić i ponovi
   if (res.status === 419 && retry) {
     await ensureCsrf(true)
-    return request<T>(method, path, body, false)
+    return request<T>(method, path, body, false, botToken)
   }
 
   if (res.status === 204) return undefined as T
@@ -362,8 +371,20 @@ export function adminSendPasswordLink(id: string): Promise<{ status: 'sent' }> {
 }
 
 /** Koji načini prijave su podešeni na serveru (Google dugme se prikazuje tek kada je podešen). */
-export function authProviders(): Promise<{ google: boolean }> {
-  return request('GET', '/auth/providers')
+export interface AuthProviders {
+  google: boolean
+  /** javni ključ za Cloudflare Turnstile; null kada zaštita nije uključena */
+  turnstile: string | null
+}
+
+let providers: Promise<AuthProviders> | undefined
+
+export function authProviders(): Promise<AuthProviders> {
+  providers ??= request<AuthProviders>('GET', '/auth/providers').catch(() => {
+    providers = undefined
+    return { google: false, turnstile: null }
+  })
+  return providers
 }
 
 /** Adresa na koju vodi dugme "Nastavi sa Google nalogom". Ovo je običan link (cela strana), ne fetch. */

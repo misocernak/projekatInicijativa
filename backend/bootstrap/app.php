@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\VerifyTurnstile;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Front je na istom domenu: prijava preko sesije (kolačić), uz CSRF zaštitu za pozive sa fronta.
         $middleware->statefulApi();
+
+        // Zaštita od botova na rutama za registraciju, prijavu, prijavu na akciju i prijavu sadržaja
+        $middleware->alias(['turnstile' => VerifyTurnstile::class]);
 
         // Nema strane za prijavu na API-ju: neprijavljen zahtev dobija 401 JSON, ne preusmeravanje.
         $middleware->redirectGuestsTo(fn () => '/');

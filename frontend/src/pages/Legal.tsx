@@ -89,6 +89,10 @@ export function Privacy() {
             usluzi pretrage; prikaz mape takođe učitava pločice sa njihovih servera.
           </li>
           <li>
+            <strong>Zaštita od spama:</strong> pri registraciji, prijavi i slanju formi koristimo Cloudflare Turnstile. Cloudflare dobija
+            podatke o pregledaču i IP adresu da bi razlikovao ljude od botova.
+          </li>
+          <li>
             <strong>Prijava preko Google naloga:</strong> ako izabereš tu prijavu, od Google-a dobijamo samo ime i potvrđenu mejl adresu.
           </li>
         </ul>

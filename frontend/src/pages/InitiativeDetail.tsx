@@ -17,6 +17,7 @@ import {
 } from '../api'
 import { Art, AvatarStack, CATEGORY_STYLE, DateChip, Empty, Spinner, StatusBadge } from '../components/Bits'
 import MapView from '../components/MapView'
+import Turnstile from '../components/Turnstile'
 import ShareInitiative from '../components/ShareInitiative'
 import { useAuth } from '../context/AuthContext'
 import { categoryLabel, cityName } from '../data/constants'
@@ -366,6 +367,7 @@ export default function InitiativeDetail() {
                       ).
                     </span>
                   </label>
+                  <Turnstile />
                   <button disabled={busy} className="btn-primary w-full">
                     {busy ? 'Sačekaj…' : 'Priključi se'}
                   </button>
@@ -514,6 +516,7 @@ export default function InitiativeDetail() {
                   </div>
                 )}
                 {reportError && <p className="text-[13px] font-semibold text-clay">{reportError}</p>}
+                <Turnstile />
                 <div className="flex gap-3">
                   <button disabled={reportState === 'busy'} className="btn-primary flex-1">
                     {reportState === 'busy' ? 'Šaljem…' : 'Pošalji prijavu'}

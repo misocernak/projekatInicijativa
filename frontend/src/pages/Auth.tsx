@@ -5,6 +5,7 @@ import { authProviders, errorText, forgotPassword, googleLoginUrl } from '../api
 import CitySelect from '../components/CitySelect'
 import GoogleG from '../components/GoogleG'
 import PasswordField from '../components/PasswordField'
+import Turnstile from '../components/Turnstile'
 import { useAuth } from '../context/AuthContext'
 import { useAsync } from '../lib/useAsync'
 
@@ -32,7 +33,7 @@ export default function Auth() {
   const [linkSent, setLinkSent] = useState<{ email: string; mailSent: boolean } | null>(null)
   const [params] = useSearchParams()
   const googleMessage = GOOGLE_MESSAGES[params.get('google') ?? '']
-  const providers = useAsync(() => authProviders().catch(() => ({ google: false })), [])
+  const providers = useAsync(() => authProviders(), [])
 
   if (ready && user) return <Navigate to={from} replace />
 
@@ -289,6 +290,7 @@ export default function Auth() {
                 )}
 
                 <div className={span}>
+                  <Turnstile />
                   <button disabled={busy} className="btn-primary w-full">
                     {busy
                       ? 'Sačekaj…'

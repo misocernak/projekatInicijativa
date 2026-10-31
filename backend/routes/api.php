@@ -37,10 +37,10 @@ Route::get('/initiatives', [InitiativeController::class, 'index']);
 Route::get('/initiatives/{initiative}', [InitiativeController::class, 'show']);
 
 // Prijava neprikladnog sadržaja (i bez naloga)
-Route::post('/initiatives/{initiative}/report', [ReportController::class, 'store'])->middleware('throttle:5,60');
+Route::post('/initiatives/{initiative}/report', [ReportController::class, 'store'])->middleware(['throttle:5,60', 'turnstile:guests']);
 
 // Prijava na inicijativu: gost (ime + mejl) ili prijavljen korisnik
-Route::post('/initiatives/{initiative}/join', [ParticipationController::class, 'join'])->middleware('throttle:20,1');
+Route::post('/initiatives/{initiative}/join', [ParticipationController::class, 'join'])->middleware(['throttle:20,1', 'turnstile:guests']);
 
 // Linkovi iz mejlova (potpisani)
 Route::get('/participations/{participation}/confirm', [ParticipationController::class, 'confirm'])
@@ -53,12 +53,14 @@ Route::get('/participations/{participation}/cancel', [ParticipationController::c
 // Koji načini prijave su podešeni (front prikazuje dugme tek kada je Google podešen)
 Route::get('/auth/providers', fn () => response()->json([
     'google' => filled(config('services.google.client_id')) && filled(config('services.google.client_secret')),
+    // javni ključ za Turnstile widget; bez tajnog ključa provera na serveru je isključena, pa se widget ne prikazuje
+    'turnstile' => filled(config('services.turnstile.secret')) ? config('services.turnstile.site_key') : null,
 ]));
 
 // Nalog
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
+Route::post('/register', [AuthController::class, 'register'])->middleware(['throttle:10,1', 'turnstile']);
+Route::post('/login', [AuthController::class, 'login'])->middleware(['throttle:10,1', 'turnstile']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware(['throttle:5,1', 'turnstile']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:10,1');
 Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
     ->middleware(['signed', 'throttle:20,1'])

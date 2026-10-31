@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { errorText, forgotPassword, resetPassword } from '../api'
 import PasswordField from '../components/PasswordField'
+import Turnstile from '../components/Turnstile'
 import { useAuth } from '../context/AuthContext'
 
 /** /potvrda-mejla?status=ok|invalid: na ovu stranu vodi link iz mejla za potvrdu adrese. */
@@ -85,6 +86,7 @@ export function ForgotPassword() {
               {error}
             </p>
           )}
+          <Turnstile />
           <button disabled={busy} className="btn-primary w-full">
             {busy ? 'Sačekaj…' : 'Pošalji link'}
           </button>
