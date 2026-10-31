@@ -6,6 +6,7 @@ import Wordmark from './Wordmark'
 import { useAuth } from '../context/AuthContext'
 import { BRAND } from '../data/constants'
 import { applyMeta, metaFor } from '../lib/seo'
+import { trackPage } from '../lib/track'
 
 const navCls = ({ isActive }: { isActive: boolean }) =>
   `relative px-1 py-2 text-[13px] font-medium tracking-[0.04em] transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-left after:bg-sage-dark after:transition-transform ${
@@ -23,13 +24,19 @@ function Logo() {
 }
 
 export default function Layout() {
-  const { user, logout } = useAuth()
+  const { user, logout, ready } = useAuth()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const { pathname } = useLocation()
 
   // naslov, opis i slika za deljenje po stranici (akcija ih sama postavlja kad se učita)
   useEffect(() => applyMeta(metaFor(pathname), pathname), [pathname])
+
+  // brojanje poseta (bez kolačića); admini se ne broje da ne kvare statistiku
+  const isAdmin = user?.role === 'admin'
+  useEffect(() => {
+    if (ready && !isAdmin) trackPage(pathname, window.location.search)
+  }, [pathname, ready, isAdmin])
   const closeMenu = useCallback(() => setOpen(false), [])
 
   useEffect(() => {

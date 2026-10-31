@@ -2,11 +2,13 @@ import { Navigate, useSearchParams } from 'react-router-dom'
 import { PageHead, Spinner } from '../components/Bits'
 import Reports from '../components/admin/Reports'
 import Stats from '../components/admin/Stats'
+import Traffic from '../components/admin/Traffic'
 import Users from '../components/admin/Users'
 import { useAuth } from '../context/AuthContext'
 
 const TABS = [
   { id: 'pregled', label: 'Pregled' },
+  { id: 'posete', label: 'Posete' },
   { id: 'prijave', label: 'Prijave sadržaja' },
   { id: 'nalozi', label: 'Nalozi' },
 ] as const
@@ -43,6 +45,7 @@ export default function Admin() {
       </div>
 
       {tab === 'pregled' && <Stats />}
+      {tab === 'posete' && <Traffic />}
       {tab === 'prijave' && <Reports />}
       {tab === 'nalozi' && <Users />}
     </div>

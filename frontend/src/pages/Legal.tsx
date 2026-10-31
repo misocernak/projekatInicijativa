@@ -50,6 +50,11 @@ export function Privacy() {
             <strong>Prijave sadržaja:</strong> razlog i poruka, i mejl adresa ako je ostaviš.
           </li>
           <li>
+            <strong>Broj poseta:</strong> brojimo koje su strane posećene, sa kog sajta si stigao/la i da li si na telefonu ili računaru.
+            To radimo bez kolačića i bez čuvanja IP adrese; od tvoje IP adrese i pregledača pravi se anonimni otisak koji važi samo jedan
+            dan i ne može da se poveže sa tobom. Služi samo za statistiku poseta.
+          </li>
+          <li>
             <strong>Tehnički podaci:</strong> IP adresa i podaci o pregledaču u zapisima servera, radi bezbednosti i otklanjanja grešaka.
           </li>
         </ul>

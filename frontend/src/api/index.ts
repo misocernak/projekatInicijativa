@@ -420,3 +420,36 @@ export function authProviders(): Promise<AuthProviders> {
 export function googleLoginUrl(from: string): string {
   return `${BASE}/auth/google/redirect?from=${encodeURIComponent(from)}`
 }
+
+/* ---------------- Admin: posete ---------------- */
+
+export interface TrafficTotals {
+  views: number
+  visitors: number
+}
+
+export interface AdminTraffic {
+  range: number
+  generatedAt: string
+  totals: { today: TrafficTotals; last7: TrafficTotals; last30: TrafficTotals; allTime: { views: number; since: string | null } }
+  daily: { date: string; views: number; visitors: number }[]
+  monthly: { month: string; views: number; visitors: number }[]
+  pages: { path: string; title: string | null; views: number; visitors: number }[]
+  sources: { name: string; views: number }[]
+  devices: { mobile: number; desktop: number }
+}
+
+export function adminTraffic(range: 7 | 30 | 90 | 365 = 30): Promise<AdminTraffic> {
+  return request('GET', `/admin/traffic?range=${range}`)
+}
+
+/** Javno brojanje posete (bez kolačića). Greška se ignoriše: brojanje nikad ne sme da smeta posetiocu. */
+export function trackView(path: string, referrer: string, source: string): void {
+  fetch(`${BASE}/track`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ path, referrer: referrer || undefined, source: source || undefined }),
+    keepalive: true,
+    credentials: 'omit',
+  }).catch(() => {})
+}

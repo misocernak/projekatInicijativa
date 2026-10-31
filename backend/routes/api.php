@@ -12,8 +12,11 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\TrackController;
+use App\Http\Controllers\TrafficController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 /*
  * Javna provera da API radi i da vidi bazu. Ne otkriva detalje greške.
@@ -43,6 +46,11 @@ Route::get('/results', [ResultController::class, 'index']);
 // Meta podaci za botove (deljenje na mrežama, pretraga); .htaccess na frontu im šalje zahteve ovamo
 Route::get('/seo', SeoController::class);
 Route::get('/sitemap.xml', SitemapController::class);
+
+// Brojanje poseta: bez sesije i kolačića (zato ne ide kroz Sanctum stateful), bez CSRF-a
+Route::post('/track', TrackController::class)
+    ->middleware('throttle:120,1')
+    ->withoutMiddleware([EnsureFrontendRequestsAreStateful::class]);
 
 // Prijava neprikladnog sadržaja (i bez naloga)
 Route::post('/initiatives/{initiative}/report', [ReportController::class, 'store'])->middleware(['throttle:5,60', 'turnstile:guests']);
@@ -89,6 +97,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Moderacija
     Route::middleware('can:admin')->prefix('admin')->group(function () {
         Route::get('/stats', AdminStatsController::class);
+        Route::get('/traffic', TrafficController::class);
         Route::get('/users', [AdminUserController::class, 'index']);
         Route::post('/users/{user}/role', [AdminUserController::class, 'setRole']);
         Route::post('/users/{user}/password-link', [AdminUserController::class, 'sendPasswordLink'])->middleware('throttle:20,1');
