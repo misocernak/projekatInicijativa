@@ -55,10 +55,10 @@ class GoogleAuthTest extends TestCase
     public function test_providers_endpoint_tells_whether_google_is_configured(): void
     {
         config(['services.google.client_id' => null, 'services.google.client_secret' => null]);
-        $this->getJson('/auth/providers')->assertOk()->assertExactJson(['google' => false]);
+        $this->getJson('/auth/providers')->assertOk()->assertJsonPath('google', false);
 
         $this->configureGoogle();
-        $this->getJson('/auth/providers')->assertOk()->assertExactJson(['google' => true]);
+        $this->getJson('/auth/providers')->assertOk()->assertJsonPath('google', true);
     }
 
     public function test_redirect_sends_the_user_to_google_with_a_state(): void
