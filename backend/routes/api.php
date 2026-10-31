@@ -108,3 +108,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/initiatives/{initiative}/result', [ResultController::class, 'destroy']);
     });
 });
+
+// .htaccess za botove prosleđuje zahtev na /api/seo?path=..., ali PHP vidi originalnu putanju (npr. /realizovano):
+// takav zahtev, sa parametrom path, ide na SeoController. Sve ostalo nepostojeće ostaje 404.
+Route::fallback(function (Illuminate\Http\Request $request) {
+    if ($request->isMethod('GET') && $request->query('path') !== null) {
+        return app(SeoController::class)($request);
+    }
+
+    return response()->json(['message' => 'Nije pronađeno.'], 404);
+});

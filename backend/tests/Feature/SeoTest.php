@@ -64,4 +64,11 @@ class SeoTest extends TestCase
         $this->get("/seo?path=/inicijative/{$initiative->id}")->assertNotFound();
         $this->get('/seo?path=/inicijative/'.str_repeat('Z', 26))->assertNotFound();
     }
+
+    public function test_bot_rewrite_with_original_path_still_reaches_seo(): void
+    {
+        // .htaccess prosleđuje na /api/seo?path=..., a PHP vidi originalnu putanju
+        $this->get('/realizovano?path=/realizovano')->assertOk()->assertSee('Realizovano: šta je urađeno', false);
+        $this->get('/nepostojece')->assertNotFound();
+    }
 }
