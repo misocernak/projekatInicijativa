@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /profil
+Disallow: /prijava
+Disallow: /nova-lozinka
+Disallow: /potvrda-mejla
+
+Sitemap: https://lepsasrbija.com/sitemap.xml

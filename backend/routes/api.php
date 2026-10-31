@@ -11,6 +11,7 @@ use App\Http\Controllers\ReferenceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,7 @@ Route::get('/results', [ResultController::class, 'index']);
 
 // Meta podaci za botove (deljenje na mrežama, pretraga); .htaccess na frontu im šalje zahteve ovamo
 Route::get('/seo', SeoController::class);
+Route::get('/sitemap.xml', SitemapController::class);
 
 // Prijava neprikladnog sadržaja (i bez naloga)
 Route::post('/initiatives/{initiative}/report', [ReportController::class, 'store'])->middleware(['throttle:5,60', 'turnstile:guests']);

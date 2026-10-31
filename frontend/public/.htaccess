@@ -4,6 +4,9 @@
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
 
+  # sitemap.xml pravi API (spisak svih javnih akcija)
+  RewriteRule ^sitemap\.xml$ /api/sitemap.xml [L]
+
   # Botovi za deljenje i pretragu ne izvršavaju JavaScript: njima se vraća index.html sa naslovom,
   # opisom i slikom konkretne strane (backend/app/Http/Controllers/SeoController.php).
   RewriteCond %{REQUEST_URI} !^/(api|uploads|assets)/
