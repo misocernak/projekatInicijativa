@@ -144,7 +144,7 @@ export async function createInitiative(data: NewInitiative, image?: Blob): Promi
   return (await request<Wrapped<Initiative>>('POST', '/initiatives', form)).data
 }
 
-/* ---------------- Uradili smo (rezultati završenih akcija) ---------------- */
+/* ---------------- Realizovano (rezultati završenih akcija) ---------------- */
 
 export interface ResultsPage {
   stats: { actions: number; volunteers: number; cities: number }

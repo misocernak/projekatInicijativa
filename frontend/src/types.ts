@@ -48,7 +48,7 @@ export interface Initiative {
   /** sakrivena sa javne liste (vide je samo organizator i admin) */
   hidden?: boolean
   viewer?: Viewer
-  /** rezultat završene akcije ("Uradili smo"), kada ga je organizator objavio */
+  /** rezultat završene akcije ("Realizovano"), kada ga je organizator objavio */
   result?: ActionResult
 }
 

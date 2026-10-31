@@ -35,7 +35,7 @@ export default function App() {
             <Route path="inicijative" element={<Initiatives />} />
             <Route path="inicijative/:id" element={<InitiativeDetail />} />
             <Route path="inicijative/:id/izmena" element={<EditInitiative />} />
-            <Route path="uradili-smo" element={<Results />} />
+            <Route path="realizovano" element={<Results />} />
             <Route path="nova-inicijativa" element={<NewInitiative />} />
             <Route path="admin" element={<Admin />} />
             <Route path="privatnost" element={<Privacy />} />

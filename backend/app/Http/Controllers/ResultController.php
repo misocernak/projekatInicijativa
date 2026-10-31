@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 /**
- * "Uradili smo": završene akcije sa opisom šta je urađeno i slikama pre i posle.
+ * "Realizovano": završene akcije sa opisom šta je urađeno.
  * Objavljuje organizator (ili admin) kada akcija završi; javni spisak i brojke su na GET /results.
  */
 class ResultController extends Controller
@@ -99,7 +99,7 @@ class ResultController extends Controller
         return new InitiativeResource($this->loaded($initiative));
     }
 
-    /** Uklanja rezultat sa javne strane "Uradili smo" (akcija ostaje). */
+    /** Uklanja rezultat sa javne strane "Realizovano" (akcija ostaje). */
     public function destroy(Initiative $initiative): JsonResponse
     {
         Gate::authorize('update', $initiative);

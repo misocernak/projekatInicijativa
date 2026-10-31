@@ -8,7 +8,7 @@ import ResultStats from '../components/ResultStats'
 import { CATEGORIES } from '../data/constants'
 import { useAsync } from '../lib/useAsync'
 
-/** "Uradili smo": završene akcije sa slikama pre i posle i brojkama. */
+/** "Realizovano": završene akcije sa rezultatima i brojkama. */
 export default function Results() {
   const [params, setParams] = useSearchParams()
   const city = params.get('grad') ?? ''
@@ -33,13 +33,13 @@ export default function Results() {
   return (
     <div className="mx-auto max-w-6xl px-5 pb-6 pt-10">
       <PageHead
-        eyebrow="Uradili smo"
+        eyebrow="Realizovano"
         title={
           <>
-            Evo šta je ispalo kad se <em>okupimo.</em>
+            Evo šta bude kad se <em>složimo.</em>
           </>
         }
-        text="Akcije koje su pokrenute, organizovane i završene preko Lepše Srbije: od ideje do rezultata, sa slikama pre i posle."
+        text="Akcije koje su pokrenute, organizovane i završene preko Lepše Srbije. Od ideje jednog komšije do gotovog rezultata."
       />
 
       {data && !filtered && data.stats.actions > 0 && (
@@ -84,7 +84,7 @@ export default function Results() {
           <Empty title="Rezultati se ne mogu učitati" text="Proveri vezu i osveži stranicu." />
         ) : items.length === 0 ? (
           <Empty
-            title={filtered ? 'Nema rezultata za ove filtere' : 'Prvi rezultati stižu uskoro'}
+            title={filtered ? 'Nema rezultata za ove filtere' : 'Prve realizovane akcije stižu uskoro'}
             text={
               filtered
                 ? 'Probaj drugi grad ili vrstu akcije.'

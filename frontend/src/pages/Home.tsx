@@ -217,10 +217,10 @@ export default function Home() {
       {results.data && results.data.stats.actions > 0 && (
         <section className="mx-auto mt-28 max-w-6xl px-5">
           <div className="rounded-[2.5rem] bg-sage-deep px-6 py-12 sm:px-12 sm:py-16">
-            <span className="eyebrow">Uradili smo</span>
-            <h2 className="max-w-2xl text-3xl text-white sm:text-5xl">Ovo smo već uradili zajedno</h2>
+            <span className="eyebrow">Realizovano</span>
+            <h2 className="max-w-2xl text-3xl text-white sm:text-5xl">Ovo smo već realizovali zajedno</h2>
             <p className="mt-4 max-w-xl text-white/75">
-              Svaka od ovih akcija počela je kao ideja jednog komšije. Pogledaj kako su izgledale pre i posle.
+              Svaka od ovih akcija počela je kao ideja jednog komšije, a završila se rezultatom koji se vidi.
             </p>
             <div className="mt-9">
               <ResultStats stats={results.data.stats} dark />
@@ -232,8 +232,8 @@ export default function Home() {
                   <ResultCard key={i.id} item={i} />
                 ))}
             </div>
-            <Link to="/uradili-smo" className="mt-10 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-[14px] font-semibold text-sage-deep transition hover:-translate-y-0.5">
-              Pogledaj sve rezultate <ArrowRight className="size-4" aria-hidden />
+            <Link to="/realizovano" className="mt-10 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-[14px] font-semibold text-sage-deep transition hover:-translate-y-0.5">
+              Pogledaj sve realizovano <ArrowRight className="size-4" aria-hidden />
             </Link>
           </div>
         </section>

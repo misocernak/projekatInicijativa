@@ -100,7 +100,7 @@ export default function ResultForm({ item, onDone, onCancel }: Props) {
       <div>
         <h2 className="text-2xl text-sage-deep">{item.result ? 'Izmeni rezultat' : 'Pokaži šta ste uradili'}</h2>
         <p className="mt-1.5 text-[14px] text-ink/65">
-          Rezultat se objavljuje na strani „Uradili smo“, da i drugi vide šta je moguće kad se komšije okupe.
+          Rezultat se objavljuje na strani „Realizovano“, da i drugi vide šta je moguće kad se komšije slože.
         </p>
       </div>
 

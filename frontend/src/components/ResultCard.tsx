@@ -5,7 +5,7 @@ import { formatDate } from '../lib/dates'
 import type { Initiative } from '../types'
 import { CATEGORY_STYLE } from './Bits'
 
-/** Kartica na strani "Uradili smo": slika pre/posle, šta je urađeno, ko i koliko ih je bilo. */
+/** Kartica na strani "Realizovano": slike, šta je urađeno, ko i koliko ih je bilo. */
 export default function ResultCard({ item }: { item: Initiative }) {
   const result = item.result
   if (!result?.after) return null

@@ -149,10 +149,10 @@ export default function MobileMenu({ open, onClose }: Props) {
               onClick={onClose}
             />
             <Item
-              to="/uradili-smo"
+              to="/realizovano"
               icon={Images}
-              label="Uradili smo"
-              active={pathname === '/uradili-smo'}
+              label="Realizovano"
+              active={pathname === '/realizovano'}
               onClick={onClose}
             />
             <Item

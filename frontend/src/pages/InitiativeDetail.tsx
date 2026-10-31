@@ -226,7 +226,7 @@ export default function InitiativeDetail() {
           {item.result?.after && (
             <section className="mt-10" aria-labelledby="rezultat">
               <h2 id="rezultat" className="mb-4 text-2xl text-sage-deep sm:text-3xl">
-                Šta smo uradili
+                Realizovano
               </h2>
               <BeforeAfter before={item.result.before} after={item.result.after} alt={item.title} className="aspect-[4/3] rounded-[2rem] sm:aspect-[16/10]" />
               <div className="mt-6 space-y-4 text-[17px] leading-[1.85] text-ink/85">
@@ -258,7 +258,7 @@ export default function InitiativeDetail() {
                   </button>
                   <button
                     onClick={async () => {
-                      if (!confirm('Ukloniti rezultat sa strane „Uradili smo“? Akcija ostaje.')) return
+                      if (!confirm('Ukloniti rezultat sa strane „Realizovano“? Akcija ostaje.')) return
                       try {
                         await removeResult(id)
                         await refresh()
@@ -275,7 +275,7 @@ export default function InitiativeDetail() {
                 <div className="rounded-3xl bg-sage-dark p-7 text-white sm:p-9">
                   <h2 className="text-2xl text-white sm:text-3xl">Akcija je završena. Pokaži šta ste uradili.</h2>
                   <p className="mt-3 max-w-xl text-white/85">
-                    Dodaj slike pre i posle i kratak opis. Rezultat se objavljuje na strani „Uradili smo“ i inspiriše druge u gradu.
+                    Dodaj slike i kratak opis. Rezultat se objavljuje na strani „Realizovano“ i inspiriše druge u gradu.
                   </p>
                   <button
                     onClick={() => setResultOpen(true)}

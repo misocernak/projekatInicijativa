@@ -41,7 +41,7 @@ class InitiativeResource extends JsonResource
             'hidden' => $this->hidden_at ? true : null,
         ];
 
-        // "Uradili smo": rezultat završene akcije (opis, slike pre i posle)
+        // "Realizovano": rezultat završene akcije (opis, slike)
         if ($this->result_published_at) {
             $url = fn (?string $path) => $path ? rtrim(config('app.url'), '/').'/uploads/'.$path : null;
             $data['result'] = array_filter([
