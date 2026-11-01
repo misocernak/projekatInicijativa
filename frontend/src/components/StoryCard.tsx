@@ -17,7 +17,18 @@ const monthFmt = new Intl.DateTimeFormat('sr-Latn-RS', { month: 'short' })
  * Instagram prekriva gornjih ~250 i donjih ~340 piksela (profil, polje za poruku, nalepnica sa linkom),
  * zato je sav važan sadržaj između. Donja zona je ostavljena prazna za nalepnicu "Link".
  */
-export default function StoryCard({ item, guides = false }: { item: Initiative; guides?: boolean }) {
+/** Okvir fotografije u kartici (1080 px širine, 80 px margine): koristi ga izvoz slike da fotografiju nacrta sam. */
+export const PHOTO = { w: 920, h: 440, radius: 56 }
+
+/**
+ * mode 'full': cela kartica (fotografija je u njoj).
+ * mode 'base' i 'overlay' služe samo za izvoz slike: 'base' je kartica bez fotografije i bez datuma na njoj,
+ * a 'overlay' je prozirna kartica sa samo datumom. Fotografiju između njih crta izvoz direktno na platno,
+ * pa ne zavisi od toga kada pregledač dekodira slike unutar SVG-a.
+ */
+export type StoryMode = 'full' | 'base' | 'overlay'
+
+export default function StoryCard({ item, guides = false, mode = 'full' }: { item: Initiative; guides?: boolean; mode?: StoryMode }) {
   const style = CATEGORY_STYLE[item.category]
   const permanent = item.kind === 'permanent' || !item.startDate
   const start = item.startDate ? new Date(item.startDate) : null
@@ -33,7 +44,7 @@ export default function StoryCard({ item, guides = false }: { item: Initiative; 
   return (
     <div
       className="relative overflow-hidden font-sans"
-      style={{ width: STORY_W, height: STORY_H, background: '#fbfaf7', color: '#14201a' }}
+      style={{ width: STORY_W, height: STORY_H, background: mode === 'overlay' ? 'transparent' : '#fbfaf7', color: '#14201a', visibility: mode === 'overlay' ? 'hidden' : 'visible' }}
     >
       {/* dekor */}
       <div aria-hidden className="absolute rounded-full" style={{ width: 760, height: 760, right: -260, top: -200, background: '#f6d56b' }} />
@@ -50,13 +61,18 @@ export default function StoryCard({ item, guides = false }: { item: Initiative; 
         </div>
 
         {/* fotografija ili ilustracija */}
-        <div className="relative" style={{ marginTop: 34 }}>
-          <Art category={item.category} image={item.image} className="rounded-[56px]">
-            <div style={{ width: 920, height: 440 }} />
-          </Art>
+        <div className="relative" style={{ marginTop: 34 }} data-story-photo>
+          {mode === 'full' ? (
+            <Art category={item.category} image={item.image} className="rounded-[56px]">
+              <div style={{ width: PHOTO.w, height: PHOTO.h }} />
+            </Art>
+          ) : (
+            <div style={{ width: PHOTO.w, height: PHOTO.h }} />
+          )}
+          {mode !== 'base' && (
           <div
             className="absolute grid place-items-center bg-white shadow-lg"
-            style={{ left: 36, top: 36, minWidth: 140, borderRadius: 34, padding: '18px 26px', lineHeight: 1 }}
+            style={{ left: 36, top: 36, minWidth: 140, borderRadius: 34, padding: '18px 26px', lineHeight: 1, visibility: 'visible' }}
           >
             {permanent || !start ? (
               <span className="font-display font-extrabold" style={{ fontSize: 44, color: '#14201a' }}>
@@ -73,6 +89,7 @@ export default function StoryCard({ item, guides = false }: { item: Initiative; 
               </>
             )}
           </div>
+          )}
         </div>
 
         {/* tekst */}

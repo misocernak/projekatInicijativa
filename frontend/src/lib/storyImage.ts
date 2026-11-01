@@ -1,6 +1,6 @@
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
-import StoryCard, { STORY_H, STORY_W } from '../components/StoryCard'
+import StoryCard, { PHOTO, STORY_H, STORY_W, type StoryMode } from '../components/StoryCard'
 import type { Initiative } from '../types'
 
 /** Sledeći frejm; rezervni tajmer postoji jer pregledač ne crta frejmove dok je tab u pozadini. */
@@ -10,40 +10,18 @@ const nextFrame = () =>
     setTimeout(r, 120)
   })
 
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
-
-/**
- * SVG (sa ugrađenim stilovima, slikama i fontovima) u PNG 1080×1920.
- * Slike unutar SVG-a se dekodiraju asinhrono, pa se prvo sačeka dekodiranje i crta dva puta
- * (inače se fotografija ponekad ne pojavi).
- */
-async function svgToPng(svgUrl: string): Promise<Blob> {
-  const img = new Image()
-  await new Promise<void>((resolve, reject) => {
-    img.onload = () => resolve()
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
     img.onerror = () => reject(new Error('Slika se ne može napraviti.'))
-    img.src = svgUrl
+    img.src = src
   })
-  await img.decode().catch(() => undefined)
-
-  const canvas = document.createElement('canvas')
-  canvas.width = STORY_W
-  canvas.height = STORY_H
-  const ctx = canvas.getContext('2d')!
-  ctx.drawImage(img, 0, 0, STORY_W, STORY_H)
-  await sleep(200)
-  ctx.clearRect(0, 0, STORY_W, STORY_H)
-  ctx.drawImage(img, 0, 0, STORY_W, STORY_H)
-
-  return new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Slika se ne može napraviti.'))), 'image/png'),
-  )
 }
 
 /**
- * Fotografija akcije se unapred učitava kao data URL, da je pravljenje slike ne zavisi od CORS-a.
- * Adresa se uzima sa trenutnog domena (www i bez www su različiti izvori), a ako ne uspe, vraća se undefined
- * i story dobija ilustraciju vrste.
+ * Fotografija akcije se unapred učitava kao data URL, da pravljenje slike ne zavisi od CORS-a.
+ * Adresa se uzima sa trenutnog domena (www i bez www su različiti izvori).
  */
 async function photoAsDataUrl(url?: string): Promise<string | undefined> {
   if (!url) return undefined
@@ -64,10 +42,16 @@ async function photoAsDataUrl(url?: string): Promise<string | undefined> {
   }
 }
 
-async function renderOnce(item: Initiative): Promise<Blob> {
+interface Layer {
+  svg: string
+  /** gde je okvir fotografije u kartici (px) */
+  photo: { x: number; y: number }
+}
+
+/** Kartica se crta van ekrana u punoj veličini (1080×1920) i pretvara u SVG sa ugrađenim stilovima i fontovima. */
+async function renderLayer(item: Initiative, mode: StoryMode): Promise<Layer> {
   const { toSvg } = await import('html-to-image')
 
-  // kartica se crta van ekrana u punoj veličini (1080×1920) i pretvara u PNG
   const host = document.createElement('div')
   host.setAttribute('aria-hidden', 'true')
   host.style.cssText = `position:fixed;left:-20000px;top:0;width:${STORY_W}px;height:${STORY_H}px;pointer-events:none;`
@@ -75,23 +59,89 @@ async function renderOnce(item: Initiative): Promise<Blob> {
   const root = createRoot(host)
 
   try {
-    root.render(createElement(StoryCard, { item }))
+    root.render(createElement(StoryCard, { item, mode }))
     await nextFrame()
     await nextFrame()
     await document.fonts.ready
-    await Promise.all(
-      Array.from(host.querySelectorAll('img')).map((img) => (img.complete ? Promise.resolve() : new Promise((r) => { img.onload = img.onerror = () => r(null) }))),
-    )
 
-    const options = { width: STORY_W, height: STORY_H, pixelRatio: 1, cacheBust: false, backgroundColor: '#fbfaf7' }
     const node = host.firstElementChild as HTMLElement
-    // prvi poziv zagreva slike i fontove (Safari ih inače ume da izostavi)
-    await svgToPng(await toSvg(node, options)).catch(() => null)
-    return await svgToPng(await toSvg(node, options))
+    const box = host.querySelector('[data-story-photo]')?.getBoundingClientRect()
+    const origin = host.getBoundingClientRect()
+    const options = {
+      width: STORY_W,
+      height: STORY_H,
+      pixelRatio: 1,
+      cacheBust: false,
+      ...(mode === 'overlay' ? {} : { backgroundColor: '#fbfaf7' }),
+    }
+    // prvi poziv zagreva fontove (Safari ih inače ume da izostavi)
+    await toSvg(node, options).catch(() => null)
+    const svg = await toSvg(node, options)
+
+    return { svg, photo: { x: (box?.left ?? origin.left + 80) - origin.left, y: (box?.top ?? origin.top + 340) - origin.top } }
   } finally {
     root.unmount()
     host.remove()
   }
+}
+
+function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Slika se ne može napraviti.'))), 'image/png'),
+  )
+}
+
+function newCanvas() {
+  const canvas = document.createElement('canvas')
+  canvas.width = STORY_W
+  canvas.height = STORY_H
+  return { canvas, ctx: canvas.getContext('2d')! }
+}
+
+/** Ilustracija vrste (bez fotografije): cela kartica kao jedna slika. */
+async function renderIllustrated(item: Initiative): Promise<Blob> {
+  const layer = await renderLayer({ ...item, image: undefined }, 'full')
+  const img = await loadImage(layer.svg)
+  const { canvas, ctx } = newCanvas()
+  ctx.drawImage(img, 0, 0, STORY_W, STORY_H)
+  return toBlob(canvas)
+}
+
+/**
+ * Sa fotografijom: pozadina i tekst, pa fotografija nacrtana direktno na platno (isečena i zaobljena), pa datum preko nje.
+ * Fotografija se ne stavlja u SVG, jer pregledači slike unutar SVG-a ponekad ne dekodiraju na vreme.
+ */
+async function renderWithPhoto(item: Initiative, photoUrl: string): Promise<Blob> {
+  const photo = await loadImage(photoUrl)
+  await photo.decode().catch(() => undefined)
+
+  const base = await renderLayer({ ...item, image: undefined }, 'base')
+  const overlay = await renderLayer({ ...item, image: undefined }, 'overlay')
+  const [baseImg, overlayImg] = await Promise.all([loadImage(base.svg), loadImage(overlay.svg)])
+
+  const { canvas, ctx } = newCanvas()
+  ctx.drawImage(baseImg, 0, 0, STORY_W, STORY_H)
+
+  const { x, y } = base.photo
+  const scale = Math.max(PHOTO.w / photo.naturalWidth, PHOTO.h / photo.naturalHeight)
+  const dw = photo.naturalWidth * scale
+  const dh = photo.naturalHeight * scale
+  ctx.save()
+  ctx.beginPath()
+  ctx.roundRect(x, y, PHOTO.w, PHOTO.h, PHOTO.radius)
+  ctx.clip()
+  ctx.drawImage(photo, x + (PHOTO.w - dw) / 2, y + (PHOTO.h - dh) / 2, dw, dh)
+  // blago zatamnjenje pri vrhu i dnu, kao na kartici akcije
+  const shade = ctx.createLinearGradient(0, y, 0, y + PHOTO.h)
+  shade.addColorStop(0, 'rgba(0,0,0,0.22)')
+  shade.addColorStop(0.45, 'rgba(0,0,0,0)')
+  shade.addColorStop(1, 'rgba(0,0,0,0.16)')
+  ctx.fillStyle = shade
+  ctx.fillRect(x, y, PHOTO.w, PHOTO.h)
+  ctx.restore()
+
+  ctx.drawImage(overlayImg, 0, 0, STORY_W, STORY_H)
+  return toBlob(canvas)
 }
 
 export interface StoryResult {
@@ -100,15 +150,17 @@ export interface StoryResult {
   photo: boolean
 }
 
-/** Pravi PNG 1080×1920 za Instagram story. Bez fotografije (ili ako se ne učita) koristi se ilustracija vrste. */
+/** Pravi PNG 1080×1920 za Instagram story: fotografija akcije ako postoji, inače ilustracija vrste. */
 export async function renderStory(item: Initiative): Promise<StoryResult> {
   const source = item.image ?? item.result?.after
-  // fotografija se pokušava dvaput: prvi pokušaj posle ponovnog otvaranja pregledača ume da zakaže
-  const image = (await photoAsDataUrl(source)) ?? (source ? await photoAsDataUrl(source) : undefined)
-  try {
-    return { blob: await renderOnce({ ...item, image }), photo: !!image }
-  } catch (err) {
-    if (!image) throw err
-    return { blob: await renderOnce({ ...item, image: undefined }), photo: false }
+  const photoUrl = source ? ((await photoAsDataUrl(source)) ?? (await photoAsDataUrl(source))) : undefined
+
+  if (photoUrl) {
+    try {
+      return { blob: await renderWithPhoto(item, photoUrl), photo: true }
+    } catch {
+      /* ispod: ilustracija */
+    }
   }
+  return { blob: await renderIllustrated(item), photo: false }
 }
