@@ -477,6 +477,7 @@ export default function InitiativeDetail() {
 
               {!closed && (
                 <ShareInitiative
+                  item={item}
                   id={item.id}
                   title={item.title}
                   where={cityName(item.cityId)}

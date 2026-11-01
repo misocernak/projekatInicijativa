@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import StoryShareDialog from './StoryShareDialog'
+import type { Initiative } from '../types'
 import { Check, Link2, Mail, Share2 } from 'lucide-react'
 import { BRAND } from '../data/constants'
 import { BRAND_PATHS } from '../data/brandIcons'
@@ -12,6 +14,8 @@ function Brand({ name }: { name: keyof typeof BRAND_PATHS }) {
 }
 
 interface Props {
+  /** cela akcija: potrebna za sliku za Instagram story */
+  item?: Initiative
   id: string
   title: string
   /** npr. "Čačak, 14. novembar" — ulazi u poruku kojom se poziva */
@@ -20,8 +24,9 @@ interface Props {
 }
 
 /** Deljenje akcije: poruka sa pozivom + dugmad za najčešće načine (poruke, mreže, mejl, kopiranje linka). */
-export default function ShareInitiative({ id, title, when, where }: Props) {
+export default function ShareInitiative({ item, id, title, when, where }: Props) {
   const [copied, setCopied] = useState(false)
+  const [story, setStory] = useState<{ copied: boolean } | null>(null)
   const url = `${window.location.origin}/inicijative/${id}`
   const text = `Pridruži se akciji „${title}“ (${where}${when ? `, ${when}` : ''}) na ${BRAND.name}.`
   const full = `${text} ${url}`
@@ -41,6 +46,13 @@ export default function ShareInitiative({ id, title, when, where }: Props) {
     }
     setCopied(true)
     setTimeout(() => setCopied(false), 2200)
+  }
+
+  /** Link se kopira odmah iz klika (pregledači to traže), pa se otvara pregled story slike. */
+  function openStory() {
+    navigator.clipboard
+      .writeText(url)
+      .then(() => setStory({ copied: true }), () => setStory({ copied: false }))
   }
 
   async function nativeShare() {
@@ -72,6 +84,13 @@ export default function ShareInitiative({ id, title, when, where }: Props) {
           <Share2 className="size-4" aria-hidden /> Podeli
         </button>
       )}
+
+      {item && (
+        <button onClick={openStory} className="mt-3 inline-flex min-h-12 w-full items-center justify-center gap-2.5 rounded-full border-2 border-sage-dark/25 bg-mist px-5 text-[14px] font-semibold text-sage-deep transition hover:border-sage-dark/50 hover:bg-white">
+          <Brand name="instagram" /> Podeli na Instagram story
+        </button>
+      )}
+      {item && story && <StoryShareDialog item={item} url={url} initialCopied={story.copied} onClose={() => setStory(null)} />}
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         {links.map((l) => (
