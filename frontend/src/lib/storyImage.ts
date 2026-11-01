@@ -27,6 +27,30 @@ async function svgToPng(svgUrl: string): Promise<Blob> {
   )
 }
 
+/**
+ * Fotografija akcije se unapred učitava kao data URL, da je pravljenje slike ne zavisi od CORS-a.
+ * Adresa se uzima sa trenutnog domena (www i bez www su različiti izvori), a ako ne uspe, vraća se undefined
+ * i story dobija ilustraciju vrste.
+ */
+async function photoAsDataUrl(url?: string): Promise<string | undefined> {
+  if (!url) return undefined
+  try {
+    const local = new URL(url, window.location.origin)
+    const res = await fetch(`${window.location.origin}${local.pathname}`, { cache: 'force-cache' })
+    if (!res.ok) return undefined
+    const blob = await res.blob()
+    if (!blob.type.startsWith('image/')) return undefined
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(String(reader.result))
+      reader.onerror = () => reject(reader.error)
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return undefined
+  }
+}
+
 async function renderOnce(item: Initiative): Promise<Blob> {
   const { toSvg } = await import('html-to-image')
 
@@ -58,12 +82,13 @@ async function renderOnce(item: Initiative): Promise<Blob> {
   }
 }
 
-/** Pravi PNG 1080×1920 za Instagram story. Ako se fotografija akcije ne može učitati, koristi se ilustracija vrste. */
+/** Pravi PNG 1080×1920 za Instagram story. Bez fotografije (ili ako se ne učita) koristi se ilustracija vrste. */
 export async function renderStory(item: Initiative): Promise<Blob> {
+  const image = await photoAsDataUrl(item.image ?? item.result?.after)
   try {
-    return await renderOnce(item)
+    return await renderOnce({ ...item, image })
   } catch (err) {
-    if (!item.image) throw err
+    if (!image) throw err
     return renderOnce({ ...item, image: undefined })
   }
 }
