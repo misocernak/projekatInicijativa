@@ -22,6 +22,7 @@ export default function StoryShareDialog({ item, url, initialCopied, onClose }: 
   const [preview, setPreview] = useState<string>()
   const [error, setError] = useState('')
   const [copied, setCopied] = useState<boolean>(initialCopied)
+  const [missingPhoto, setMissingPhoto] = useState(false)
 
   const file = blob ? new File([blob], `story-${item.id}.png`, { type: 'image/png' }) : undefined
   const canShareFile = !!file && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })
@@ -41,9 +42,10 @@ export default function StoryShareDialog({ item, url, initialCopied, onClose }: 
     let revoke: string | undefined
     let alive = true
     renderStory(item)
-      .then((b) => {
+      .then(({ blob: b, photo }) => {
         if (!alive) return
         revoke = URL.createObjectURL(b)
+        setMissingPhoto(!photo && !!(item.image ?? item.result?.after))
         setBlob(b)
         setPreview(revoke)
       })
@@ -97,6 +99,12 @@ export default function StoryShareDialog({ item, url, initialCopied, onClose }: 
             <p className="grid size-full place-items-center p-4 text-center text-sm text-ink/55">Pravim sliku…</p>
           )}
         </div>
+
+        {missingPhoto && (
+          <p className="mt-3 rounded-xl bg-clay/10 px-3.5 py-2.5 text-[13px] font-semibold text-clay">
+            Fotografija akcije nije mogla da se učita, pa je na slici ilustracija. Zatvori prozor i probaj ponovo.
+          </p>
+        )}
 
         <p role="status" className="mt-4 flex items-start gap-2 rounded-xl bg-sage/15 px-3.5 py-3 text-[13px] font-semibold text-sage-deep">
           {!copied ? (

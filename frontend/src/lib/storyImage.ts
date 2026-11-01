@@ -10,7 +10,13 @@ const nextFrame = () =>
     setTimeout(r, 120)
   })
 
-/** SVG (sa ugrađenim stilovima, slikama i fontovima) u PNG 1080×1920. */
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
+
+/**
+ * SVG (sa ugrađenim stilovima, slikama i fontovima) u PNG 1080×1920.
+ * Slike unutar SVG-a se dekodiraju asinhrono, pa se prvo sačeka dekodiranje i crta dva puta
+ * (inače se fotografija ponekad ne pojavi).
+ */
 async function svgToPng(svgUrl: string): Promise<Blob> {
   const img = new Image()
   await new Promise<void>((resolve, reject) => {
@@ -18,10 +24,17 @@ async function svgToPng(svgUrl: string): Promise<Blob> {
     img.onerror = () => reject(new Error('Slika se ne može napraviti.'))
     img.src = svgUrl
   })
+  await img.decode().catch(() => undefined)
+
   const canvas = document.createElement('canvas')
   canvas.width = STORY_W
   canvas.height = STORY_H
-  canvas.getContext('2d')!.drawImage(img, 0, 0, STORY_W, STORY_H)
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0, STORY_W, STORY_H)
+  await sleep(200)
+  ctx.clearRect(0, 0, STORY_W, STORY_H)
+  ctx.drawImage(img, 0, 0, STORY_W, STORY_H)
+
   return new Promise<Blob>((resolve, reject) =>
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Slika se ne može napraviti.'))), 'image/png'),
   )
@@ -36,7 +49,7 @@ async function photoAsDataUrl(url?: string): Promise<string | undefined> {
   if (!url) return undefined
   try {
     const local = new URL(url, window.location.origin)
-    const res = await fetch(`${window.location.origin}${local.pathname}`, { cache: 'force-cache' })
+    const res = await fetch(`${window.location.origin}${local.pathname}`, { cache: 'no-cache' })
     if (!res.ok) return undefined
     const blob = await res.blob()
     if (!blob.type.startsWith('image/')) return undefined
@@ -73,22 +86,29 @@ async function renderOnce(item: Initiative): Promise<Blob> {
     const options = { width: STORY_W, height: STORY_H, pixelRatio: 1, cacheBust: false, backgroundColor: '#fbfaf7' }
     const node = host.firstElementChild as HTMLElement
     // prvi poziv zagreva slike i fontove (Safari ih inače ume da izostavi)
-    await toSvg(node, options).catch(() => null)
-    const svg = await toSvg(node, options)
-    return await svgToPng(svg)
+    await svgToPng(await toSvg(node, options)).catch(() => null)
+    return await svgToPng(await toSvg(node, options))
   } finally {
     root.unmount()
     host.remove()
   }
 }
 
+export interface StoryResult {
+  blob: Blob
+  /** da li je fotografija akcije ušla u sliku (false: ilustracija vrste) */
+  photo: boolean
+}
+
 /** Pravi PNG 1080×1920 za Instagram story. Bez fotografije (ili ako se ne učita) koristi se ilustracija vrste. */
-export async function renderStory(item: Initiative): Promise<Blob> {
-  const image = await photoAsDataUrl(item.image ?? item.result?.after)
+export async function renderStory(item: Initiative): Promise<StoryResult> {
+  const source = item.image ?? item.result?.after
+  // fotografija se pokušava dvaput: prvi pokušaj posle ponovnog otvaranja pregledača ume da zakaže
+  const image = (await photoAsDataUrl(source)) ?? (source ? await photoAsDataUrl(source) : undefined)
   try {
-    return await renderOnce({ ...item, image })
+    return { blob: await renderOnce({ ...item, image }), photo: !!image }
   } catch (err) {
     if (!image) throw err
-    return renderOnce({ ...item, image: undefined })
+    return { blob: await renderOnce({ ...item, image: undefined }), photo: false }
   }
 }
